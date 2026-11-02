@@ -60,15 +60,15 @@ function roadRender(){
         step("Every week",`Keep the same rhythm`,`Same ${fmtFull(rE)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
         T.p1?step(wk(T.p1),`First Phase 1 pass (+${P.p1t}%)`,`That account moves to Phase 2. Same risk, same turns.`,"mile"):"",
         T.p2?step(wk(T.p2),`First Phase 2 pass (+${P.p2t}%)`,`It becomes a funded account.`,"mile"):"",
-        step("Any week",`If a test falls to −${P.c3}%`,`Take up to ${P.k3} recovery trades. If they fail, close it and start a new one from the pool.`,"warn")]},
+        step("Any week",`If a test falls to −${P.c3}%`,`Take up to ${P.k3} recovery trades. If they fail, close it and start a new one from Reinvestment.`,"warn")]},
       {tier:"Tier 1",name:"Funded",title:"First funded account and payout",from:T.f1,to:T.po1,
        unlock:`Unlocks ${about(T.f1)}`,
        next:`Stage 3 unlocks with your first payout, ${about(T.po1)}.`,
        steps:[
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
         step("Every on-week",`Ask for a payout at +${P.lock}%`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)}), request the payout. Don't wait for more.`),
-        T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to the reinvest pool, ${yours}% is yours.`,"mile"):"",
-        step("Right after",`Refill the pipeline`,`The pool buys the next tests, so a new account is always on the way.`),
+        T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
+        step("Right after",`Refill the pipeline`,`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
       {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
        unlock:`Unlocks ${about(T.po1)}`,
@@ -83,7 +83,7 @@ function roadRender(){
        next:"",
        steps:[
         step(wk(T.goal),`Goal reached`,`${Math.round(T.reach*100)}% of simulated futures got here.`,"mile"),
-        step("Every month",`Most payouts are now yours`,`As the team grows, more of each payout goes to you instead of the pool.`),
+        step("Every month",`Most payouts are now yours`,`As the team grows, more of each payout goes to you instead of Reinvestment.`),
         step("Always",`Same rules`,`Fixed risk, 1 week on and 2 off, payout at +${P.lock}%.`)]}
     ];
     o.innerHTML=`

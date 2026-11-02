@@ -26,7 +26,7 @@
             <label class="f" for="riskE">Risk evals %<input type="number" id="riskE" value="1" min="0.1" max="5" step="0.1"></label>
             <label class="f" for="riskF">Risk funded %<input type="number" id="riskF" value="1" min="0.1" max="5" step="0.1"></label>
             <label class="f" for="tpd">Trades / day<input type="number" id="tpd" value="1" min="1" max="5" step="1"></label>
-            <label class="f" for="reserve">Rebuy budget $<input type="number" id="reserve" value="500" min="0" step="50"></label>
+            <input type="hidden" id="reserve" value="0"><!-- guide: no new personal money after the first tests; every rebuy comes from payouts -->
             <label class="f" for="topup">Monthly add $<input type="number" id="topup" value="0" min="0" step="50"></label>
             <label class="f" for="approve">Payouts paid %<input type="number" id="approve" value="95" min="10" max="100" step="1"></label>
           </div>

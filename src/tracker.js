@@ -67,7 +67,7 @@ function advise(a,st){
   if(pct<=-r.cut){
     if(a.rec<0&&!a.recUsed&&r.K>0) return {...base,kind:"recover",pill:"RECOVERY",title:`Recovery: up to ${r.K} trades`,text:`It's down ${Math.abs(pct).toFixed(1)}%. Take at most ${r.K} trades at the normal ${fmtFull(riskUsd)} risk to get back above ${fmtFull(cutUsd)}. Never bigger. Log the balance after each trade.`,act:"startRec"};
     if(a.rec>0) return {...base,kind:"recover",pill:"RECOVERY",title:`${a.rec} recovery trade${a.rec>1?"s":""} left`,text:`Risk ${fmtFull(riskUsd)} per trade. Get above ${fmtFull(cutUsd)} or close it. Log the balance after each trade.`,act:"recTrade"};
-    return {...base,kind:"cut",pill:"CUT IT",title:"Close this account",text:a.phase===3?`It didn't recover. Close it. Your best backup account replaces it as soon as it passes, and buy a new Phase 1 evaluation.`:`It didn't recover. Close it and buy a new evaluation from the pool.`,act:"cut"};
+    return {...base,kind:"cut",pill:"CUT IT",title:"Close this account",text:a.phase===3?`It didn't recover. Close it. Your best backup account replaces it as soon as it passes, and buy a new Phase 1 evaluation.`:`It didn't recover. Close it and buy a new evaluation from Reinvestment.`,act:"cut"};
   }
   if(pct>=r.tgt){
     if(daysDone<needDays) return {...base,kind:"wait",pill:"HOLD",title:`Target hit. ${needDays-daysDone} more trading day${needDays-daysDone>1?"s":""} to pass`,text:`The firm needs ${needDays} trading days (you have ${daysDone}). Take one tiny trade a day and log the balance. It moves to ${a.phase===1?"Tier 2 (Phase 2)":"Tier 1 (funded)"} by itself on day ${needDays}.`};
@@ -172,10 +172,11 @@ function tkRenderInner(){
   const nTrade=adv.filter(x=>["trade","recover"].includes(x.v.kind)).length, nRest=adv.filter(x=>x.v.kind==="rest").length, nAct=adv.filter(x=>["payout","pass","cut"].includes(x.v.kind)).length;
   const prog=Math.min(100,pf.T1/p.target*100);
   let next;
-  if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to the pool until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
-  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in the pool. Buy it now.`:`Pool has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
+  if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to Reinvestment until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
+  else if(!st.accounts.some(a=>a.status==="active")&&st.pool<Math.min(...p.ladder.map(r=>r.fee))) next={t:"Every test failed and Reinvestment is empty",s:"The guide says no new personal money after the first tests. Stop, review your trades, and only start again with a fresh plan."};
+  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
-  else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into the pool, ${Math.round((1-pf.rate)*100)}% to you.`};
+  else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
   const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
@@ -184,7 +185,7 @@ function tkRenderInner(){
     <div class="fx-big">
       <div><span class="v t1">${nTrade}</span><span class="k">trade today</span></div>
       <div><span class="v t1">${nRest}</span><span class="k">resting</span></div>
-      <div><span class="v t1">${fmt(st.pool)}</span><span class="k">in the reinvest pool</span></div>
+      <div><span class="v t1">${fmt(st.pool)}</span><span class="k">in Reinvestment</span></div>
       <div><span class="v t1">${fmt(st.personal)}</span><span class="k">taken home</span></div>
     </div>
   </div>
@@ -247,10 +248,10 @@ function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3)
   else log(`${a.name} passed Phase 1. It moves to Tier 2 as a backup (Phase 2). Same risk, same turns.`); }
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
-  log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to the pool, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
-function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when the pool allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
+  log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to Reinvestment, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
+function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
 function doBuy(size,fee){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
-  log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from the pool"}.`); return a; }
+  log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
 function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
   if(a.ready) return promoteOne(a);
   if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){
