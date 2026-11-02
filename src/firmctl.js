@@ -26,8 +26,12 @@ function cleanAI(o,name){
     fit:(Array.isArray(o.fit)?o.fit:[]).slice(0,5).filter(f=>Array.isArray(f)).map(f=>[["yes","no","check"].includes(f[0])?f[0]:"check",str(f[1])]),
     sources:[]};
 }
+const FREE_FIRMS=3;
+function firmLocked(F){ return document.body.classList.contains("ts-locked")&&(!F||FIRMS.indexOf(F)>=FREE_FIRMS); }
+function premFirmHtml(name){ return `<div class="fx prem-firm"><span class="prem-chip">Premium</span><h2 style="font-size:clamp(24px,3vw,34px)">${esc(name)} rules are a Premium feature</h2><p>Free accounts see ${FIRMS.slice(0,FREE_FIRMS).map(f=>esc(f.name)).join(", ")}. Unlock Premium for every firm, weekly rule checks and one tap to use any firm in your plan.</p><div class="fx-cta"><button type="button" class="btn gold" data-signup="up" data-gate="premium">Unlock Premium <span class="arr">→</span></button></div><span class="prem-fine">Free during launch. No card needed.</span></div>`; }
 function showFirm(F,opts){
   currentFirm=F; const o=$("firmOut");
+  if(firmLocked(F)){ o.innerHTML=premFirmHtml(F.name); o.classList.remove("fanim"); void o.offsetWidth; o.classList.add("fanim"); return; }
   o.innerHTML=firmHtml(F,opts); o.classList.remove("fanim"); void o.offsetWidth; o.classList.add("fanim");
   $("useFirm").addEventListener("click",()=>useFirm(F));
 }
@@ -46,6 +50,7 @@ let firmApplied=null;
 function unknownFirm(name){
   currentFirm=null;
   const o=$("firmOut");
+  if(firmLocked(null)){ o.innerHTML=premFirmHtml(name); return; }
   if(!(window.claude&&window.claude.use)){ o.innerHTML=`<div class="fx unk"><span class="kicker">Not checked yet</span><h2 style="font-size:clamp(24px,3vw,32px)">We haven't checked ${esc(name)} yet</h2>
     <p class="sub2" style="margin-top:0">Right now TierStack has hand-checked rules for ${FIRMS.map(f=>esc(f.name)).join(", ")}. Pick one above. Until we add ${esc(name)}, read its rules page and type its numbers into More settings on your plan.</p></div>`; return; }
   o.innerHTML=`<div class="fx unk"><span class="kicker">New firm</span><h2 style="font-size:clamp(24px,3vw,32px)">We haven't checked ${esc(name)} yet</h2>
@@ -72,10 +77,13 @@ function searchFirm(q){
   const F=findFirm(q);
   if(F) showFirm(F); else unknownFirm(q.slice(0,60));
 }
-function renderChips(){ $("firmChips").innerHTML=FIRMS.map(f=>`<button type="button" data-f="${esc(f.id)}">${esc(f.name)}</button>`).join(""); const u=$("firmFresh"); if(u) u.textContent=firmsUpdated?`Rules auto-checked weekly · last check ${firmsUpdated}`:`Rules checked ${FIRMS[0].checked} · auto-checked weekly`; }
+function renderChips(){ $("firmChips").innerHTML=FIRMS.map(f=>`<button type="button" data-f="${esc(f.id)}"${firmLocked(f)?' class="lkd"':""}>${esc(f.name)}${firmLocked(f)?'<i class="lk" aria-label="Premium"></i>':""}</button>`).join(""); const u=$("firmFresh"); if(u) u.textContent=firmsUpdated?`Rules auto-checked weekly · last check ${firmsUpdated}`:`Rules checked ${FIRMS[0].checked} · auto-checked weekly`; }
 renderChips();
 $("firmChips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; const F=FIRMS.find(f=>f.id===b.dataset.f); if(!F) return; $("firmQ").value=F.name; showFirm(F); });
 $("firmForm").addEventListener("submit",e=>{ e.preventDefault(); searchFirm($("firmQ").value); });
 document.querySelectorAll('form.fsearch[data-go="rules"]').forEach(f=>f.addEventListener("submit",e=>{ e.preventDefault(); const q=f.querySelector("input").value; $("firmQ").value=q; location.hash="rules"; setTimeout(()=>searchFirm(q),60); }));
 $("firmQ").value=FIRMS[0].name; showFirm(FIRMS[0]);
 loadLiveFirms(()=>{ renderChips(); if(currentFirm&&!currentFirm._ai){ const F=FIRMS.find(f=>f.id===currentFirm.id); if(F) showFirm(F); } });
+
+if(window.TSAuth) window.TSAuth.onChange(()=>{ renderChips(); if(currentFirm) showFirm(currentFirm); });
+if(window.TSAuth&&window.TSAuthReady&&window.TSAuth.sb) window.TSAuthReady.then(()=>{ document.body.classList.toggle("ts-locked",!window.TSAuth.user); renderChips(); if(currentFirm) showFirm(currentFirm); });

@@ -46,7 +46,7 @@
     $("auTitle").textContent="Hi "+(A.name||"trader").split(" ")[0];$("auSub").textContent="Your coach is saved to your account.";
     a.innerHTML='<div class="au-row"><span>Name</span><b>'+esc(A.name||"-")+'</b></div><div class="au-row"><span>Email</span><b>'+esc(A.user.email)+'</b></div><a class="btn gold" href="#track" data-nav="track" id="auCoach">Open my coach</a><button type="button" class="btn ghost" id="auOut">Sign out</button>';
     $("auMsg").textContent="";}
-  function open(m,gate){var d=$("authDlg");if(!d)return;if(A.user&&m!=="new")acct();else{view(m||"up");if(gate)$("auSub").textContent="Make a free account to build your plan and open your daily coach. Takes 20 seconds.";}document.querySelectorAll("video").forEach(function(v){if(!v.paused){v.pause();v.dataset.auP="1";}});if(!d._cl){d._cl=1;d.addEventListener("close",function(){document.querySelectorAll("video[data-au-p]").forEach(function(v){delete v.dataset.auP;v.play().catch(function(){});});});}
+  function open(m,gate){var d=$("authDlg");if(!d)return;if(A.user&&m!=="new")acct();else{view(m||"up");if(gate)$("auSub").textContent=gate==="premium"?"Premium is free during launch. Make an account to unlock your full plan and daily coach.":"Premium is free during launch. Make an account to open your daily coach and firm rules.";if(gate)$("auTitle").textContent="Unlock TierStack Premium";}document.querySelectorAll("video").forEach(function(v){if(!v.paused){v.pause();v.dataset.auP="1";}});if(!d._cl){d._cl=1;d.addEventListener("close",function(){document.querySelectorAll("video[data-au-p]").forEach(function(v){delete v.dataset.auP;v.play().catch(function(){});});});}
     if(d.showModal&&!d.open)d.showModal();else d.setAttribute("open","");setTimeout(function(){var f=d.querySelector(".au-f:not([hidden]) input");if(f&&!A.user)f.focus();else{var b=d.querySelector(".au-acct .btn");if(b)b.focus();}},30);}
   function close(){var d=$("authDlg");if(d&&d.open){if(d.close)d.close();else d.removeAttribute("open");}}
   A.open=open;
@@ -73,7 +73,7 @@
     }catch(err){view(mode,friendly(err),true);}
     go.disabled=false;}
   document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("#acctBtn,[data-am],#auForgot,#auOut,#auX,#auCoach,[data-signup]");if(!t)return;
-    if(t.id==="acctBtn"||t.hasAttribute("data-signup")){e.preventDefault();open(t.getAttribute("data-signup")||"up");}
+    if(t.id==="acctBtn"||t.hasAttribute("data-signup")){e.preventDefault();open(t.getAttribute("data-signup")||"up",t.getAttribute("data-gate"));}
     else if(t.dataset.am)view(t.dataset.am);
     else if(t.id==="auForgot")view("reset");
     else if(t.id==="auX"||t.id==="auCoach")close();

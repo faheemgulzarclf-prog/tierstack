@@ -81,6 +81,8 @@ function render(P,S){
     <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
   </div>
 
+  <div class="prem-zone">
+  <div class="prem-gate"><span class="prem-chip">Premium</span><h3>Unlock your full plan</h3><p>Your road to the goal, the growth chart, your daily rules and the full math. Then the daily coach runs it with you.</p><button type="button" class="btn gold" data-signup="up" data-gate="premium">Unlock Premium <span class="arr">→</span></button><span class="prem-fine">Free during launch. No card needed.</span></div>
   <div class="card"><h3 class="ct">The road there</h3>
     <div class="road">${stops.map((s,k)=>`<div class="stop" style="animation-delay:${k*120}ms"><div class="node"><b></b><i></i></div><span class="t">${s.t}</span><span class="g">${s.g}</span><span class="s">${s.s}</span><span class="w">${s.w}</span></div>`).join("")}</div>
   </div>
@@ -140,7 +142,8 @@ function render(P,S){
     <ol class="steps">${stepsArr.map((s,i)=>`<li><span class="no">${i+1}</span><div><h4>${s[0]}</h4><p>${s[1]}</p></div></li>`).join("")}</ol>
     <div class="tbl"><table class="data"><thead><tr><th>Scenario</th><th>Win rate</th><th>Edge</th><th>Eval → funded</th><th>Fees per funded</th><th>Payout cycle wins</th><th>Payouts per account</th><th>Reach goal</th><th>Lose it all</th><th>Fees paid</th><th>Net result</th></tr></thead><tbody>${S.map(row).join("")}</tbody></table></div>
     <p class="hint">Medians from ${sim.runs} simulated runs per scenario over ${P.horizon} months. Net result = money taken home + cash left − money put in.</p>
-  </details>`;
+  </details>
+  </div>`;
 }
 
 function countUp(ms){

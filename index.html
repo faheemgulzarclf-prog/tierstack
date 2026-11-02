@@ -666,6 +666,20 @@ body::after{content:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='
 .links a .lk{display:none}
 body.ts-locked .links a .lk{display:inline-block;width:11px;height:11px;margin-left:5px;vertical-align:-1px;opacity:.65;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat}
 .au-perks{display:flex;flex-wrap:wrap;gap:6px 14px;margin:-6px 0 16px;font-size:12.5px;color:var(--muted)}.au-perks span::before{content:"✓";color:var(--gold);font-weight:800;margin-right:6px}
+/* premium teaser on the plan page (signed out) */
+.prem-zone{display:flex;flex-direction:column;gap:inherit}
+.prem-gate{display:none}
+body.ts-locked .prem-zone{position:relative;max-height:760px;overflow:hidden;border-radius:22px}
+body.ts-locked .prem-zone>:not(.prem-gate){filter:blur(7px);opacity:.5;pointer-events:none;user-select:none}
+body.ts-locked .prem-zone::after{content:"";position:absolute;left:0;right:0;bottom:0;height:220px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;position:absolute;z-index:3;top:70px;left:50%;transform:translateX(-50%);width:min(440px,92%);padding:30px 26px;border-radius:22px;background:var(--card);border:1px solid var(--line2);box-shadow:0 30px 90px -30px var(--glow),var(--shadow)}
+.prem-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink);background:linear-gradient(100deg,var(--gold),var(--gmid));padding:6px 12px;border-radius:99px}
+.prem-chip::before{content:"";width:10px;height:10px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat}
+.prem-gate h3{font-size:24px;letter-spacing:-.02em;margin-top:4px}.prem-gate p{color:var(--muted);font-size:14.5px;margin:0 0 6px}
+.prem-fine{font-size:12px;color:var(--dim)}
+.fchips button.lkd{color:var(--muted)}
+.fchips button .lk{display:inline-block;width:11px;height:11px;margin-left:6px;vertical-align:-1px;opacity:.7;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat}
+.prem-firm{display:flex;flex-direction:column;align-items:flex-start;gap:12px}.prem-firm p{color:var(--muted);max-width:560px;margin:0}
 </style><script src="vendor/supabase.js"></script>
 <script>/* TierStack accounts (site only): Supabase email signup + cloud save of the daily coach.
    The anon key is public by design; Row Level Security keeps each trader's rows private. */
@@ -715,7 +729,7 @@ body.ts-locked .links a .lk{display:inline-block;width:11px;height:11px;margin-l
     $("auTitle").textContent="Hi "+(A.name||"trader").split(" ")[0];$("auSub").textContent="Your coach is saved to your account.";
     a.innerHTML='<div class="au-row"><span>Name</span><b>'+esc(A.name||"-")+'</b></div><div class="au-row"><span>Email</span><b>'+esc(A.user.email)+'</b></div><a class="btn gold" href="#track" data-nav="track" id="auCoach">Open my coach</a><button type="button" class="btn ghost" id="auOut">Sign out</button>';
     $("auMsg").textContent="";}
-  function open(m,gate){var d=$("authDlg");if(!d)return;if(A.user&&m!=="new")acct();else{view(m||"up");if(gate)$("auSub").textContent="Make a free account to build your plan and open your daily coach. Takes 20 seconds.";}document.querySelectorAll("video").forEach(function(v){if(!v.paused){v.pause();v.dataset.auP="1";}});if(!d._cl){d._cl=1;d.addEventListener("close",function(){document.querySelectorAll("video[data-au-p]").forEach(function(v){delete v.dataset.auP;v.play().catch(function(){});});});}
+  function open(m,gate){var d=$("authDlg");if(!d)return;if(A.user&&m!=="new")acct();else{view(m||"up");if(gate)$("auSub").textContent=gate==="premium"?"Premium is free during launch. Make an account to unlock your full plan and daily coach.":"Premium is free during launch. Make an account to open your daily coach and firm rules.";if(gate)$("auTitle").textContent="Unlock TierStack Premium";}document.querySelectorAll("video").forEach(function(v){if(!v.paused){v.pause();v.dataset.auP="1";}});if(!d._cl){d._cl=1;d.addEventListener("close",function(){document.querySelectorAll("video[data-au-p]").forEach(function(v){delete v.dataset.auP;v.play().catch(function(){});});});}
     if(d.showModal&&!d.open)d.showModal();else d.setAttribute("open","");setTimeout(function(){var f=d.querySelector(".au-f:not([hidden]) input");if(f&&!A.user)f.focus();else{var b=d.querySelector(".au-acct .btn");if(b)b.focus();}},30);}
   function close(){var d=$("authDlg");if(d&&d.open){if(d.close)d.close();else d.removeAttribute("open");}}
   A.open=open;
@@ -742,7 +756,7 @@ body.ts-locked .links a .lk{display:inline-block;width:11px;height:11px;margin-l
     }catch(err){view(mode,friendly(err),true);}
     go.disabled=false;}
   document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("#acctBtn,[data-am],#auForgot,#auOut,#auX,#auCoach,[data-signup]");if(!t)return;
-    if(t.id==="acctBtn"||t.hasAttribute("data-signup")){e.preventDefault();open(t.getAttribute("data-signup")||"up");}
+    if(t.id==="acctBtn"||t.hasAttribute("data-signup")){e.preventDefault();open(t.getAttribute("data-signup")||"up",t.getAttribute("data-gate"));}
     else if(t.dataset.am)view(t.dataset.am);
     else if(t.id==="auForgot")view("reset");
     else if(t.id==="auX"||t.id==="auCoach")close();
@@ -760,7 +774,7 @@ body.ts-locked .links a .lk{display:inline-block;width:11px;height:11px;margin-l
 
 <nav class="top"><div class="in">
   <a class="logo" href="#home" aria-label="TierStack home"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="17" width="22" height="7" rx="2.5" fill="var(--t3)"/><rect x="6" y="9.5" width="16" height="6" rx="2.2" fill="var(--t2)"/><rect x="9" y="3" width="10" height="5" rx="2" fill="var(--gold)"/></svg>TierStack</a>
-  <div class="links"><a href="#home" data-nav="home">Home</a><a href="#build" data-nav="build">Plan<i class="lk" aria-hidden="true"></i></a><a href="#track" data-nav="track">Daily coach<i class="lk" aria-hidden="true"></i></a><a href="#rules" data-nav="rules">Firm rules<i class="lk" aria-hidden="true"></i></a><a href="#home" data-jump="faq">FAQ</a></div>
+  <div class="links"><a href="#home" data-nav="home">Home</a><a href="#build" data-nav="build">Plan</a><a href="#track" data-nav="track">Daily coach<i class="lk" aria-hidden="true"></i></a><a href="#rules" data-nav="rules">Firm rules</a><a href="#home" data-jump="faq">FAQ</a></div>
   <div class="navr">
     <button type="button" class="acct" id="acctBtn" hidden>Sign in</button>
     <button type="button" class="theme" id="themeBtn" aria-label="Switch light or dark mode"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/><g class="sun" fill="currentColor"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g></svg></button>
@@ -1306,6 +1320,8 @@ function render(P,S){
     <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
   </div>
 
+  <div class="prem-zone">
+  <div class="prem-gate"><span class="prem-chip">Premium</span><h3>Unlock your full plan</h3><p>Your road to the goal, the growth chart, your daily rules and the full math. Then the daily coach runs it with you.</p><button type="button" class="btn gold" data-signup="up" data-gate="premium">Unlock Premium <span class="arr">→</span></button><span class="prem-fine">Free during launch. No card needed.</span></div>
   <div class="card"><h3 class="ct">The road there</h3>
     <div class="road">${stops.map((s,k)=>`<div class="stop" style="animation-delay:${k*120}ms"><div class="node"><b></b><i></i></div><span class="t">${s.t}</span><span class="g">${s.g}</span><span class="s">${s.s}</span><span class="w">${s.w}</span></div>`).join("")}</div>
   </div>
@@ -1365,7 +1381,8 @@ function render(P,S){
     <ol class="steps">${stepsArr.map((s,i)=>`<li><span class="no">${i+1}</span><div><h4>${s[0]}</h4><p>${s[1]}</p></div></li>`).join("")}</ol>
     <div class="tbl"><table class="data"><thead><tr><th>Scenario</th><th>Win rate</th><th>Edge</th><th>Eval → funded</th><th>Fees per funded</th><th>Payout cycle wins</th><th>Payouts per account</th><th>Reach goal</th><th>Lose it all</th><th>Fees paid</th><th>Net result</th></tr></thead><tbody>${S.map(row).join("")}</tbody></table></div>
     <p class="hint">Medians from ${sim.runs} simulated runs per scenario over ${P.horizon} months. Net result = money taken home + cash left − money put in.</p>
-  </details>`;
+  </details>
+  </div>`;
 }
 
 function countUp(ms){
@@ -1609,8 +1626,12 @@ function cleanAI(o,name){
     fit:(Array.isArray(o.fit)?o.fit:[]).slice(0,5).filter(f=>Array.isArray(f)).map(f=>[["yes","no","check"].includes(f[0])?f[0]:"check",str(f[1])]),
     sources:[]};
 }
+const FREE_FIRMS=3;
+function firmLocked(F){ return document.body.classList.contains("ts-locked")&&(!F||FIRMS.indexOf(F)>=FREE_FIRMS); }
+function premFirmHtml(name){ return `<div class="fx prem-firm"><span class="prem-chip">Premium</span><h2 style="font-size:clamp(24px,3vw,34px)">${esc(name)} rules are a Premium feature</h2><p>Free accounts see ${FIRMS.slice(0,FREE_FIRMS).map(f=>esc(f.name)).join(", ")}. Unlock Premium for every firm, weekly rule checks and one tap to use any firm in your plan.</p><div class="fx-cta"><button type="button" class="btn gold" data-signup="up" data-gate="premium">Unlock Premium <span class="arr">→</span></button></div><span class="prem-fine">Free during launch. No card needed.</span></div>`; }
 function showFirm(F,opts){
   currentFirm=F; const o=$("firmOut");
+  if(firmLocked(F)){ o.innerHTML=premFirmHtml(F.name); o.classList.remove("fanim"); void o.offsetWidth; o.classList.add("fanim"); return; }
   o.innerHTML=firmHtml(F,opts); o.classList.remove("fanim"); void o.offsetWidth; o.classList.add("fanim");
   $("useFirm").addEventListener("click",()=>useFirm(F));
 }
@@ -1629,6 +1650,7 @@ let firmApplied=null;
 function unknownFirm(name){
   currentFirm=null;
   const o=$("firmOut");
+  if(firmLocked(null)){ o.innerHTML=premFirmHtml(name); return; }
   if(!(window.claude&&window.claude.use)){ o.innerHTML=`<div class="fx unk"><span class="kicker">Not checked yet</span><h2 style="font-size:clamp(24px,3vw,32px)">We haven't checked ${esc(name)} yet</h2>
     <p class="sub2" style="margin-top:0">Right now TierStack has hand-checked rules for ${FIRMS.map(f=>esc(f.name)).join(", ")}. Pick one above. Until we add ${esc(name)}, read its rules page and type its numbers into More settings on your plan.</p></div>`; return; }
   o.innerHTML=`<div class="fx unk"><span class="kicker">New firm</span><h2 style="font-size:clamp(24px,3vw,32px)">We haven't checked ${esc(name)} yet</h2>
@@ -1655,13 +1677,16 @@ function searchFirm(q){
   const F=findFirm(q);
   if(F) showFirm(F); else unknownFirm(q.slice(0,60));
 }
-function renderChips(){ $("firmChips").innerHTML=FIRMS.map(f=>`<button type="button" data-f="${esc(f.id)}">${esc(f.name)}</button>`).join(""); const u=$("firmFresh"); if(u) u.textContent=firmsUpdated?`Rules auto-checked weekly · last check ${firmsUpdated}`:`Rules checked ${FIRMS[0].checked} · auto-checked weekly`; }
+function renderChips(){ $("firmChips").innerHTML=FIRMS.map(f=>`<button type="button" data-f="${esc(f.id)}"${firmLocked(f)?' class="lkd"':""}>${esc(f.name)}${firmLocked(f)?'<i class="lk" aria-label="Premium"></i>':""}</button>`).join(""); const u=$("firmFresh"); if(u) u.textContent=firmsUpdated?`Rules auto-checked weekly · last check ${firmsUpdated}`:`Rules checked ${FIRMS[0].checked} · auto-checked weekly`; }
 renderChips();
 $("firmChips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; const F=FIRMS.find(f=>f.id===b.dataset.f); if(!F) return; $("firmQ").value=F.name; showFirm(F); });
 $("firmForm").addEventListener("submit",e=>{ e.preventDefault(); searchFirm($("firmQ").value); });
 document.querySelectorAll('form.fsearch[data-go="rules"]').forEach(f=>f.addEventListener("submit",e=>{ e.preventDefault(); const q=f.querySelector("input").value; $("firmQ").value=q; location.hash="rules"; setTimeout(()=>searchFirm(q),60); }));
 $("firmQ").value=FIRMS[0].name; showFirm(FIRMS[0]);
 loadLiveFirms(()=>{ renderChips(); if(currentFirm&&!currentFirm._ai){ const F=FIRMS.find(f=>f.id===currentFirm.id); if(F) showFirm(F); } });
+
+if(window.TSAuth) window.TSAuth.onChange(()=>{ renderChips(); if(currentFirm) showFirm(currentFirm); });
+if(window.TSAuth&&window.TSAuthReady&&window.TSAuth.sb) window.TSAuthReady.then(()=>{ document.body.classList.toggle("ts-locked",!window.TSAuth.user); renderChips(); if(currentFirm) showFirm(currentFirm); });
 
 /* ---------- live tracker ---------- */
 const TK={state:null, store:null, ready:false};
@@ -2035,7 +2060,7 @@ window.fillHome=function(P,S){
 function show(){
   let v=["build","rules","track","check"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
   const A=window.TSAuth;
-  if(v!=="home"&&A&&A.sb&&!A.user){ if(!A.ready){ A.after=show; return; } A.wanted=v; v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); setTimeout(()=>A.open&&A.open("up",true),60); }
+  if(v!=="home"&&v!=="build"&&v!=="rules"&&A&&A.sb&&!A.user){ if(!A.ready){ A.after=show; return; } A.wanted=v; v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); setTimeout(()=>A.open&&A.open("up",true),60); }
   if(v==="check") setTimeout(demoRender,30);
   document.querySelectorAll("[data-view]").forEach(m=>{ const on=m.dataset.view===v; m.hidden=!on; if(on){ m.classList.remove("view-in"); void m.offsetWidth; m.classList.add("view-in"); } });
   document.querySelectorAll("[data-nav]").forEach(a=>a.toggleAttribute("aria-current",a.dataset.nav===v));
