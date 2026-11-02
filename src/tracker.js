@@ -41,7 +41,7 @@ function freeLane(st){ const c=[0,0]; st.accounts.forEach(x=>{ if(x.status==="ac
 function tkMigrate(st){ if(!st) return st; st.trades=st.trades||[]; st.cuts=st.cuts||[];
   let i=0; st.accounts.forEach(a=>{ if(a.lane==null) a.lane=(i++)%2; if(!a.cyc) a.cyc={s:a.created||st.start,b:a.size}; if(a.offUntil==null) a.offUntil=""; }); return st; }
 /* guide: a 4-week cycle that ends in a loss puts the account offline for 1 week */
-function tkTick(st){ let ch=false; const t=todayStr();
+function tkTick(st){ let ch=false; const t=todayStr(); if(!TK.test&&TK.state===st&&promoteReady(st)) ch=true;
   st.accounts.forEach(a=>{ if(a.status!=="active") return; if(dnum(t)-dnum(a.cyc.s)>=28){ if(a.bal<a.cyc.b){ const u=new Date(new Date(t+"T12:00:00").getTime()+7*DAY).toISOString().slice(0,10); a.offUntil=u; log(`${a.name} lost money over its 4-week cycle. Offline until ${fmtDate(u)}.`); } a.cyc={s:t,b:a.bal}; ch=true; } });
   return ch; }
 const offline=a=>a.offUntil&&todayStr()<a.offUntil;
@@ -63,6 +63,7 @@ function advise(a,st){
   const dailyStop=a.dayStart-a.size*Math.min(p.daily,r.cut)/100*0.8;
   const daysDone=a.days.length, needDays=a.phase===3?p.mindays:p.mindays;
   const base={riskUsd,tgtUsd,cutUsd,pct,dailyStop,r};
+  if(a.ready&&a.phase===2) return {...base,kind:"bench",pill:"BENCH",title:"Passed. Waiting on the Tier 2 bench",text:`Don't trade it. It goes live the moment a funded account is cut, or when Tier 1 can grow: 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% and Tier 3 = 40% of the bigger Tier 1.`};
   if(pct<=-r.cut){
     if(a.rec<0&&!a.recUsed&&r.K>0) return {...base,kind:"recover",pill:"RECOVERY",title:`Recovery: up to ${r.K} trades`,text:`It's down ${Math.abs(pct).toFixed(1)}%. Take at most ${r.K} trades at the normal ${fmtFull(riskUsd)} risk to get back above ${fmtFull(cutUsd)}. Never bigger. Log the balance after each trade.`,act:"startRec"};
     if(a.rec>0) return {...base,kind:"recover",pill:"RECOVERY",title:`${a.rec} recovery trade${a.rec>1?"s":""} left`,text:`Risk ${fmtFull(riskUsd)} per trade. Get above ${fmtFull(cutUsd)} or close it. Log the balance after each trade.`,act:"recTrade"};
@@ -91,12 +92,14 @@ function portfolio(st){
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
   const provenMax=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
-  const pipeTarget=Math.max(Math.min(T1,p.target),p.n0*p.s0);
-  const needT3=T1>0?Math.max(0,0.4*pipeTarget-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   let buySize=L[lvl].size; let note="";
   if(p.buy&&p.buy!=="auto"){ buySize=+p.buy; note=`You chose to reinvest into ${fmt(buySize)} accounts.`; }
   else if(lvl>provenMax){ const outNew=act.some(a=>a.size===L[lvl].size&&a.phase!==3); if(outNew){ buySize=L[provenMax].size; note=`Wait for your first ${fmt(L[lvl].size)} account to get funded before buying more of that size.`; } else note=`You unlocked ${fmt(L[lvl].size)} accounts. Buy just ONE first.`; }
   const fee=(L.find(r=>r.size===buySize)||{fee:guessFee(buySize)}).fee;
+  /* guide: Tier 2 = 60% and Tier 3 = 40% of Tier 1 before Tier 1 grows, so while growing stock the bench for one more account */
+  const growS=T1>0&&T1<p.target?buySize:0, base1=Math.min(T1,p.target);
+  const pipeTarget=Math.max(base1+2*growS,p.n0*p.s0);
+  const needT3=T1>0?Math.max(0,0.4*(base1+growS)-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   const stocked=T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1;
   const rate=!stocked?1:p.reinv&&p.reinv.length?(p.reinv.find(r=>r.upto==null||T1<r.upto)||p.reinv[p.reinv.length-1]).rate:T1<0.2*p.target?0.8:T1<0.6*p.target?0.65:T1<p.target?0.5:0.3;
   return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
@@ -164,7 +167,7 @@ function tkRenderInner(){
     <div class="fx-cta"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a></div></div>`; return; }
   const p=st.p, pf=portfolio(st), act=st.accounts.filter(a=>a.status==="active");
   const adv=act.map(a=>({a,v:advise(a,st)}));
-  const order={cut:0,recover:1,payout:2,pass:3,trade:4,wait:5,rest:6};
+  const order={cut:0,recover:1,payout:2,pass:3,trade:4,wait:5,rest:6,bench:7};
   adv.sort((x,y)=>order[x.v.kind]-order[y.v.kind]||y.a.phase-x.a.phase);
   const nTrade=adv.filter(x=>["trade","recover"].includes(x.v.kind)).length, nRest=adv.filter(x=>x.v.kind==="rest").length, nAct=adv.filter(x=>["payout","pass","cut"].includes(x.v.kind)).length;
   const prog=Math.min(100,pf.T1/p.target*100);
@@ -245,11 +248,23 @@ function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3)
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
   log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to the pool, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
-function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". Move your best backup up as soon as it passes.":". Buy a new evaluation when the pool allows."}`); }
+function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when the pool allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
 function doBuy(size,fee){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
   log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from the pool"}.`); return a; }
 function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
-  if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){ passAcct(a); return true; } return false; }
+  if(a.ready) return promoteOne(a);
+  if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){
+    if(a.phase===2){ a.ready=true; if(promoteOne(a)) return true; log(`${a.name} passed Phase 2. It waits on the Tier 2 bench (don't trade it) until a funded account is cut or Tier 1 can grow.`); return true; }
+    passAcct(a); return true; } return false; }
+/* bench → Tier 1: refill Tier 1 up to where it was (start or after a cut), or grow it when the guide allows */
+function canPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="active"), sum=ph=>act.filter(x=>x.phase===ph).reduce((s,x)=>s+x.size,0);
+  const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; if(T1>=p.target) return false;
+  if(nT1<=Math.max(p.n0*p.s0,st.peak||0)) return true;
+  const g=portfolio(st).grow, gate=g[0][0]&&g[1][0]&&(p.scale==="simple"||g[2][0]);
+  return gate&&T2>=0.6*nT1-1&&T3>=0.4*nT1-1; }
+function promoteOne(a){ const st=TK.state; if(!a.ready||a.status!=="active"||a.phase!==2||!canPromote(st,a)) return false;
+  a.ready=false; passAcct(a); st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0)); return true; }
+function promoteReady(st){ let ch=false; st.accounts.filter(x=>x.ready&&x.status==="active"&&x.phase===2).forEach(x=>{ if(promoteOne(x)) ch=true; }); return ch; }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-tk]"); if(!b||!TK.state&&b.dataset.tk!=="start") return;
   const k=b.dataset.tk, st=TK.state;
@@ -277,4 +292,4 @@ if(window.TSAuth) window.TSAuth.onChange(async u=>{
     if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); }
   else { await tkBoot(); }
 });
-window.__tk={TK,doLog,autoPass,advise,portfolio,dnum,todayStr,tkSave,tkRender,doPayout,doCut,doBuy,rulesFor,isOn,weekIdx,offline,tkTick,tkFromPlan}; /* used by the test lab checks */
+window.__tk={TK,promoteOne,canPromote,promoteReady,doLog,autoPass,advise,portfolio,dnum,todayStr,tkSave,tkRender,doPayout,doCut,doBuy,rulesFor,isOn,weekIdx,offline,tkTick,tkFromPlan}; /* used by the test lab checks */

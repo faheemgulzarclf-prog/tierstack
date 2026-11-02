@@ -120,7 +120,7 @@ function portfolioSim(P,wr,runs,seed,lg){
   const stageRate=t1=>t1<0.2*tgt?0.8:t1<0.6*tgt?0.65:t1<tgt?0.5:0.3;
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
-    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0;
+    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0;
     const snap=()=>({T1:accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0),T2:accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0),T3:accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0)});
     const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
     const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
@@ -169,7 +169,12 @@ function portfolioSim(P,wr,runs,seed,lg){
       accts=accts.filter(a=>!a.dead);
       // promotions into T1 while below target
       T1=accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0);
-      for(const a of accts){ if(a.ph===4 && T1<tgt){ a.ph=3; a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1}); } }
+      // guide: a passed Phase 2 account waits on the Tier 2 bench. It goes live to refill Tier 1 (start or after a cut),
+      // or to grow Tier 1 only when 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% / Tier 3 = 40% of the NEW Tier 1 stay stocked.
+      for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
+        const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
+        const ok=nT1<=Math.max(P.n0*P.s0,peak)||(consec>=3&&d-lastCut>10&&T2b>=0.6*nT1-1&&T3b>=0.4*nT1-1);
+        if(ok){ a.ph=3; a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
@@ -186,13 +191,15 @@ function portfolioSim(P,wr,runs,seed,lg){
       // buy evals (restock T3 first; T2 only refills by passing T3)
       let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-      const pipeTarget=Math.max(Math.min(T1,tgt), P.n0*P.s0);
+      // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
+      const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
+      const pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=0.4*(base1+growS);
       let guard=0;
-      while((pipe<pipeTarget || (T1>0 && t3cap<0.4*pipeTarget-1)) && guard++<50){
+      while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
         if(lvl>proven){ outNew=accts.some(a=>a.li===lvl && a.ph!==3); if(outNew) li=proven; }
         const fee=L[li].fee; if(cash<fee) break;
-        const why=T1>0&&t3cap<0.4*pipeTarget-1?"t3":"pipe";
+        const why=T1>0&&t3cap<t3Target-1?"t3":"pipe";
         cash-=fee; fees+=fee; evals++;
         const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
       }

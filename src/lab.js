@@ -1,7 +1,7 @@
 /* ---------- Test Lab auto-play: trades every day by itself with the coach's own rules, and checks each move against the guide ---------- */
 const LAB={instant:true,timer:null,seed:1,rng:null,speed:200,checks:{},errors:[],lanes:{},recCount:{},done:false};
 function labRng(seed){ let a=seed>>>0; return ()=>{ a=(a+0x6D2B79F5)>>>0; let t=a; t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61); return ((t^(t>>>14))>>>0)/4294967296; }; }
-function labReset(){ LAB.checks={}; LAB.errors=[]; LAB.lanes={}; LAB.recCount={}; LAB.done=false; LAB.rng=labRng(LAB.seed); }
+function labReset(){ LAB.peak=0; LAB.checks={}; LAB.errors=[]; LAB.lanes={}; LAB.recCount={}; LAB.done=false; LAB.rng=labRng(LAB.seed); }
 const LAB_RULES=[
   ["risk","Fixed risk per trade","Same % risk every trade: tests "+"and funded use your risk style."],
   ["turns","Tests take turns by week","Never trade all evaluations in the same window."],
@@ -13,6 +13,7 @@ const LAB_RULES=[
   ["cut","Cut levels","T1 −6%, T2 −4%, T3 −4% after recovery fails."],
   ["buy","Buy order","No buying before the first funded account; then refill the pipeline (T2 + T3 = T1)."],
   ["maxdd","Inside the firm's max loss","No account ever breaks the firm's max drawdown."],
+  ["bench","Tier 2 bench","A passed Phase 2 account waits on the bench. It goes live to refill Tier 1, or to grow it only when the checklist passes and Tier 2 / Tier 3 stay at 60% / 40%."],
   ["scale","Right size and fee","Each buy is the size you chose (or the biggest unlocked size), at that size's fee."]];
 function labCheck(k,ok,msg){ const c=LAB.checks[k]||(LAB.checks[k]={ok:0,bad:0}); if(ok) c.ok++; else { c.bad++; if(LAB.errors.length<40) LAB.errors.push({d:todayStr(),k,msg}); } }
 /* the guide's reinvest ladder, worked out on its own from the accounts (not from portfolio()) */
@@ -20,6 +21,16 @@ function labExpRate(st,p){ const act=st.accounts.filter(a=>a.status==="active"),
   const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1)) return 1;
   const R=p.reinv&&p.reinv.length?p.reinv:[{upto:0.2*p.target,rate:0.8},{upto:0.6*p.target,rate:0.65},{upto:p.target,rate:0.5},{upto:null,rate:0.3}];
   for(const r of R) if(r.upto==null||T1<r.upto) return r.rate; return R[R.length-1].rate; }
+/* independent bench rule from the guide */
+function labCanPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="active"), sum=ph=>act.filter(x=>x.phase===ph).reduce((s,x)=>s+x.size,0);
+  const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; LAB.peak=Math.max(LAB.peak||0,T1); if(T1>=p.target) return false;
+  if(nT1<=Math.max(p.n0*p.s0,LAB.peak)) return true;
+  const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
+  let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
+  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4; }
+  return gate&&T2>=0.6*nT1-1&&T3>=0.4*nT1-1; }
+function labBenchTry(st,a){ const allowed=labCanPromote(st,a); const was=a.phase; promoteOne(a); const live=a.phase===3&&was===2;
+  labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} stayed on the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); }
 function labStageName(p,T1){ const R=p.reinv&&p.reinv.length?p.reinv:null; if(!R) return T1<0.2*p.target?"Seed":T1<0.6*p.target?"Build":T1<p.target?"Scale":"Sustain"; const r=R.find(x=>x.upto==null||T1<x.upto)||R[R.length-1]; return r.name||""; }
 function labStage(st,pf){ return pf.done?3:pf.T1===0?0:st.payouts.length?2:1; }
 function labStepDay(){
@@ -39,6 +50,7 @@ function labStepDay(){
         return; }
       if(v.kind==="cut"){ labCheck("cut",pct<=-r.cut+1e-9&&(a.recUsed||a.rec===0||r.K===0),`${a.name} cut at ${pct.toFixed(2)}%`); doCut(a); return; }
       if(v.kind==="rest") return;
+      if(v.kind==="bench"){ labBenchTry(st,a); return; }
       if(v.kind==="wait"){ doLog(a,a.bal); const ph=a.phase; autoPass(a); if(a.phase!==ph) labCheck("pass",true,""); return; }
       if(v.kind==="trade"||v.kind==="recover"){
         labCheck(a.phase===3?"cycle":"turns",isOn(a,st)||v.kind==="recover",`${a.name} told to trade in its rest week`);
@@ -51,11 +63,16 @@ function labStepDay(){
         const wasUsed=a.recUsed, ph=a.phase, pct2=(Math.round(bal)-a.size)/a.size*100;
         doLog(a,Math.round(bal));
         if(a.rec>0&&wasUsed&&ph===a.phase) labCheck("recovery",false,`${a.name} got a second recovery`);
-        if(a.status==="active"){ const days=a.days.length; autoPass(a); if(a.phase!==ph) labCheck("pass",pct2>=r.tgt-1e-9&&days>=p.mindays,`${a.name} passed at ${pct2.toFixed(2)}% after ${days} days`); }
+        if(a.status==="active"){ const days=a.days.length, hit=pct2>=r.tgt-1e-9&&days>=p.mindays, allowed=a.phase===2&&hit?labCanPromote(st,a):null;
+          autoPass(a); const moved=a.phase!==ph||(ph===2&&a.ready);
+          if(moved) labCheck("pass",hit,`${a.name} passed at ${pct2.toFixed(2)}% after ${days} days`); else if(hit&&ph<3) labCheck("pass",false,`${a.name} hit target but did not pass`);
+          if(allowed!==null){ const live=a.phase===3; labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} went to the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); } }
         if(a.rec<0) delete LAB.recCount[a.id];
         labCheck("maxdd",(a.bal-a.size)/a.size*100>-p.maxdd,`${a.name} broke the firm's max loss`);
       }
     });
+    // bench: after cuts and payouts, a waiting account may go live
+    st.accounts.filter(a=>a.status==="active"&&a.ready&&a.phase===2).forEach(a=>labBenchTry(st,a));
     // buying: follow the coach's next step
     let guard=0, pf=portfolio(st);
     if(pf.lvl>(LAB.lvl||0)){ log(`Unlocked ${fmt(p.ladder[pf.lvl].size)} accounts: Tier 1 is ${fmt(pf.T1)} after ${pf.pays} payouts.`); LAB.lvl=pf.lvl; }
@@ -104,7 +121,7 @@ function labBoard(){
     <div class="lab-stats"><div><b>${fmt(pf.T1)}</b><span>Tier 1 live of ${fmt(p.target)}</span></div><div><b>${fmt(pf.T2)}</b><span>Tier 2 (need ${fmt(0.6*pf.T1)})</span></div><div><b>${fmt(pf.T3)}</b><span>Tier 3 (need ${fmt(0.4*pf.T1)})</span></div><div><b>${fmtFull(st.pool)}</b><span>pool</span></div><div><b>${fmtFull(st.personal)}</b><span>taken home</span></div><div><b>${st.payouts.length}</b><span>payouts</span></div></div>
     <div class="lab-next"><b>Next to buy:</b> ${next}</div>
     <div class="lab-plan"><span><b>Reinvest now</b> ${Math.round(pf.rate*100)}% ${pf.stocked?`(${esc(labStageName(p,pf.T1))})`:"(Tier 2 / Tier 3 not full yet, so 100%)"}</span><span><b>Bigger size</b> ${pf.grow.map(g=>`<i class="${g[0]?"ok":"no"}" title="${esc(g[1])}">${g[0]?"✓":"✗"} ${esc(g[1])}</i>`).join(" ")}</span></div>
-    <div class="lab-cols">${col(1,"Tier 3 · Pipeline","Phase 1","t3")}${col(2,"Tier 2 · Backup","Phase 2","t2")}${col(3,"Tier 1 · Live","Funded","t1")}</div>
+    <div class="lab-cols">${col(1,"Tier 3 · Pipeline","Phase 1","t3")}${col(2,"Tier 2 · Backup",`Phase 2 · ${act.filter(a=>a.ready).length} on bench`,"t2")}${col(3,"Tier 1 · Live","Funded","t1")}</div>
     ${closed.length?`<div class="lab-closed"><b>Closed (${closed.length}):</b> ${closed.slice(-12).map(a=>`${esc(a.name)} (${a.phase===3?"T1":a.phase===2?"T2":"T3"})`).join(", ")}</div>`:""}
     <div class="lab-g2"><div class="lab-checks"><h4>Guide check ${tb?`<span class="bad">${tb} error${tb>1?"s":""}</span>`:`<span class="ok">${tok} checks, 0 errors</span>`}</h4>${LAB_RULES.map(([k,n,g])=>{ const c=LAB.checks[k]||{ok:0,bad:0}; return `<div class="lab-ck ${c.bad?"bad":c.ok?"ok":""}"><span>${c.bad?"✗":c.ok?"✓":"·"}</span><div><b>${n}</b><p>${g}</p></div><em>${c.ok+c.bad}</em></div>`; }).join("")}
       ${LAB.errors.length?`<ul class="lab-err">${LAB.errors.slice(0,10).map(e=>`<li><span>${fmtDate(e.d)}</span>${esc(e.msg)}</li>`).join("")}</ul>`:""}</div>
