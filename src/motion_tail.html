@@ -1,0 +1,223 @@
+<dialog class="film" id="filmDlg" aria-label="TierStack film"><button type="button" class="x" id="filmX" aria-label="Close film">✕</button><video id="filmV" src="tierstack-journey.mp4" poster="tierstack-journey-poster.jpg" controls playsinline preload="none"></video></dialog>
+<script>
+/* TierStack motion scenes. Each scene is a 1280x720 stage driven by draw(t) so it can loop live on the page
+   and be rendered frame-by-frame into the film. Colors come from the page's theme tokens. */
+(function(){
+"use strict";
+const CSS=`
+.mx{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:24px;background:var(--card,#0a0f15);border:1px solid var(--line2,rgba(125,211,252,.18));container-type:inline-size;isolation:isolate}
+.mx.bare{border:0;border-radius:0}
+.mx-st{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;font-family:var(--f-b,"Manrope",sans-serif);color:var(--ink,#f2f8fc)}
+.mx-st *{box-sizing:border-box}
+.mx-st>*{position:absolute}
+.mx-grid{inset:0;background-image:linear-gradient(var(--grid,rgba(56,189,248,.05)) 1px,transparent 1px),linear-gradient(90deg,var(--grid,rgba(56,189,248,.05)) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 45%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse 75% 70% at 50% 45%,#000 30%,transparent 80%)}
+.mx-glow{width:900px;height:900px;left:190px;top:-520px;border-radius:50%;background:radial-gradient(circle,var(--glow,rgba(56,189,248,.3)),transparent 62%)}
+.mx-k{font-family:var(--f-m,"JetBrains Mono",monospace);font-size:17px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold,#38bdf8);font-weight:600}
+.mx-h{font-family:var(--f-d,"Sora",sans-serif);font-weight:800;letter-spacing:-.03em;line-height:1.05;white-space:nowrap}
+.mx-h em{font-style:normal;color:var(--gold,#38bdf8)}
+.mx-c{text-align:center;left:0;width:1280px}
+.mx-mut{color:var(--muted,#8fa3b3)}
+.mx-card{background:var(--card2,#0f161f);border:1px solid var(--line2,rgba(125,211,252,.18));border-radius:22px}
+.mx-dot{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-m,monospace);font-weight:700;font-size:15px;box-shadow:0 10px 30px -10px rgba(0,0,0,.6)}
+.mx-chip{font-family:var(--f-m,monospace);font-size:15px;font-weight:700;padding:7px 12px;border-radius:99px;white-space:nowrap}
+.mx-pitch{border:2px solid var(--line2,rgba(125,211,252,.18));border-radius:22px;background:linear-gradient(90deg,transparent 49.85%,var(--line2,rgba(125,211,252,.18)) 49.85%,var(--line2,rgba(125,211,252,.18)) 50.15%,transparent 50.15%),var(--sky-bg,rgba(56,189,248,.06))}
+.mx-pitch::after{content:"";position:absolute;width:120px;height:120px;border:2px solid var(--line2,rgba(125,211,252,.18));border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.mx-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:0 22px}
+.mx-bar{height:12px;border-radius:99px;background:var(--line,rgba(125,211,252,.1));overflow:hidden}
+.mx-bar i{display:block;height:100%;border-radius:99px;width:0}
+.mx-node{width:104px;height:104px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line2,rgba(125,211,252,.18));background:var(--card,#0a0f15)}
+.mx-node svg{width:44px;height:44px}
+.mx-num{font-family:var(--f-d,"Sora",sans-serif);font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.mx-btn{font-family:var(--f-b,sans-serif);font-weight:800;font-size:26px;background:var(--gold,#38bdf8);color:var(--gold-ink,#00121c);padding:18px 34px;border-radius:18px;box-shadow:0 20px 50px -16px var(--glow,rgba(56,189,248,.5))}
+`;
+/* ---------- helpers ---------- */
+const E={o:x=>1-Math.pow(1-x,3),io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,b:x=>{const c=1.9;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)},l:x=>x};
+const tw=(t,a,b,e)=>t<=a?0:t>=b?1:E[e||"o"]((t-a)/(b-a));
+const L=(a,b,p)=>a+(b-a)*p;
+function S(el,o){ if(!el)return; const st=el.style;
+  if(o.x!==undefined||o.y!==undefined||o.s!==undefined||o.r!==undefined) st.transform=`translate(${(o.x||0).toFixed(2)}px,${(o.y||0).toFixed(2)}px) scale(${(o.s===undefined?1:o.s).toFixed(4)}) rotate(${(o.r||0).toFixed(2)}deg)`;
+  if(o.o!==undefined) st.opacity=Math.max(0,Math.min(1,o.o)).toFixed(3);
+  if(o.bg!==undefined) st.background=o.bg; if(o.c!==undefined) st.color=o.c; if(o.w!==undefined) st.width=o.w;
+  if(o.bs!==undefined) st.boxShadow=o.bs; if(o.bc!==undefined) st.borderColor=o.bc; }
+const mix=(a,b,p)=>`color-mix(in srgb, ${b} ${(p*100).toFixed(1)}%, ${a})`;
+const sceneFade=(t,d)=>tw(t,0,.45)*(1-tw(t,d-.55,d-.05,"io"));
+const money=n=>"$"+Math.round(n).toLocaleString("en-US");
+const P=(x,y,extra)=>`style="left:${x}px;top:${y}px;${extra||""}"`;
+const LOGO=(w)=>`<svg viewBox="0 0 28 28" width="${w}" height="${w}" aria-hidden="true"><rect data-k="lb3" x="3" y="17" width="22" height="7" rx="2.5" fill="var(--t3,#cfeefe)"/><rect data-k="lb2" x="6" y="9.5" width="16" height="6" rx="2.2" fill="var(--t2,#0b7fc0)"/><rect data-k="lb1" x="9" y="3" width="10" height="5" rx="2" fill="var(--gold,#38bdf8)"/></svg>`;
+const IC={
+ test:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>`,
+ pass:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>`,
+ paid:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.2c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.4 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6M12 6v1.7M12 16.5V18"/></svg>`,
+ loop:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 3v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16M20 21v-5h-5"/></svg>`
+};
+
+/* ---------- scenes ---------- */
+const SC={};
+
+SC.hero={dur:8,label:"One prop firm account is a coin flip. Three tiers of accounts make it a system.",
+html:`<div class="mx-grid"></div><div class="mx-glow"></div>
+<div data-k="mark" ${P(586,70)}>${LOGO(108)}</div>
+<div data-k="word" class="mx-h mx-c" ${P(0,192,"font-size:38px;font-weight:700")}>TierStack</div>
+<div data-k="la" class="mx-h mx-c" ${P(0,290,"font-size:66px")}>One account is a <em>coin flip.</em></div>
+<div data-k="acc" class="mx-card" ${P(390,410,"width:500px;height:200px;padding:22px 26px")}>
+  <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">Funded · $100K</b><span data-k="br" class="mx-chip" style="background:var(--bad,#ff5c7a);color:#fff">BREACHED −6%</span></div>
+  <svg viewBox="0 0 448 110" width="448" height="110" style="margin-top:10px;overflow:visible"><path data-k="dl" pathLength="1" d="M0,30 L40,24 L80,34 L120,22 L160,30 L200,44 L240,40 L280,62 L320,58 L360,80 L400,92 L448,104" fill="none" stroke="var(--bad,#ff5c7a)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
+<div data-k="lb" class="mx-h mx-c" ${P(0,290,"font-size:66px")}>Three tiers make it a <em>system.</em></div>
+${["Funded","Backup","Pipeline"].map((n,i)=>`<div data-k="r${i}" class="mx-card mx-row" ${P(330,410+i*76,"width:620px;height:62px")}><b style="font-size:20px;width:110px">${n}</b><div class="mx-bar"><i data-k="f${i}" style="background:var(--t${i+1})"></i></div><span class="mx-num" style="font-size:24px;color:var(--t${i+1})">${[50,30,20][i]}%</span></div>`).join("")}`,
+draw(e,t){
+  const F=sceneFade(t,this.dur);
+  S(e.lb3,{o:tw(t,.2,.7),y:L(-14,0,tw(t,.2,.8,"b"))}); S(e.lb2,{o:tw(t,.35,.85),y:L(-14,0,tw(t,.35,.95,"b"))}); S(e.lb1,{o:tw(t,.5,1),y:L(-14,0,tw(t,.5,1.1,"b"))});
+  S(e.mark,{o:F,s:L(.8,1,tw(t,0,1))}); S(e.word,{o:tw(t,.9,1.5)*F,y:L(14,0,tw(t,.9,1.5))});
+  const outA=tw(t,3.7,4.2,"io");
+  S(e.la,{o:tw(t,1.4,2)*(1-outA),y:L(24,0,tw(t,1.4,2))-outA*30});
+  const shake=t>3.05&&t<3.45?Math.sin(t*90)*6*(1-tw(t,3.05,3.45)):0;
+  S(e.acc,{o:tw(t,1.7,2.3)*(1-outA),y:L(30,0,tw(t,1.7,2.3))-outA*30,x:shake});
+  e.dl.style.strokeDashoffset=(1-tw(t,2.1,3.05,"io")).toFixed(3);
+  S(e.br,{o:tw(t,3.05,3.25),s:L(.4,1,tw(t,3.05,3.4,"b"))});
+  S(e.lb,{o:tw(t,4.2,4.8)*F,y:L(24,0,tw(t,4.2,4.8))});
+  [100,60,40].forEach((w,i)=>{ S(e["r"+i],{o:tw(t,4.4+i*.15,4.9+i*.15)*F,y:L(26,0,tw(t,4.4+i*.15,5+i*.15))}); e["f"+i].style.width=(w*tw(t,4.9+i*.2,6.1+i*.2,"io")).toFixed(2)+"%"; });
+}};
+
+SC.team={dur:8,label:"Like a football team: funded accounts play, backups wait on the bench, new tests train in the academy. When one account is lost, the bench steps in and the academy moves up.",
+html:`<div class="mx-glow" style="left:-300px;top:-560px"></div>
+<div data-k="kk" class="mx-k" ${P(80,52)}>The 3-tier system</div>
+<div data-k="hh" class="mx-h" ${P(80,84,"font-size:50px")}>Like a <em>football team.</em></div>
+<div data-k="pitch" class="mx-pitch" ${P(80,172,"width:680px;height:300px")}></div>
+<div data-k="lbB" class="mx-k" ${P(80,520,"color:var(--muted,#8fa3b3);font-size:15px")}>Bench</div>
+<div data-k="lbA" class="mx-k" ${P(80,604,"color:var(--muted,#8fa3b3);font-size:15px")}>Academy</div>
+${[[210,252],[210,392],[420,322],[620,252],[620,392]].map((p,i)=>`<div data-k="F${i}" class="mx-dot" ${P(p[0]-26,p[1]-26,"background:var(--t1);color:var(--t1-ink,#00121c)")}>F</div>`).join("")}
+<div data-k="brk" class="mx-chip" ${P(372,250,"background:var(--bad,#ff5c7a);color:#fff")}>Account lost</div>
+${[300,380,460].map((x,i)=>`<div data-k="B${i}" class="mx-dot" ${P(x-26,532-26,"background:var(--t2);color:var(--t2-ink,#fff)")}>B</div>`).join("")}
+${[300,380].map((x,i)=>`<div data-k="A${i}" class="mx-dot" ${P(x-26,616-26,"background:var(--t3);color:var(--t3-ink,#00121c)")}>P</div>`).join("")}
+<div data-k="An" class="mx-dot" ${P(300-26,616-26,"background:var(--t3);color:var(--t3-ink,#00121c)")}>P</div>
+<div data-k="newc" class="mx-chip" ${P(420,598,"background:var(--sky-bg,rgba(56,189,248,.12));color:var(--gold,#38bdf8);border:1px dashed var(--gold,#38bdf8)")}>+ new test, paid by payouts</div>
+${[["Funded","On the field. Earns payouts.","50%"],["Backup","On the bench. One step away.","30%"],["Pipeline","In the academy. New tests.","20%"]].map((c,i)=>`<div data-k="C${i}" class="mx-card" ${P(820,172+i*124,"width:380px;height:108px;padding:20px 22px;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:16px;align-items:center")}><i style="width:18px;height:18px;border-radius:6px;background:var(--t${i+1})"></i><div><b style="font-size:22px;font-family:var(--f-d,sans-serif)">${c[0]}</b><div class="mx-mut" style="font-size:16px">${c[1]}</div></div><span class="mx-num" style="font-size:34px;color:var(--t${i+1})">${c[2]}</span></div>`).join("")}
+<div data-k="cap" class="mx-h" ${P(820,560,"font-size:30px;line-height:1.2;white-space:normal;width:400px")}>Lose one. <em>The team keeps playing.</em></div>`,
+draw(e,t){
+  const F=sceneFade(t,this.dur);
+  S(e.kk,{o:tw(t,.1,.6)*F}); S(e.hh,{o:tw(t,.2,.8)*F,y:L(20,0,tw(t,.2,.8))}); S(e.pitch,{o:tw(t,.2,.8)*F,s:L(.96,1,tw(t,.2,.9))});
+  S(e.lbB,{o:tw(t,.9,1.3)*F}); S(e.lbA,{o:tw(t,1.5,1.9)*F});
+  for(let i=0;i<5;i++){ const a=.45+i*.07; if(i===2)continue; S(e["F"+i],{o:tw(t,a,a+.2)*F,s:tw(t,a,a+.45,"b")}); }
+  // the breached funded account
+  const a2=.45+2*.07, red=tw(t,2.8,3.1), gone=tw(t,3.4,3.9,"io");
+  S(e.F2,{o:tw(t,a2,a2+.2)*(1-gone)*F,s:tw(t,a2,a2+.45,"b")*(1-.5*gone)+(t>2.8&&t<3.4?Math.sin((t-2.8)*30)*.06:0),bg:mix("var(--t1)","var(--bad,#ff5c7a)",red),c:red>.5?"#fff":"var(--t1-ink,#00121c)"});
+  S(e.brk,{o:tw(t,2.9,3.15)*(1-tw(t,3.8,4.1)),y:L(10,0,tw(t,2.9,3.2))});
+  for(let i=0;i<3;i++){ const a=1.0+i*.07; if(i===0)continue; S(e["B"+i],{o:tw(t,a,a+.2)*F,s:tw(t,a,a+.45,"b")}); }
+  // bench steps onto the field
+  const mB=tw(t,4.0,4.9,"io");
+  S(e.B0,{o:tw(t,1,1.2)*F,s:tw(t,1,1.45,"b")*(1+.18*Math.sin(Math.PI*mB)),x:120*mB,y:-210*mB,bg:mix("var(--t2)","var(--t1)",tw(t,4.4,4.9)),c:tw(t,4.4,4.9)>.5?"var(--t1-ink,#00121c)":"var(--t2-ink,#fff)"});
+  e.B0.textContent=t>4.6?"F":"B";
+  // academy moves up to the bench
+  const mA=tw(t,4.9,5.6,"io");
+  S(e.A0,{o:tw(t,1.6,1.8)*F,s:tw(t,1.6,2.05,"b")*(1+.18*Math.sin(Math.PI*mA)),y:-84*mA,bg:mix("var(--t3)","var(--t2)",mA),c:mA>.5?"var(--t2-ink,#fff)":"var(--t3-ink,#00121c)"});
+  e.A0.textContent=mA>.5?"B":"P";
+  S(e.A1,{o:tw(t,1.67,1.87)*F,s:tw(t,1.67,2.12,"b")});
+  S(e.An,{o:tw(t,5.8,6.0)*F,s:tw(t,5.8,6.3,"b")});
+  S(e.newc,{o:tw(t,5.95,6.3)*F,x:L(-14,0,tw(t,5.95,6.4))});
+  [0,1,2].forEach(i=>{ const hi=i===1?tw(t,3.9,4.2)*(1-tw(t,4.9,5.2)):i===2?tw(t,4.9,5.1)*(1-tw(t,5.6,5.9)):i===0?tw(t,4.6,4.9)*(1-tw(t,5.3,5.6)):0;
+    S(e["C"+i],{o:tw(t,.6+i*.25,1.1+i*.25)*F,x:L(30,0,tw(t,.6+i*.25,1.2+i*.25)),s:1+.03*hi,bc:mix("var(--line2,rgba(125,211,252,.18))","var(--gold,#38bdf8)",hi)}); });
+  S(e.cap,{o:tw(t,6.2,6.8)*F,y:L(16,0,tw(t,6.2,6.8))});
+}};
+
+SC.steps={dur:8,label:"How it works: buy a test, pass it, get paid, reinvest. Then it repeats.",
+html:`<div class="mx-grid"></div>
+<div data-k="kk" class="mx-k mx-c" ${P(0,62)}>How it works</div>
+<div data-k="hh" class="mx-h mx-c" ${P(0,96,"font-size:54px")}>Four steps. <em>Then it repeats.</em></div>
+<div data-k="rail" ${P(190,318,"width:900px;height:4px;border-radius:4px;background:var(--line2,rgba(125,211,252,.18))")}><i data-k="fill" style="position:absolute;left:0;top:0;height:4px;width:0;border-radius:4px;background:var(--gold,#38bdf8);box-shadow:0 0 18px var(--gold,#38bdf8)"></i></div>
+${[["test","Buy a test","Small fee for an evaluation"],["pass","Pass it","Hit the target, keep the loss limit"],["paid","Get paid","Trade firm money. Payout at +3%"],["loop","Reinvest","Payouts buy the next tests"]].map((s,i)=>`
+<div data-k="n${i}" class="mx-node" ${P(190+i*300-52,320-52)}>${IC[s[0]]}</div>
+<div data-k="no${i}" class="mx-chip" ${P(190+i*300+24,320-74,"background:var(--card,#0a0f15);border:1px solid var(--line2);color:var(--muted)")}>${i+1}</div>
+<div data-k="t${i}" style="left:${190+i*300-140}px;top:396px;width:280px;text-align:center"><div class="mx-h" style="font-size:30px">${s[1]}</div><div class="mx-mut" style="font-size:18px;margin-top:8px">${s[2]}</div></div>`).join("")}
+<svg data-k="arc" ${P(0,0,"width:1280px;height:720px;overflow:visible")} viewBox="0 0 1280 720"><path data-k="ap" pathLength="1" d="M1090,510 C1090,660 190,660 190,510" fill="none" stroke="var(--gold,#38bdf8)" stroke-width="3" stroke-dasharray="1" stroke-dashoffset="1" stroke-linecap="round"/><path data-k="ah" d="M176,528 L190,508 L204,528" fill="none" stroke="var(--gold,#38bdf8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div data-k="rep" class="mx-chip" ${P(560,604,"background:var(--gold,#38bdf8);color:var(--gold-ink,#00121c);font-size:17px")}>↺ repeat, bigger</div>`,
+draw(e,t){
+  const F=sceneFade(t,this.dur);
+  S(e.kk,{o:tw(t,.1,.6)*F}); S(e.hh,{o:tw(t,.15,.75)*F,y:L(20,0,tw(t,.15,.8))}); S(e.rail,{o:tw(t,.3,.8)*F});
+  const T=[.8,2.2,3.6,5.0]; e.fill.style.width=(100*tw(t,.8,5.0,"l")).toFixed(2)+"%";
+  T.forEach((a,i)=>{ const on=tw(t,a,a+.35), p=tw(t,a,a+.5,"b");
+    S(e["n"+i],{o:tw(t,.4+i*.1,.8+i*.1)*F,s:.92+.08*p+.1*Math.sin(Math.PI*tw(t,a,a+.5)),bg:mix("var(--card,#0a0f15)","var(--gold,#38bdf8)",on),c:on>.5?"var(--gold-ink,#00121c)":"var(--muted,#8fa3b3)",bc:mix("var(--line2,rgba(125,211,252,.18))","var(--gold,#38bdf8)",on),bs:`0 0 ${(50*on).toFixed(0)}px -6px var(--glow,rgba(56,189,248,.5))`});
+    S(e["no"+i],{o:tw(t,.5+i*.1,.9+i*.1)*F});
+    S(e["t"+i],{o:L(.35,1,on)*tw(t,.4+i*.1,.8+i*.1)*F,y:L(10,0,on)}); });
+  e.ap.style.strokeDashoffset=(1-tw(t,5.5,6.6,"io")).toFixed(3);
+  S(e.arc,{o:F}); S(e.ah,{o:tw(t,6.5,6.7)});
+  S(e.rep,{o:tw(t,6.4,6.8)*F,s:tw(t,6.4,6.9,"b")});
+}};
+
+SC.payout={dur:8,label:"Every payout fills the team first: new tests, then backups, then funded accounts, then you. Once the tiers are full, 70% is yours.",
+html:`<div class="mx-glow" style="left:-360px;top:-300px"></div>
+<div data-k="kk" class="mx-k" ${P(80,52)}>Every payout</div>
+<div data-k="hh" class="mx-h" ${P(80,84,"font-size:50px")}>Fills the team first. <em>Then you.</em></div>
+<div data-k="card" class="mx-card" ${P(80,190,"width:460px;height:300px;padding:30px;background:linear-gradient(160deg,var(--card2,#0f161f),var(--card,#0a0f15))")}>
+  <span data-k="ok" class="mx-chip" style="background:var(--good,#2fd795);color:#00140c;display:inline-block">✓ PAYOUT APPROVED</span>
+  <div data-k="amt" class="mx-num" style="font-size:96px;margin-top:22px;line-height:1">$0</div>
+  <div class="mx-mut" style="font-size:19px;margin-top:14px">From a funded account at +3%</div>
+  <div class="mx-bar" style="margin-top:22px;height:10px"><i data-k="left" style="background:var(--gold,#38bdf8);width:100%"></i></div></div>
+${[0,1,2,3,4,5].map(i=>`<i data-k="coin${i}" ${P(0,0,"width:20px;height:20px;border-radius:50%;background:var(--gold,#38bdf8);box-shadow:0 0 16px var(--gold,#38bdf8);opacity:0")}></i>`).join("")}
+${[["Pipeline","New tests","var(--t3)"],["Backup","Bench accounts","var(--t2)"],["Funded","The playing team","var(--t1)"],["You","Your pocket","var(--good,#2fd795)"]].map((r,i)=>`<div data-k="R${i}" class="mx-card mx-row" ${P(640,190+i*80,"width:560px;height:66px;grid-template-columns:34px 170px minmax(0,1fr) 92px")}><span class="mx-num" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;border:1.5px solid var(--line2);color:var(--muted)">${i+1}</span><div><b style="font-size:20px">${r[0]}</b><div class="mx-mut" style="font-size:14px">${r[1]}</div></div><div class="mx-bar"><i data-k="RF${i}" style="background:${r[2]}"></i></div><span data-k="RV${i}" class="mx-num" style="font-size:21px;text-align:right">$0</span></div>`).join("")}
+<div data-k="cap" class="mx-mut" ${P(640,532,"font-size:21px;width:560px;line-height:1.4")}>Once every tier is full: <b style="color:var(--ink)">70% is yours</b>, 30% replaces lost accounts.</div>
+<div data-k="ex" class="mx-mut" ${P(80,640,"font-size:14px;font-family:var(--f-m,monospace)")}>Example numbers</div>`,
+draw(e,t){
+  const F=sceneFade(t,this.dur), TOT=4800, W=[0,1,2,3].map(i=>[2.4+i*.85,3.15+i*.85]);
+  S(e.kk,{o:tw(t,.1,.6)*F}); S(e.hh,{o:tw(t,.15,.75)*F,y:L(20,0,tw(t,.15,.8))});
+  S(e.card,{o:tw(t,.3,.8)*F,y:L(30,0,tw(t,.3,.9))}); S(e.ok,{o:tw(t,.7,.9),s:tw(t,.7,1.1,"b")});
+  let poured=0; W.forEach((w,i)=>poured+=1200*tw(t,w[0],w[1],"io"));
+  const got=TOT*tw(t,.9,2.1,"o"); e.amt.textContent=money(Math.max(0,got-poured));
+  e.left.style.width=(100*(got>0?(got-poured)/TOT:0)).toFixed(2)+"%";
+  W.forEach((w,i)=>{ const p=tw(t,w[0],w[1],"io"), y0=190+i*80;
+    S(e["R"+i],{o:tw(t,.5+i*.12,1+i*.12)*F,x:L(30,0,tw(t,.5+i*.12,1.1+i*.12)),bc:mix("var(--line2,rgba(125,211,252,.18))","var(--gold,#38bdf8)",Math.sin(Math.PI*p))});
+    e["RF"+i].style.width=(100*p).toFixed(2)+"%"; e["RV"+i].textContent=money(1200*p); });
+  // coins: two per active window, arc from card to the active row
+  for(let c=0;c<6;c++){ let o=0,x=0,y=0;
+    for(let i=0;i<4;i++){ const w=W[i], st=w[0]+(c%3)*.18, en=st+.5; if(t>=st&&t<=en){ const p=tw(t,st,en,"io"); const x0=540,y0=340,x1=660,y1=223+i*80;
+      x=L(x0,x1,p); y=L(y0,y1,p)-Math.sin(Math.PI*p)*60; o=Math.sin(Math.PI*p); } }
+    S(e["coin"+c],{x:x-10,y:y-10,o:o*F}); }
+  S(e.cap,{o:tw(t,6.1,6.7)*F,y:L(14,0,tw(t,6.1,6.7))}); S(e.ex,{o:tw(t,.8,1.2)*F*.8});
+}};
+
+SC.end={dur:4,label:"TierStack. Build your plan in two minutes.",
+html:`<div class="mx-grid"></div><div class="mx-glow" style="top:-400px"></div>
+<div data-k="mark" ${P(570,150)}>${LOGO(140)}</div>
+<div data-k="word" class="mx-h mx-c" ${P(0,318,"font-size:84px")}>TierStack</div>
+<div data-k="sub" class="mx-c mx-mut" ${P(0,428,"font-size:28px")}>Stop betting on one account. Build a funded portfolio.</div>
+<div data-k="btn" class="mx-btn" ${P(510,510)}>Build my plan →</div>`,
+draw(e,t){
+  S(e.lb3,{o:tw(t,.1,.5),y:L(-16,0,tw(t,.1,.7,"b"))}); S(e.lb2,{o:tw(t,.25,.65),y:L(-16,0,tw(t,.25,.85,"b"))}); S(e.lb1,{o:tw(t,.4,.8),y:L(-16,0,tw(t,.4,1,"b"))});
+  S(e.mark,{o:tw(t,0,.3)}); S(e.word,{o:tw(t,.6,1.1),y:L(20,0,tw(t,.6,1.2))}); S(e.sub,{o:tw(t,.9,1.4),y:L(16,0,tw(t,.9,1.5))});
+  S(e.btn,{o:tw(t,1.2,1.6),s:tw(t,1.2,1.8,"b")*(1+.025*Math.sin(Math.max(0,t-2)*4))});
+}};
+
+/* ---------- mount ---------- */
+function mount(box){
+  const sc=SC[box.dataset.scene]; if(!sc||box._mx)return;
+  const st=document.createElement("div"); st.className="mx-st"; st.innerHTML=sc.html; box.appendChild(st);
+  const e={}; st.querySelectorAll("[data-k]").forEach(n=>e[n.dataset.k]=n);
+  box.setAttribute("role","img"); box.setAttribute("aria-label",sc.label);
+  const crop=()=>((box.dataset.cropSm&&(box.parentElement||box).clientWidth<600)?box.dataset.cropSm:(box.dataset.crop||"0,0,1280,720")).split(",").map(Number);
+  const fit=()=>{ const cr=crop(); box.style.aspectRatio=cr[2]+"/"+cr[3]; st.style.transform=`scale(${box.clientWidth/cr[2]}) translate(${-cr[0]}px,${-cr[1]}px)`; }; fit();
+  if(window.ResizeObserver) new ResizeObserver(fit).observe(box);
+  box._mx={sc,e,draw:t=>sc.draw.call(sc,e,t)};
+  box._mx.draw(sc.dur*.82);
+  return box._mx;
+}
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+function start(){
+  if(!document.getElementById("mx-css")){ const s=document.createElement("style"); s.id="mx-css"; s.textContent=CSS; document.head.appendChild(s); }
+  const boxes=[...document.querySelectorAll(".mx[data-scene]")]; boxes.forEach(mount);
+  if(reduce||window.MX_MANUAL)return;
+  const live=new Set();
+  const io=new IntersectionObserver(es=>es.forEach(en=>{ const m=en.target._mx; if(!m)return; if(en.isIntersecting){ m.t0=performance.now(); live.add(m); } else live.delete(m); }),{threshold:.25});
+  boxes.forEach(b=>io.observe(b));
+  const loop=now=>{ live.forEach(m=>{ const t=((now-m.t0)/1000)%m.sc.dur; m.draw(t); }); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+}
+window.TierMotion={scenes:SC,mount,start};
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
+})();
+
+(function(){ const d=document.getElementById("filmDlg"), v=document.getElementById("filmV");
+  document.getElementById("filmBtn").addEventListener("click",()=>{ if(d.showModal) d.showModal(); else d.setAttribute("open",""); v.currentTime=0; v.play().catch(()=>{}); });
+  const close=()=>{ v.pause(); d.close?d.close():d.removeAttribute("open"); };
+  document.getElementById("filmX").addEventListener("click",close);
+  d.addEventListener("click",e=>{ if(e.target===d) close(); });
+  d.addEventListener("close",()=>v.pause()); })();
+</script>

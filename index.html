@@ -1,0 +1,2081 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="TierStack: a prop firm funding plan and daily coach. Build your plan in 2 minutes, then see which account to trade and how much to risk every day.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="TierStack · Prop firm plan + daily coach">
+<meta property="og:description" content="Two tests today. A funded portfolio tomorrow. Plan, firm rules and a daily coach.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Crect x='9' y='7' width='14' height='4' rx='2' fill='%23cfeefe'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%230b7fc0'/%3E%3Crect x='5' y='21' width='22' height='4' rx='2' fill='%2338bdf8'/%3E%3C/svg%3E">
+<title>TierStack · Prop firm plan + daily coach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: multi-view product site (Home, Firm rules, Build). Brand: black + sky blue. Dark-first black ground, sky accent; tiers are three steps of the same blue family. Content in a 1160px column. */
+:root{
+  --bg:#000000; --bg2:#06090d; --card:#0a0f15; --card2:#0f161f; --line:rgba(125,211,252,.10); --line2:rgba(125,211,252,.18);
+  --ink:#f2f8fc; --muted:#8fa3b3; --dim:#5b6b78;
+  --gold:#38bdf8; --gold-ink:#00121c; --glow:rgba(56,189,248,.30);
+  --t1:#38bdf8; --t2:#0b7fc0; --t3:#cfeefe; --t1-ink:#00121c; --t2-ink:#ffffff; --t3-ink:#00121c;
+  --good:#2fd795; --bad:#ff5c7a; --warn:#ffb020;
+  --good-bg:rgba(47,215,149,.12); --bad-bg:rgba(255,92,122,.12); --warn-bg:rgba(255,176,32,.12); --sky-bg:rgba(56,189,248,.12);
+  --nav:rgba(0,0,0,.72); --shadow:0 30px 80px -30px rgba(56,189,248,.18),0 30px 80px -30px rgba(0,0,0,.9);
+  --grid:rgba(56,189,248,.05);
+  --f-d:"Inter Tight","Inter","Segoe UI",system-ui,sans-serif;
+  --f-b:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-m:"Inter","Segoe UI",system-ui,sans-serif; --f-code:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#ffffff; --bg2:#f2f8fc; --card:#ffffff; --card2:#f4f9fd; --line:rgba(0,40,70,.09); --line2:rgba(0,40,70,.16);
+  --ink:#05080b; --muted:#4f6070; --dim:#8494a3; --gold:#0ea5e9; --gold-ink:#00121c; --glow:rgba(14,165,233,.20);
+  --t1:#0284c7; --t2:#38bdf8; --t3:#05080b; --t1-ink:#ffffff; --t2-ink:#00121c; --t3-ink:#ffffff;
+  --good:#0f9d63; --bad:#e0365a; --warn:#c77d00;
+  --good-bg:#e4f6ee; --bad-bg:#fde8ed; --warn-bg:#fdf1dc; --sky-bg:#e0f2fe; --nav:rgba(255,255,255,.82); --shadow:0 30px 70px -35px rgba(2,132,199,.35); --grid:rgba(2,132,199,.05); color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#ffffff; --bg2:#f2f8fc; --card:#ffffff; --card2:#f4f9fd; --line:rgba(0,40,70,.09); --line2:rgba(0,40,70,.16);
+  --ink:#05080b; --muted:#4f6070; --dim:#8494a3; --gold:#0ea5e9; --gold-ink:#00121c; --glow:rgba(14,165,233,.20);
+  --t1:#0284c7; --t2:#38bdf8; --t3:#05080b; --t1-ink:#ffffff; --t2-ink:#00121c; --t3-ink:#ffffff;
+  --good:#0f9d63; --bad:#e0365a; --warn:#c77d00;
+  --good-bg:#e4f6ee; --bad-bg:#fde8ed; --warn-bg:#fdf1dc; --sky-bg:#e0f2fe; --nav:rgba(255,255,255,.82); --shadow:0 30px 70px -35px rgba(2,132,199,.35); --grid:rgba(2,132,199,.05); color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01";font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--nav)}
+h1,h2,h3,h4{font-family:var(--f-d);margin:0;letter-spacing:-.025em;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+.in{max-width:1160px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.mono,.num{font-family:var(--f-m);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+[data-view][hidden]{display:none!important}
+
+/* nav */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--nav);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid var(--line)}
+nav.top .in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-d);font-weight:700;font-size:19px;text-decoration:none;letter-spacing:-.02em}
+.logo svg{width:28px;height:28px}
+.links{display:flex;gap:28px;font-size:15px;font-weight:600}
+.links a{text-decoration:none;color:var(--muted)}
+.links a:hover,.links a[aria-current="page"]{color:var(--ink)}
+@media (max-width:820px){.links{display:none}}
+.navr{display:flex;align-items:center;gap:10px}
+.theme{width:38px;height:38px;border-radius:50%;border:1px solid var(--line2);background:transparent;color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.theme .sun{display:none}.isdark .theme .sun{display:inline}.isdark .theme .moon{display:none}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-b);font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;padding:12px 20px;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn.gold{background:var(--gold);color:var(--gold-ink);box-shadow:0 10px 30px -10px var(--glow)}
+.btn.gold:hover{transform:translateY(-1px);box-shadow:0 14px 36px -10px var(--glow)}
+.btn.ghost{border-color:var(--line2);color:var(--ink);background:transparent}
+.btn.sm{padding:9px 14px;font-size:14px;border-radius:10px}
+.btn .arr{transition:transform .2s}.btn:hover .arr{transform:translateX(3px)}
+
+/* shared section */
+section.s{padding-block:110px}
+@media (max-width:700px){section.s{padding-block:72px}}
+.kicker{font-family:var(--f-m);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.sh{display:flex;flex-direction:column;gap:14px;max-width:720px;margin-bottom:56px}
+.sh.c{text-align:center;margin-inline:auto;align-items:center}
+.sh h2{font-size:clamp(30px,4.4vw,50px);line-height:1.08;font-weight:700}
+.sh p{font-size:18px;color:var(--muted);max-width:620px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:72px 96px}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 30%,transparent 75%);pointer-events:none}
+.hero::after{content:"";position:absolute;width:720px;height:720px;right:-200px;top:-260px;background:radial-gradient(circle,var(--glow),transparent 62%);pointer-events:none}
+.hero .in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center}
+@media (max-width:960px){.hero .in{grid-template-columns:minmax(0,1fr)}}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px 6px 8px;border-radius:99px;border:1px solid var(--line2);background:var(--card);color:var(--muted);width:max-content;max-width:100%}
+.badge i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--sky-bg)}
+.hero h1{font-size:clamp(40px,6vw,72px);line-height:1.02;font-weight:800;margin-top:22px}
+.hero h1 .g{color:var(--gold)}
+.hero .lead{font-size:clamp(17px,1.8vw,20px);color:var(--muted);margin-top:22px;max-width:540px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.trust{display:flex;gap:28px;flex-wrap:wrap;margin-top:40px}
+.trust div{display:flex;flex-direction:column}
+.trust b{font-family:var(--f-d);font-size:26px;letter-spacing:-.02em}
+.trust span{font-size:13px;color:var(--muted)}
+
+/* hero device */
+.device{background:var(--card);border:1px solid var(--line2);border-radius:22px;box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;gap:16px;position:relative;min-width:0}
+.dv-top{display:flex;justify-content:space-between;align-items:center}
+.dv-top .ttl{font-size:13px;color:var(--muted);font-weight:600}
+.dv-top .dots{display:flex;gap:6px}.dv-top .dots i{width:10px;height:10px;border-radius:50%;background:var(--line2)}
+.dv-big{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.dv-big .v{font-family:var(--f-d);font-size:clamp(30px,4vw,40px);font-weight:700;letter-spacing:-.03em}
+.dv-big .chg{font-family:var(--f-m);font-size:13px;color:var(--gold);background:var(--sky-bg);padding:4px 8px;border-radius:8px}
+.dv-chart{width:100%;height:120px;display:block}
+.dv-rows{display:flex;flex-direction:column;gap:8px}
+.dv-row{display:grid;grid-template-columns:10px minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--card2);border-radius:12px;padding:10px 12px;font-size:14px}
+.dv-row .c{width:10px;height:10px;border-radius:3px}
+.dv-row .m{font-family:var(--f-m);font-size:13px;color:var(--muted)}
+.pill{font-family:var(--f-m);font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;letter-spacing:.04em}
+.pill.on{background:var(--gold);color:var(--gold-ink)}.pill.off{background:var(--line);color:var(--muted)}.pill.ph{background:var(--sky-bg);color:var(--gold)}
+.toast{position:absolute;left:-18px;bottom:64px;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow);font-size:14px}
+.toast .ic{width:30px;height:30px;border-radius:50%;background:var(--gold);display:grid;place-items:center;color:var(--gold-ink);font-weight:800}
+.toast b{display:block;font-family:var(--f-m);color:var(--gold)}
+.toast span{font-size:12px;color:var(--muted)}
+@media (max-width:560px){.toast{left:10px}}
+
+/* ticker */
+.ticker{border-block:1px solid var(--line);overflow:hidden;background:var(--bg2)}
+.ticker .track{display:flex;gap:48px;padding:16px 0;width:max-content;font-family:var(--f-m);font-size:13.5px;color:var(--muted);white-space:nowrap}
+.ticker b{color:var(--ink);font-weight:600}
+.ticker .sep{color:var(--gold)}
+
+/* cards & grids */
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:860px){.g3,.g2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:12px;min-width:0;position:relative;overflow:hidden}
+.panel h3{font-size:21px}
+.panel p{color:var(--muted);font-size:15.5px}
+.ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--card2)}
+.ico svg{width:24px;height:24px}
+.prob .x{font-family:var(--f-m);font-size:12px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.prob .fix{margin-top:auto;padding-top:14px;border-top:1px dashed var(--line2);font-size:14.5px;color:var(--ink);display:flex;gap:8px}
+.prob .fix::before{content:"✓";color:var(--gold);font-weight:800}
+
+/* steps line */
+.flowline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;position:relative}
+@media (max-width:860px){.flowline{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.flowline{grid-template-columns:minmax(0,1fr)}}
+.fstep{display:flex;flex-direction:column;gap:10px;min-width:0}
+.fstep .n{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-d);font-weight:700;font-size:19px;background:var(--card);border:1px solid var(--line2);position:relative;z-index:1}
+.fstep h3{font-size:19px}
+.fstep p{color:var(--muted);font-size:15px}
+.rail{position:absolute;top:26px;left:26px;right:26px;height:2px;background:var(--line2);overflow:hidden}
+.rail i{display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+@media (max-width:860px){.rail{display:none}}
+
+/* tiers visual */
+.tiers{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:center}
+@media (max-width:860px){.tiers{grid-template-columns:minmax(0,1fr)}}
+.stack3{display:flex;flex-direction:column;gap:12px}
+.layer{border-radius:18px;padding:20px 22px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden}
+.layer::before{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--c);opacity:.14}
+.layer .tag{font-family:var(--f-m);font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;color:var(--k,#fff);background:var(--c);position:relative}
+.layer h4{font-size:18px;position:relative}
+.layer p{font-size:14px;color:var(--muted);position:relative}
+.layer .pc{font-family:var(--f-d);font-size:28px;font-weight:700;color:var(--c);position:relative}
+
+/* features */
+.feat .ico{background:transparent}
+.feat .soon{position:absolute;top:22px;right:22px;font-family:var(--f-m);font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 9px;border-radius:99px;background:var(--sky-bg);color:var(--gold);border:1px dashed var(--gold)}
+.feat .live{position:absolute;top:22px;right:22px;font-family:var(--f-m);font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 9px;border-radius:99px;background:var(--gold);color:var(--gold-ink)}
+
+/* example */
+.example{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:20px;align-items:stretch}
+@media (max-width:860px){.example{grid-template-columns:minmax(0,1fr)}}
+.exnums{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.exn{background:var(--card2);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:2px}
+.exn .v{font-family:var(--f-d);font-size:30px;font-weight:700;letter-spacing:-.03em}
+.exn .k{font-size:13px;color:var(--muted)}
+
+/* faq */
+.faq{display:flex;flex-direction:column;gap:12px;max-width:820px;margin:0 auto}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.faq summary{cursor:pointer;list-style:none;font-family:var(--f-d);font-weight:600;font-size:17px;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--gold);font-size:22px;line-height:1}
+.faq details[open] summary::after{content:"−"}
+.faq details p{color:var(--muted);margin-top:12px}
+
+/* cta band */
+.cta{background:var(--card);border:1px solid var(--line2);border-radius:28px;padding:64px 32px;text-align:center;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:18px}
+.cta::before{content:"";position:absolute;width:600px;height:600px;left:50%;top:-360px;transform:translateX(-50%);background:radial-gradient(circle,var(--glow),transparent 65%)}
+.cta>*{position:relative}
+.cta h2{font-size:clamp(28px,4vw,46px)}
+.cta p{color:var(--muted);font-size:18px;max-width:560px}
+
+footer{border-top:1px solid var(--line);padding-block:40px 56px}
+footer .in{display:flex;flex-direction:column;gap:16px}
+footer .row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+footer p{font-size:13px;color:var(--dim);max-width:860px}
+
+/* ---------- BUILD view ---------- */
+.bhead{padding-block:48px 28px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.bhead .in{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.bhead h1{font-size:clamp(32px,4.4vw,48px);font-weight:800}
+.bhead p{color:var(--muted);font-size:17px;margin-top:8px;max-width:560px}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:12px}
+.crumbs a{color:var(--muted)}
+.bsteps{display:flex;gap:8px;flex-wrap:wrap}
+.bsteps span{font-size:13px;font-weight:600;padding:7px 12px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);display:flex;gap:8px;align-items:center}
+.bsteps b{width:20px;height:20px;border-radius:50%;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;font-size:11px}
+.planner{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:24px;align-items:start;padding-block:32px 80px}
+@media (max-width:900px){.planner{grid-template-columns:minmax(0,1fr)}}
+.controls{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:20px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 80px);max-height:calc(100vh - 100px);overflow:auto}
+@media (max-width:900px){.controls{position:static;max-height:none}}
+.formhead{font-size:14px;color:var(--muted)}
+.box{display:flex;flex-direction:column;gap:8px}
+.box>label{font-size:14px;font-weight:700}
+.field{display:flex;align-items:center;background:var(--card2);border-radius:14px;border:1.5px solid var(--line);padding:0 12px;transition:border-color .15s,box-shadow .15s}
+.field:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px var(--glow)}
+.field input{flex:1;min-width:0;border:0;background:transparent;font-family:var(--f-m);font-size:22px;font-weight:600;color:var(--ink);padding:12px 4px;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.field input::-webkit-outer-spin-button,.field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.field input:focus{outline:none}
+.field .pre,.field .post{font-family:var(--f-m);font-size:18px;color:var(--muted)}
+.field.step{padding:0 6px}.field.step input{text-align:center}
+.st-b{width:36px;height:36px;flex:none;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:20px;cursor:pointer;line-height:1}
+.st-b:hover{border-color:var(--gold);color:var(--gold)}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.quick button{font-family:var(--f-m);font-size:12.5px;font-weight:600;border:1px solid var(--line2);background:transparent;color:var(--muted);border-radius:8px;padding:5px 11px;cursor:pointer}
+.quick button[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.help{font-size:12.5px;color:var(--muted)}
+details.more summary{cursor:pointer;list-style:none;font-weight:700;font-size:14px;display:flex;justify-content:space-between;color:var(--gold)}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"+"}
+details.more[open] summary::after{content:"−"}
+.adv{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.adv h4{font-family:var(--f-m);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.f{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);min-width:0}
+.f input,.f select{font-family:var(--f-m);font-size:14px;color:var(--ink);background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px;width:100%;min-width:0}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px}
+.ladder{width:100%;border-collapse:collapse;font-size:13px}
+.ladder th{font-size:11.5px;color:var(--muted);font-weight:600;text-align:left;padding:4px 2px}
+.ladder td{padding:3px 2px}
+.ladder td.mono{font-family:var(--f-m)}
+.ladder td.hint{font-size:11px;color:var(--muted);line-height:1.25}
+.ladder input{font-family:var(--f-m);font-size:13px;color:var(--ink);background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px;width:80px}
+.hint{font-size:12.5px;color:var(--muted)}
+
+.results{display:flex;flex-direction:column;gap:18px;min-width:0;transition:opacity .25s}
+.results.loading{opacity:.45}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (max-width:560px){.card{padding:20px}}
+.ct{font-size:20px}
+.sub2{font-size:15px;color:var(--muted);margin-top:-6px}
+.headline{background:linear-gradient(160deg,var(--card2),var(--card));border-color:var(--line2);position:relative;overflow:hidden}
+.headline::before{content:"";position:absolute;width:420px;height:420px;right:-160px;top:-220px;background:radial-gradient(circle,var(--glow),transparent 65%)}
+.headline>*{position:relative}
+.headline>.k{font-family:var(--f-m);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.headline h3{font-size:clamp(28px,4vw,44px);line-height:1.08;font-weight:800}
+.headline h3 em{font-style:normal;color:var(--gold)}
+.headline .sub{font-size:16px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.kpis{grid-template-columns:minmax(0,1fr)}}
+.kpi{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .v{font-family:var(--f-d);font-size:26px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kpi .k{font-size:12.5px;color:var(--muted)}
+.tierbar{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:3px}
+.tierbar i{display:block}
+.tierkey{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tierkey div{display:flex;flex-direction:column;min-width:0}
+.tierkey b{font-family:var(--f-d);font-size:20px;letter-spacing:-.02em}
+.tierkey span{font-size:12.5px;color:var(--muted)}
+.dotl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.road{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(120px,1fr);overflow-x:auto;padding-bottom:4px}
+.stop{display:flex;flex-direction:column;gap:3px;padding-right:12px;min-width:0}
+.stop .node{display:flex;align-items:center;margin-bottom:10px}
+.stop .node b{width:14px;height:14px;border-radius:50%;background:var(--gold);flex:none;box-shadow:0 0 0 4px var(--card)}
+.stop .node i{height:2px;background:var(--line2);flex:1;display:block}
+.stop:last-child .node i{background:transparent}
+.stop .t{font-size:12.5px;color:var(--muted);font-weight:600}
+.stop .g{font-family:var(--f-d);font-size:21px;font-weight:700;letter-spacing:-.02em}
+.stop .s{font-size:12.5px;color:var(--muted)}
+.stop .w{font-family:var(--f-m);font-size:13px;font-weight:600;color:var(--gold);margin-top:4px}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-m)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:3px;border-radius:2px;display:inline-block}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.rules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.rules{grid-template-columns:minmax(0,1fr)}}
+.rule{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.rule .big{font-family:var(--f-d);font-size:24px;font-weight:700;letter-spacing:-.02em}
+.rule p{font-size:13.5px;color:var(--muted)}
+.verdict{border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+.verdict.good{background:var(--good-bg)}.verdict.warn{background:var(--warn-bg)}.verdict.bad{background:var(--bad-bg)}
+.verdict .ic{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800}
+.verdict.good .ic{background:var(--good)}.verdict.warn .ic{background:var(--warn)}.verdict.bad .ic{background:var(--bad)}
+.verdict b{display:block;font-size:16px}
+.verdict p{font-size:14.5px;opacity:.85}
+.trades{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+.tr{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-family:var(--f-m);font-weight:600;font-size:clamp(10px,1.4vw,14px);color:#fff;max-width:100%}
+.tr.w{background:var(--gold);color:var(--gold-ink)}.tr.l{background:var(--bad);opacity:.85}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:var(--f-m);font-size:clamp(15px,2vw,19px);font-weight:600}
+.eq .op{color:var(--muted)}
+.eq .res{color:var(--gold)}.eq .res.neg{color:var(--bad)}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.flow{grid-template-columns:minmax(0,1fr)}}
+.fl{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px}
+.fl .k{font-size:12.5px;color:var(--muted)}
+.fl .v{font-family:var(--f-d);font-size:24px;font-weight:700;letter-spacing:-.03em}
+.fl p{font-size:12.5px;color:var(--muted)}
+.waffle{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:4px}
+@media (max-width:560px){.waffle{grid-template-columns:repeat(10,minmax(0,1fr))}}
+.waffle i{aspect-ratio:1;border-radius:4px;display:block}
+.wkey{display:flex;flex-wrap:wrap;gap:18px;font-size:14px}
+.wkey b{font-family:var(--f-m)}
+details.full>summary{cursor:pointer;list-style:none;font-weight:700;color:var(--gold);text-align:center;padding:4px}
+details.full>summary::-webkit-details-marker{display:none}
+details.full[open]>summary{margin-bottom:18px}
+.sub-card{padding:22px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.headline .verdict{margin-top:4px}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:0}
+.steps .no{width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:grid;place-items:center;font-family:var(--f-m);font-weight:600;font-size:13px}
+.steps h4{font-size:16px;margin-bottom:3px}
+.steps p{font-size:14.5px;color:var(--muted)}
+.tbl{overflow-x:auto}
+table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px;font-family:var(--f-m)}
+table.data th{font-family:var(--f-b);font-size:12px;color:var(--muted);font-weight:600;text-align:right;padding:8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+table.data td{padding:8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data th:first-child,table.data td:first-child{text-align:left;font-family:var(--f-b)}
+
+/* ---------- RULES view ---------- */
+.rwrap{padding-block:32px 80px;display:flex;flex-direction:column;gap:18px}
+.fsearch{display:flex;gap:10px;width:100%;max-width:640px;flex-wrap:wrap}
+.fsearch input{flex:1;min-width:200px;font:inherit;font-size:16px;color:var(--ink);background:var(--card2);border:1.5px solid var(--line2);border-radius:12px;padding:12px 14px}
+.fsearch input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--glow)}
+.fsearch.big{max-width:none;background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:10px;align-items:center;flex-wrap:nowrap}
+.fsearch.big svg{width:22px;height:22px;color:var(--muted);margin-left:8px;flex:none}
+.fsearch.big input{border:0;background:transparent;font-size:clamp(17px,2.4vw,22px);font-weight:600;box-shadow:none;min-width:0}
+@media (max-width:520px){.fsearch.big{flex-wrap:wrap}.fsearch.big .btn{width:100%;justify-content:center}}
+.fchips{display:flex;gap:8px;flex-wrap:wrap}
+.fchips button{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:99px;padding:7px 14px;cursor:pointer}
+.fchips button:hover{border-color:var(--gold);color:var(--gold)}
+.fhead{background:linear-gradient(160deg,var(--card2),var(--card));border-color:var(--line2)}
+.fh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.fh-top h2{font-size:clamp(30px,4vw,44px);font-weight:800}
+.fbadge{font-family:var(--f-m);font-size:12px;font-weight:600;padding:6px 10px;border-radius:99px;background:var(--sky-bg);color:var(--gold)}
+.fbadge.ai{background:var(--warn-bg);color:var(--warn)}
+.fbig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.fbig{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fbig div{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column}
+.fbig .v{font-family:var(--f-d);font-size:28px;font-weight:700;letter-spacing:-.03em}
+.fbig div:nth-child(n+3) .v{color:var(--bad)}
+.fbig .k{font-size:12.5px;color:var(--muted)}
+.factions{display:flex;gap:10px;flex-wrap:wrap}
+.azlist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.azlist{grid-template-columns:minmax(0,1fr)}}
+.az{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.az::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--c,var(--t1))}
+.az.danger{--c:var(--bad)}.az.warn{--c:var(--warn)}.az.good{--c:var(--good)}.az.info{--c:var(--t1)}
+.az .lt{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--f-d);font-weight:800;font-size:18px;color:var(--c);background:var(--card);border:1px solid var(--line2)}
+.azb{display:flex;flex-direction:column;gap:4px;min-width:0}
+.azt{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.azt b{font-size:15.5px}
+.azv{font-family:var(--f-m);font-size:13px;font-weight:600;color:var(--c)}
+.az p{font-size:14.5px;color:var(--muted)}
+.aztag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.g2f{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:760px){.g2f{grid-template-columns:minmax(0,1fr)}}
+.traps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--ink);font-size:15px}
+.traps li::marker{color:var(--warn)}
+.fit{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:15px}
+.fit li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start}
+.fit li span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff}
+.fit .yes span{background:var(--good)}.fit .no span{background:var(--bad)}.fit .check span{background:var(--warn)}
+.unk textarea{width:100%;min-height:160px;font:inherit;font-size:14px;color:var(--ink);background:var(--card2);border:1.5px solid var(--line2);border-radius:12px;padding:12px;resize:vertical}
+.unk textarea:focus{outline:none;border-color:var(--gold)}
+.unk .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.unk .opts{grid-template-columns:minmax(0,1fr)}}
+.unk .opt{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.unk .opt h4{font-size:17px}
+.unk .opt p{font-size:14px;color:var(--muted)}
+.spin{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:rot .8s linear infinite;vertical-align:-3px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.err{color:var(--bad);font-size:14px}
+/* rules v2 */
+.fresh{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-m);font-size:12.5px;color:var(--muted);border:1px solid var(--line2);border-radius:99px;padding:7px 12px}
+.fresh i,.fbadge i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px var(--sky-bg);display:inline-block}
+.fbadge{display:inline-flex;align-items:center;gap:8px}
+.fbadge.ai i{background:var(--warn);box-shadow:0 0 0 3px var(--warn-bg)}
+.fx{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line2);border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:22px;position:relative;overflow:hidden}
+.fx::before{content:"";position:absolute;width:460px;height:460px;right:-200px;top:-260px;background:radial-gradient(circle,var(--glow),transparent 65%);pointer-events:none}
+.fx>*{position:relative}
+@media (max-width:560px){.fx{padding:20px}}
+.fx-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.fx-id{display:flex;align-items:center;gap:14px}
+.fx-mono{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--gold);color:var(--gold-ink);font-family:var(--f-d);font-weight:800;font-size:18px;flex:none}
+.fx-id h2{font-size:clamp(26px,3.4vw,36px);font-weight:800;line-height:1.1}
+.fx-prog{font-size:14px;color:var(--muted)}
+.fx-big{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line2);border-radius:16px;overflow:hidden;border:1px solid var(--line2)}
+@media (max-width:640px){.fx-big{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fx-big div{background:var(--card);padding:18px;display:flex;flex-direction:column;gap:2px}
+.fx-big .v{font-family:var(--f-d);font-size:clamp(28px,3.6vw,38px);font-weight:800;letter-spacing:-.03em}
+.fx-big .v.t1{color:var(--ink)}.fx-big .v.bad{color:var(--bad)}
+.fx-big .k{font-size:13px;color:var(--muted);font-weight:600}
+.fx-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.fitv{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.fitv b{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px}
+.fitv.yes b{background:var(--good)}.fitv.no b{background:var(--bad)}.fitv.check b{background:var(--warn)}
+.sec{display:flex;flex-direction:column;gap:14px}
+.sec h3{font-size:20px}
+.kill{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.kc{background:var(--bad-bg);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.kc .kv{font-family:var(--f-d);font-size:24px;font-weight:800;color:var(--bad);letter-spacing:-.02em}
+.kc b{font-size:15px}
+.kc p{font-size:14px;color:var(--muted)}
+.fitrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.fc{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.fc span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff}
+.fc.yes span{background:var(--good)}.fc.no span{background:var(--bad)}.fc.check span{background:var(--warn)}
+.fc p{font-size:14px}
+.azl{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.azr{border-top:1px solid var(--line)}
+.azr:first-child{border-top:0}
+.azr summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:32px minmax(0,1fr) auto 16px;gap:12px;align-items:center;padding:14px 16px}
+.azr summary::-webkit-details-marker{display:none}
+.azr summary::after{content:"+";color:var(--muted);font-size:18px;text-align:right}
+.azr[open] summary::after{content:"−"}
+.azr summary:hover{background:var(--card2)}
+.azr .lt{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-family:var(--f-d);font-weight:800;font-size:14px;color:var(--c);border:1px solid var(--line2)}
+.azr b{font-size:15px;font-weight:600}
+.azr .azv{font-family:var(--f-m);font-size:13px;font-weight:600;color:var(--c);text-align:right}
+.azr p{padding:0 16px 16px 60px;color:var(--muted);font-size:14.5px}
+.azr.danger{--c:var(--bad)}.azr.warn{--c:var(--warn)}.azr.good{--c:var(--good)}.azr.info{--c:var(--t1)}
+@media (max-width:520px){.azr summary{grid-template-columns:30px minmax(0,1fr) 16px}.azr .azv{grid-column:2;text-align:left;margin-top:-8px}.azr summary::after{grid-row:1;grid-column:3}.azr p{padding-left:16px}}
+.tips ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.tips li::marker{color:var(--gold)}
+.srcs a{color:var(--muted)}
+.linkbtn{font:inherit;font-size:14px;font-weight:600;background:none;border:0;color:var(--gold);cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+.linkbtn:disabled,.btn:disabled{opacity:.5;cursor:not-allowed}
+.fx.unk textarea{width:100%;min-height:150px;font:inherit;font-size:14px;color:var(--ink);background:var(--card);border:1.5px solid var(--line2);border-radius:14px;padding:14px;resize:vertical}
+.fx.unk textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--glow)}
+/* tracker */
+.tk-goal{display:flex;flex-direction:column;gap:8px}
+.tk-gtop{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted)}
+.tk-gtop b{color:var(--ink);font-family:var(--f-d)}
+.tk-bar{height:12px;border-radius:99px;background:var(--line2);overflow:hidden}
+.tk-bar.sm{height:8px}
+.tk-bar i{display:block;height:100%;border-radius:99px;background:var(--gold);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.tk-next{background:var(--gold);color:var(--gold-ink);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.tk-next .kicker{color:var(--gold-ink);opacity:.75}
+.tk-next b{font-family:var(--f-d);font-size:clamp(19px,2.4vw,24px);letter-spacing:-.02em}
+.tk-next p{font-size:15px;opacity:.85;max-width:720px}
+.tk-next .btn{background:var(--gold-ink);color:var(--gold);margin-top:6px}
+.tk-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:820px){.tk-list{grid-template-columns:minmax(0,1fr)}}
+.tk-acc{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.tk-acc::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--kc,var(--line2))}
+.k-trade{--kc:var(--gold)}.k-recover{--kc:var(--warn)}.k-cut{--kc:var(--bad)}.k-payout{--kc:var(--good)}.k-pass{--kc:var(--good)}.k-wait{--kc:var(--gold)}.k-rest{--kc:var(--line2)}
+.k-rest{opacity:.78}
+.tk-a1{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
+.tk-tier{font-family:var(--f-m);font-size:12px;font-weight:700;padding:6px 8px;border-radius:9px}
+.tk-nm{display:flex;flex-direction:column;min-width:0}
+.tk-nm b{font-family:var(--f-d);font-size:17px}
+.tk-nm span{font-size:12.5px;color:var(--muted)}
+.tk-pill{font-family:var(--f-m);font-size:11px;font-weight:700;letter-spacing:.06em;padding:5px 10px;border-radius:99px;background:var(--kc);color:var(--gold-ink)}
+.k-rest .tk-pill{background:var(--line);color:var(--muted)}
+.k-cut .tk-pill,.k-recover .tk-pill{color:#fff}
+.tk-do b{display:block;font-size:16px;margin-bottom:2px}
+.tk-do p{font-size:14px;color:var(--muted)}
+.tk-track{position:relative;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--bad-bg),var(--line2) 40%,var(--sky-bg))}
+.tk-track .z{position:absolute;top:-3px;width:2px;height:14px;background:var(--muted);transform:translateX(-1px)}
+.tk-track .m{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--gold);border:3px solid var(--card);transform:translate(-50%,-50%);box-shadow:0 0 0 1px var(--gold)}
+.tk-ends{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-m);font-size:11.5px;color:var(--muted);margin-top:8px}
+.tk-ends .up{color:var(--gold);font-weight:600}.tk-ends .dn{color:var(--bad);font-weight:600}
+.tk-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tk-in{flex:1;min-width:120px;font-family:var(--f-m);font-size:15px;color:var(--ink);background:var(--card2);border:1.5px solid var(--line2);border-radius:10px;padding:9px 10px}
+.tk-in:focus{outline:none;border-color:var(--gold)}
+.tk-in.bad{border-color:var(--bad)}
+.tk-more{font-size:12.5px;color:var(--muted)}
+.tk-tb{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.tk-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.tk-add select{font-family:var(--f-m);font-size:14px;color:var(--ink);background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px}
+.riskseg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.riskseg button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 12px 11px;border-radius:14px;border:1.5px solid var(--line2);background:var(--card);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:border-color .2s,background .2s,transform .15s}
+.riskseg button:hover{border-color:var(--gold)}
+.riskseg button:active{transform:scale(.98)}
+.riskseg b{font-family:var(--f-d);font-size:15px;font-weight:700;letter-spacing:-.01em}
+.riskseg .rs-v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold)}
+.riskseg .rs-s{font-size:11.5px;color:var(--muted)}
+.riskseg button[aria-checked="true"]{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.riskseg button[aria-checked="true"] .rs-v,.riskseg button[aria-checked="true"] .rs-s{color:var(--gold-ink)}
+.warnt{color:var(--warn);font-weight:600}
+.tk-risk{display:flex;flex-direction:column;align-items:stretch;gap:12px;text-align:left}
+.tk-risk .riskseg{width:100%}
+.tk-risk .riskseg button{padding:9px 12px}
+.tool{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);transition:transform .2s,border-color .2s}
+.tool:hover{transform:translateY(-3px);border-color:var(--gold)}
+.tool .tn{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.08em}
+.tool h3{font-size:24px}
+.tool p{color:var(--muted);margin:0;flex:1}
+.tool .go{font-weight:700;color:var(--gold)}
+.tool.hero-tool{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.tool.hero-tool .tn,.tool.hero-tool .go,.tool.hero-tool p{color:var(--gold-ink)}
+
+h1,h2,h3,.headline em,.stop .g,.kpi .v,.fx-big .v,.rule .big{font-variant-numeric:proportional-nums}
+@media (max-width:640px){.road{grid-auto-flow:row;grid-auto-columns:auto;overflow:visible;gap:0}
+  .stop{display:grid;grid-template-columns:22px 1fr auto;column-gap:12px;padding:0 0 16px;position:relative}
+  .stop .node{grid-row:1/span 3;flex-direction:column;margin:2px 0 0;align-items:center}
+  .stop .node i{position:absolute;left:6px;top:18px;bottom:0;width:2px;height:auto}
+  .stop .t{grid-column:2}.stop .g{grid-column:2;font-size:19px}.stop .s{grid-column:2}.stop .w{grid-column:3;grid-row:1;margin:0}}
+.tabbar{display:none}
+@media (max-width:820px){
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:60;background:var(--nav,rgba(0,0,0,.8));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line2);border-radius:18px;padding:6px;box-shadow:var(--shadow)}
+  .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:12px;text-decoration:none;color:var(--muted);font-size:11.5px;font-weight:600}
+  .tabbar svg{width:20px;height:20px}
+  .tabbar a[aria-current]{color:var(--gold-ink);background:var(--gold)}
+  body{padding-bottom:84px}}
+.tk-grow{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px}.tk-grow b{font-size:14px}.tk-grow ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;font-size:13px}.tk-grow .ok{color:var(--good)}.tk-grow .no{color:var(--mut,inherit);opacity:.75}
+.tk-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px;max-height:340px;overflow:auto}
+.tk-log li{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px}
+.tk-log span{font-family:var(--f-m);font-size:12px;color:var(--muted);padding-top:2px}
+.tk-how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.tk-how{grid-template-columns:minmax(0,1fr)}}
+.tk-how div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:10px;align-items:center;font-weight:600;font-size:14.5px}
+.tk-how b{width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;flex:none}
+/* ---------- motion ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .hero .a1{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+  .hero .a2{animation:rise .9s .1s cubic-bezier(.2,.8,.2,1) both}
+  .hero .a3{animation:rise .9s .2s cubic-bezier(.2,.8,.2,1) both}
+  .hero .a4{animation:rise .9s .3s cubic-bezier(.2,.8,.2,1) both}
+  .hero .a5{animation:rise .9s .4s cubic-bezier(.2,.8,.2,1) both}
+  .device{animation:float 7s ease-in-out infinite, rise 1.1s .25s cubic-bezier(.2,.8,.2,1) both}
+  .dv-line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.4s .6s cubic-bezier(.6,.1,.2,1) forwards}
+  .dv-fill{animation:fadein 1.2s 2s both}
+  .dv-dot{animation:pulse 2s 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  .toast{animation:toast 7s 1.5s cubic-bezier(.2,.8,.2,1) infinite both}
+  .ticker .track{animation:marquee 40s linear infinite}
+  .rail i{animation:sweep 3.2s ease-in-out infinite}
+  .layer::before{animation:growx 1.4s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+  .anim .tr{animation:flip .5s cubic-bezier(.2,.8,.2,1) both}
+  .anim .waffle i{animation:pop .4s cubic-bezier(.3,1.6,.5,1) both}
+  .anim .tierbar i{animation:growx .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+  .anim .tierbar i:nth-child(2){animation-delay:.12s}.anim .tierbar i:nth-child(3){animation-delay:.24s}
+  .anim .chart .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s cubic-bezier(.6,.1,.2,1) forwards}
+  .anim .chart .ln.l2{animation-delay:.25s}.anim .chart .ln.l3{animation-delay:.5s}
+  .anim .chart .bd{animation:fadein 1s .6s both}
+  .anim .stop{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+  .anim .stop .node b{animation:ping 2.4s ease-out infinite}
+  .anim .verdict .ic{animation:pop .5s .2s cubic-bezier(.3,1.6,.5,1) both}
+  .view-in{animation:fadein .5s ease both}
+  .tk-acc{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+  .fanim .kc,.fanim .fc{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+  .fanim .fx{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+  .fanim .fx-big .v{animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}.fanim .fx-big div:nth-child(2) .v{animation-delay:.08s}.fanim .fx-big div:nth-child(3) .v{animation-delay:.16s}.fanim .fx-big div:nth-child(4) .v{animation-delay:.24s}
+  @supports (animation-timeline: view()){
+    .reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 35%}
+  }
+}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -10px}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
+@keyframes toast{0%{opacity:0;transform:translateY(16px) scale(.96)}8%,55%{opacity:1;transform:none}63%,100%{opacity:0;transform:translateY(-10px)}}
+@keyframes marquee{to{transform:translateX(-50%)}}
+@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+@keyframes growx{from{transform:scaleX(0)}to{transform:none}}
+@keyframes flip{from{opacity:0;transform:rotateY(90deg) scale(.6)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
+@keyframes ping{0%{box-shadow:0 0 0 4px var(--card),0 0 0 4px var(--gold)}70%,100%{box-shadow:0 0 0 4px var(--card),0 0 0 14px transparent}}
+/* motion scenes + film */
+.mx-wrap{margin-top:8px}
+.tiers .mx{box-shadow:var(--shadow)}
+.tiers:has(.mx) .stack3{display:none}
+@media (min-width:700px){#how .flowline{display:none}}
+@media (max-width:699px){#how .mx{display:none}}
+.mx-sm-only{display:none}@media (max-width:599px){.mx-sm-only{display:flex;margin-bottom:24px}}
+.filmbtn .pl{width:22px;height:22px;border-radius:50%;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;font-size:10px;padding-left:2px}
+dialog.film{border:0;padding:0;background:transparent;width:min(1100px,94vw);max-width:none;overflow:visible}
+dialog.film::backdrop{background:rgba(0,0,0,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+dialog.film video{width:100%;display:block;border-radius:18px;border:1px solid var(--line2);background:#000;box-shadow:0 40px 120px -30px rgba(56,189,248,.35)}
+dialog.film .x{position:absolute;top:-46px;right:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.5);color:#fff;font-size:18px;cursor:pointer}
+.jv{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line2);box-shadow:var(--shadow);background:#000}
+.jv video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.jv-sound{position:absolute;right:14px;bottom:14px;font:inherit;font-size:13px;font-weight:700;padding:8px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.55);color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
+.ck{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.ck{grid-template-columns:minmax(0,1fr)}}
+.ckr{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card2)}
+.ckr .ci{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:800;font-size:14px;background:var(--good-bg);color:var(--good)}
+.ckr.no .ci{background:var(--bad-bg);color:var(--bad)}.ckr.no{border-color:var(--bad)}
+.ckr b{font-size:15px}.ckr p{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+.ckr .gq{font-style:italic;color:var(--ink);opacity:.8}
+.ckr .cn{font-weight:700;color:var(--gold);white-space:nowrap}
+.dweeks{display:flex;flex-direction:column;gap:8px}
+.dw{border:1px solid var(--line);border-radius:14px;background:var(--card2)}
+.dw.has{border-color:var(--line2)}
+.dw>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:12px 14px}
+.dw>summary::-webkit-details-marker{display:none}
+.dwk{font-weight:800;font-family:var(--f-d)}.dws{font-size:13px;color:var(--muted);flex:1;min-width:160px}.dwt{font-size:12.5px;font-weight:600;color:var(--gold)}
+.dl{list-style:none;margin:0;padding:0 14px 14px;display:flex;flex-direction:column;gap:8px}
+.dl li{display:flex;flex-direction:column;gap:2px;padding-left:12px;border-left:2px solid var(--gold)}
+.dl li b{font-size:14px;font-weight:600}.dl .g{font-size:12.5px;color:var(--muted)}
+.dl li.e-cut{border-color:var(--bad)}.dl li.e-milestone b{color:var(--gold);font-weight:800}
+.dl li.trs{flex-direction:row;flex-wrap:wrap;gap:6px;border:0;padding:0}
+.trs span{font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;background:var(--good-bg);color:var(--good)}
+.trs span.l{background:var(--bad-bg);color:var(--bad)}
+</style>
+</head>
+<body>
+
+
+<nav class="top"><div class="in">
+  <a class="logo" href="#home" aria-label="TierStack home"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="17" width="22" height="7" rx="2.5" fill="var(--t3)"/><rect x="6" y="9.5" width="16" height="6" rx="2.2" fill="var(--t2)"/><rect x="9" y="3" width="10" height="5" rx="2" fill="var(--gold)"/></svg>TierStack</a>
+  <div class="links"><a href="#home" data-nav="home">Home</a><a href="#build" data-nav="build">Plan</a><a href="#track" data-nav="track">Daily coach</a><a href="#rules" data-nav="rules">Firm rules</a><a href="#home" data-jump="faq">FAQ</a></div>
+  <div class="navr">
+    <button type="button" class="theme" id="themeBtn" aria-label="Switch light or dark mode"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/><g class="sun" fill="currentColor"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g></svg></button>
+    <a class="btn gold sm" href="#build" data-nav="build">Build a plan</a>
+  </div>
+</div></nav>
+
+<!-- ================= HOME ================= -->
+<main data-view="home">
+<section class="hero"><div class="in">
+  <div>
+    <span class="badge a1"><i></i>Prop firm plan + daily coach</span>
+    <h1 class="a2">Two tests today. <span class="g">A funded portfolio tomorrow.</span></h1>
+    <p class="lead a3">Get your plan in 2 minutes. Then TierStack tells you every day which account to trade and how much to risk.</p>
+    <div class="ctas a4"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a><a class="btn ghost" href="#track" data-nav="track">Open my coach</a><button type="button" class="btn ghost filmbtn" id="filmBtn"><span class="pl" aria-hidden="true">▶</span>Watch the 76-sec film</button></div>
+    <div class="trust a5"><div><b>3</b><span>risk styles</span></div><div><b>5 : 3 : 2</b><span>tier ratio</span></div><div><b>+3%</b><span>payout lock</span></div></div>
+  </div>
+  <div class="device" aria-hidden="true">
+    <div class="dv-top"><span class="ttl">Daily coach · today</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <div class="dv-big"><div><div class="hint">Funded capital</div><div class="v">$300,000</div></div><span class="chg">Risk $1,000 · Medium</span></div>
+    <svg class="dv-chart" viewBox="0 0 400 120" preserveAspectRatio="none"><defs><linearGradient id="dvg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--gold)" stop-opacity=".3"/><stop offset="1" stop-color="var(--gold)" stop-opacity="0"/></linearGradient></defs>
+      <path class="dv-fill" d="M0,108 L30,100 L55,104 L85,88 L110,92 L140,74 L165,80 L195,62 L220,66 L250,50 L275,56 L305,38 L330,42 L360,24 L400,14 L400,120 L0,120Z" fill="url(#dvg)"/>
+      <path class="dv-line" pathLength="1" d="M0,108 L30,100 L55,104 L85,88 L110,92 L140,74 L165,80 L195,62 L220,66 L250,50 L275,56 L305,38 L330,42 L360,24 L400,14" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <circle class="dv-dot" cx="396" cy="15" r="4" fill="var(--gold)"/></svg>
+    <div class="dv-rows">
+      <div class="dv-row"><i class="c" style="background:var(--t1)"></i><span>Funded · $100K #1</span><span class="m">+2.1%</span><span class="pill on">TRADE</span></div>
+      <div class="dv-row"><i class="c" style="background:var(--t1)"></i><span>Funded · $100K #2</span><span class="m">+0.4%</span><span class="pill off">REST</span></div>
+      <div class="dv-row"><i class="c" style="background:var(--t2)"></i><span>Backup · Phase 2</span><span class="m">+5.0%</span><span class="pill ph">PASSED</span></div>
+      <div class="dv-row"><i class="c" style="background:var(--t3)"></i><span>Pipeline · Phase 1</span><span class="m">+1.5%</span><span class="pill off">WAIT</span></div>
+    </div>
+    <div class="toast"><span class="ic">✓</span><div><b>+$2,400 payout</b><span>Account hit +3%. Paid out.</span></div></div>
+  </div>
+</div></section>
+
+<div class="ticker" aria-hidden="true"><div class="track">
+  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · pipeline</span><span class="sep">◆</span>
+  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · pipeline</span><span class="sep">◆</span>
+</div></div>
+
+<section class="s" id="journey"><div class="in">
+  <div class="sh c reveal"><span class="kicker">Your road</span><h2>From 2 tests to $500K funded.</h2><p>Every step, in 76 seconds.</p></div>
+  <div class="jv reveal"><video id="journeyV" src="tierstack-journey.mp4" poster="tierstack-journey-poster.jpg" muted playsinline loop preload="metadata" aria-label="Animated walkthrough: buy two tests, take turns, pass both phases, get funded, take payouts at +3%, reinvest until the tiers are full, move to bigger accounts, reach $500K funded"></video>
+    <button type="button" class="jv-sound" id="journeySound">Play with controls</button></div>
+</div></section>
+
+<section class="s" id="tools"><div class="in">
+  <div class="sh c reveal"><span class="kicker">Three tools</span><h2>Plan it. Check the rules. Follow the coach.</h2></div>
+  <div class="g3">
+    <a class="panel tool reveal" href="#build" data-nav="build"><span class="tn">01</span><h3>Your plan</h3><p>Type 6 numbers. See cost, time to goal and your odds.</p><span class="go">Build my plan →</span></a>
+    <a class="panel tool reveal" href="#rules" data-nav="rules"><span class="tn">02</span><h3>Firm rules</h3><p>Type a firm name. Every rule in plain words.</p><span class="go">Check a firm →</span></a>
+    <a class="panel tool hero-tool reveal" href="#track" data-nav="track"><span class="tn">03</span><h3>Daily coach</h3><p>Which account to trade today, how much to risk, what to do next.</p><span class="go">Open my coach →</span></a>
+  </div>
+</div></section>
+
+<section class="s" id="how" style="background:var(--bg2)"><div class="in">
+  <div class="sh c reveal"><span class="kicker">How it works</span><h2>Four steps. Then it repeats.</h2><p>A prop firm lends you its money once you pass its test. You keep most of the profit.</p></div>
+  <div class="mx reveal" data-scene="steps" data-crop="0,225,1280,445"></div>
+  <div class="flowline">
+    <div class="rail"><i></i></div>
+    <div class="fstep reveal"><span class="n" style="color:var(--gold)">1</span><h3>Buy a test</h3><p>Pay a small fee for a trading evaluation.</p></div>
+    <div class="fstep reveal"><span class="n" style="color:var(--gold)">2</span><h3>Pass it</h3><p>Hit the profit target without breaking the loss limit.</p></div>
+    <div class="fstep reveal"><span class="n" style="color:var(--gold)">3</span><h3>Get paid</h3><p>Trade the firm's money. At +3% you take a payout.</p></div>
+    <div class="fstep reveal"><span class="n" style="color:var(--gold)">4</span><h3>Reinvest</h3><p>Payouts buy new tests. Your portfolio grows itself.</p></div>
+  </div>
+</div></section>
+
+<section class="s"><div class="in tiers">
+  <div class="sh reveal" style="margin-bottom:0"><span class="kicker">The 3-tier system</span><h2>Like a football team. Always someone ready to come on.</h2><p>Every account has a job. Funded accounts play, backups wait on the bench, and new tests train in the academy. When a player gets hurt, the next one steps in that day.</p><a class="btn ghost" href="#build" data-nav="build" style="width:max-content;margin-top:8px">Build your team <span class="arr">→</span></a></div>
+  <div class="mx reveal" data-scene="team" data-crop="56,150,744,520"></div>
+  <div class="stack3">
+    <div class="layer reveal" style="--c:var(--t1);--k:var(--t1-ink);--w:100%"><span class="tag">TIER 1</span><div><h4>Funded · on the field</h4><p>Earns the payouts</p></div><span class="pc">50%</span></div>
+    <div class="layer reveal" style="--c:var(--t2);--k:var(--t2-ink);--w:60%"><span class="tag">TIER 2</span><div><h4>Backup · on the bench</h4><p>Phase 2, one step from funded</p></div><span class="pc">30%</span></div>
+    <div class="layer reveal" style="--c:var(--t3);--k:var(--t3-ink);--w:40%"><span class="tag">TIER 3</span><div><h4>Pipeline · in the academy</h4><p>Phase 1 tests in progress</p></div><span class="pc">20%</span></div>
+  </div>
+</div></section>
+
+
+
+
+
+<section class="s" id="payouts" style="background:var(--bg2)"><div class="in">
+  <div class="sh reveal mx-sm-only"><span class="kicker">Every payout</span><h2>Fills the team first. Then you.</h2></div>
+  <div class="mx reveal" data-scene="payout" data-crop-sm="620,170,600,460"></div>
+</div></section>
+
+<section class="s"><div class="in">
+  <div class="sh reveal"><span class="kicker">Live example</span><h2>2 tests of $25K. Goal: $500K funded.</h2><p>Calculated just now with a 40% win rate and 1:3 reward, the same way your plan will be.</p></div>
+  <div class="example">
+    <div class="panel reveal"><div class="exnums">
+      <div class="exn"><span class="v" id="ex_cost">—</span><span class="k">to start</span></div>
+      <div class="exn"><span class="v" id="ex_best" style="color:var(--gold)">—</span><span class="k">to the goal, at 40%</span></div>
+      <div class="exn"><span class="v" id="ex_real">—</span><span class="k">to the goal, if the win rate is 20% lower</span></div>
+      <div class="exn"><span class="v" id="ex_bust" style="color:var(--bad)">—</span><span class="k">chance of losing it all (lower win rate)</span></div>
+    </div></div>
+    <div class="panel reveal"><div id="ex_chart" style="min-height:200px"></div><div class="legend"><span><i class="sw" style="background:var(--t1)"></i>40% win rate</span><span><i class="sw" style="background:var(--t2)"></i>32% win rate</span><span><i class="sw" style="background:var(--bad)"></i>Losing trader</span></div></div>
+  </div>
+</div></section>
+
+<section class="s" id="faq" style="background:var(--bg2)"><div class="in">
+  <div class="sh c reveal"><span class="kicker">FAQ</span><h2>Questions traders ask</h2></div>
+  <div class="faq">
+    <details><summary>Will this make me money for sure?</summary><p>No. It multiplies an edge you already have. If your numbers lose, the plan shows that honestly.</p></details>
+    <details><summary>Which risk style should I pick?</summary><p>Low if you are new or on a losing run. Medium follows the guide. High passes faster but fails more tests. All three stay inside the firm's loss limits.</p></details>
+    <details><summary>Why do my two tests take turns?</summary><p>If both trade the same week, one bad week can fail both. Taking turns means a bad week only hits one.</p></details>
+    <details><summary>Which prop firms does it work with?</summary><p>Any firm with a two-step test. Pick your firm on the Firm rules page and its numbers fill your plan.</p></details>
+  </div>
+</div></section>
+
+<section class="s"><div class="in">
+  <div class="cta reveal"><span class="kicker">Two minutes</span><h2>See your plan before you spend a dollar.</h2><p>Six numbers in. A plan and a daily coach out.</p><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a></div>
+</div></section>
+</main>
+
+<!-- ================= RULES ================= -->
+<main data-view="rules" hidden>
+  <div class="bhead"><div class="in">
+    <div><div class="crumbs"><a href="#home" data-nav="home">Home</a> / Firm rules</div><h1>Know the rules before you pay.</h1><p>Type a prop firm. See what can end your account, in plain words.</p></div>
+    <span class="fresh"><i></i><span id="firmFresh">Rules auto-checked weekly</span></span>
+  </div></div>
+  <div class="in rwrap">
+    <form class="fsearch big" id="firmForm" autocomplete="off"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="text" id="firmQ" placeholder="Type a prop firm name" aria-label="Prop firm name"><button class="btn gold" type="submit">Show rules</button></form>
+    <div class="fchips" id="firmChips"></div>
+    <div id="firmOut" class="results"></div>
+  </div>
+</main>
+
+<!-- ================= TRACK ================= -->
+<main data-view="track" hidden>
+  <div class="bhead"><div class="in">
+    <div><div class="crumbs"><a href="#home" data-nav="home">Home</a> / Tracker</div><h1>Your daily coach</h1><p>Log your balances. See exactly what to do today.</p></div>
+  </div></div>
+  <div class="in rwrap"><div id="tkOut" class="results"></div></div>
+</main>
+
+<!-- ================= BUILD ================= -->
+<main data-view="check" hidden>
+  <div class="bhead"><div class="in">
+    <div><div class="crumbs"><a href="#build" data-nav="build">Plan</a> / Rule check</div><h1>Check it against the guide</h1><p>One future of your plan, played week by week to the goal. Every step shows the guide rule and a ✓ or ✗.</p></div>
+  </div></div>
+  <div class="in rwrap"><div id="demoOut" class="results"></div></div>
+</main>
+
+<main data-view="build" hidden>
+  <div class="bhead"><div class="in">
+    <div><div class="crumbs"><a href="#home" data-nav="home">Home</a> / Build a plan</div><h1>Build your plan</h1><p>Type your numbers on the left. Your plan updates on the right as you type.</p></div>
+    <div class="bsteps"><span><b>1</b>Start</span><span><b>2</b>Goal</span><span><b>3</b>Your trading</span></div>
+  </div></div>
+  <div class="in"><div class="planner">
+<form class="controls" id="f" autocomplete="off">
+      <p class="formhead">Type your own numbers. Results update as you type.</p>
+      <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
+        <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
+        <p class="help">Size of the test you buy first.</p></div>
+      <div class="box"><label for="n0">How many tests to start</label><div class="field step"><button type="button" class="st-b" data-for="n0" data-d="-1" aria-label="One less">−</button><input type="number" id="n0" value="2" min="1" max="20" step="1" inputmode="numeric"><button type="button" class="st-b" data-for="n0" data-d="1" aria-label="One more">+</button></div></div>
+      <div class="box"><label for="target">Your goal (funded money)</label><div class="field"><span class="pre">$</span><input type="number" id="target" value="500000" min="10000" step="50000" inputmode="numeric"></div><p class="help">How much firm money you want to trade.</p></div>
+      <div class="box"><label for="wr">Win rate</label><div class="field step"><button type="button" class="st-b" data-for="wr" data-d="-1" aria-label="Lower">−</button><input type="number" id="wr" value="40" min="5" max="90" step="1" inputmode="numeric"><span class="post">%</span><button type="button" class="st-b" data-for="wr" data-d="1" aria-label="Higher">+</button></div><p class="help">Out of 100 trades, how many win? Use your real record.</p></div>
+      <div class="box"><label for="rr">Reward for each $1 risked</label><div class="field step"><button type="button" class="st-b" data-for="rr" data-d="-0.5" aria-label="Lower">−</button><span class="pre">$</span><input type="number" id="rr" value="3" min="0.5" max="10" step="0.5" inputmode="decimal"><button type="button" class="st-b" data-for="rr" data-d="0.5" aria-label="Higher">+</button></div><p class="help" id="rrHelp">3 means you risk $1 to make $3.</p></div>
+      <div class="box"><label id="riskLbl">Your risk style</label>
+        <div class="riskseg" id="riskSeg" role="radiogroup" aria-labelledby="riskLbl">
+          <button type="button" role="radio" data-lvl="low"><b>Low</b><span class="rs-v" id="rs_low">$125</span><span class="rs-s">per trade</span></button>
+          <button type="button" role="radio" data-lvl="med"><b>Medium</b><span class="rs-v" id="rs_med">$250</span><span class="rs-s">per trade</span></button>
+          <button type="button" role="radio" data-lvl="high"><b>High</b><span class="rs-v" id="rs_high">$500</span><span class="rs-s">per trade</span></button>
+        </div>
+        <input type="hidden" id="risklvl" value="med">
+        <p class="help" id="riskHelp">Every level stays inside the prop firm's loss limits.</p></div>
+      <div class="box"><label for="split">Your share of profit</label><div class="field step"><button type="button" class="st-b" data-for="split" data-d="-5" aria-label="Lower">−</button><input type="number" id="split" value="80" min="10" max="100" step="5" inputmode="numeric"><span class="post">%</span><button type="button" class="st-b" data-for="split" data-d="5" aria-label="Higher">+</button></div></div>
+      <details class="more"><summary>More settings</summary>
+        <div class="adv">
+          <h4>Evaluation fees</h4>
+          <table class="ladder" id="ladderTbl"><thead><tr><th>Size</th><th>Fee $</th><th>Unlocks at</th></tr></thead><tbody></tbody></table>
+          <label class="f" for="maxsize">Largest account size<select id="maxsize"></select></label>
+          <h4>Risk and budget</h4>
+          <div class="grid3">
+            <label class="f" for="riskE">Risk evals %<input type="number" id="riskE" value="1" min="0.1" max="5" step="0.1"></label>
+            <label class="f" for="riskF">Risk funded %<input type="number" id="riskF" value="1" min="0.1" max="5" step="0.1"></label>
+            <label class="f" for="tpd">Trades / day<input type="number" id="tpd" value="1" min="1" max="5" step="1"></label>
+            <label class="f" for="reserve">Rebuy budget $<input type="number" id="reserve" value="500" min="0" step="50"></label>
+            <label class="f" for="topup">Monthly add $<input type="number" id="topup" value="0" min="0" step="50"></label>
+            <label class="f" for="approve">Payouts paid %<input type="number" id="approve" value="95" min="10" max="100" step="1"></label>
+          </div>
+          <h4>Prop firm rules</h4>
+          <div class="grid2">
+            <label class="f" for="p1t">Phase 1 target %<input type="number" id="p1t" value="8" min="1" max="20" step="0.5"></label>
+            <label class="f" for="p2t">Phase 2 target %<input type="number" id="p2t" value="5" min="1" max="20" step="0.5"></label>
+            <label class="f" for="maxdd">Max drawdown %<input type="number" id="maxdd" value="10" min="2" max="20" step="0.5"></label>
+            <label class="f" for="daily">Daily loss limit %<input type="number" id="daily" value="5" min="1" max="20" step="0.5"></label>
+            <label class="f" for="mindays">Min trading days<input type="number" id="mindays" value="4" min="0" max="30" step="1"></label>
+          </div>
+          <h4>System rules</h4>
+          <div class="grid3">
+            <label class="f" for="lock">Payout at +%<input type="number" id="lock" value="3" min="0.5" max="10" step="0.5"></label>
+            <label class="f" for="horizon">Months<input type="number" id="horizon" value="36" min="6" max="72" step="6"></label>
+            <span></span>
+            <label class="f" for="c1">Funded cut −%<input type="number" id="c1" value="6" min="1" max="20" step="0.5"></label>
+            <label class="f" for="c2">Backup cut −%<input type="number" id="c2" value="4" min="1" max="20" step="0.5"></label>
+            <label class="f" for="c3">Pipeline cut −%<input type="number" id="c3" value="4" min="1" max="20" step="0.5"></label>
+            <label class="f" for="k1">Funded retries<input type="number" id="k1" value="3" min="0" max="10" step="1"></label>
+            <label class="f" for="k2">Backup retries<input type="number" id="k2" value="4" min="0" max="10" step="1"></label>
+            <label class="f" for="k3">Pipeline retries<input type="number" id="k3" value="3" min="0" max="10" step="1"></label>
+          </div>
+          <label class="chk" for="corr"><input type="checkbox" id="corr" checked> Same trade on all accounts</label>
+        </div>
+      </details>
+    </form>
+    <div class="results" id="out" aria-live="polite"></div>
+  </div></div>
+</main>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="#home" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Home</a>
+  <a href="#build" data-nav="build"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M6 15l4-4 3 3 5-6"/></svg>Plan</a>
+  <a href="#track" data-nav="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Coach</a>
+  <a href="#rules" data-nav="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h6"/></svg>Rules</a>
+</nav>
+<footer><div class="in">
+  <div class="row"><a class="logo" href="#home"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="17" width="22" height="7" rx="2.5" fill="var(--t3)"/><rect x="6" y="9.5" width="16" height="6" rx="2.2" fill="var(--t2)"/><rect x="9" y="3" width="10" height="5" rx="2" fill="var(--gold)"/></svg>TierStack</a><a class="btn ghost sm" href="#build" data-nav="build">Build a plan</a></div>
+  <p>TierStack is an educational planning tool, not financial advice. Results come from simulated trades using your inputs and fixed risk per trade. Real markets add slippage, losing streaks and mistakes, and prop firms can change rules, refuse payouts or close accounts. Only spend on evaluations what you can afford to lose.</p>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const STD=[5000,10000,25000,50000,100000,150000,200000,300000,400000];
+const DEFAULT_FEE={5000:60,10000:100,25000:180,50000:300,100000:520,150000:750,200000:1000,300000:1400,400000:1800};
+const feeMemo={};
+function guessFee(s){ if(DEFAULT_FEE[s]) return DEFAULT_FEE[s]; return Math.round(Math.max(40, s*0.0055)/10)*10; }
+const fmt=(v,d)=>{ if(!isFinite(v)) return "—"; const a=Math.abs(v), sg=v<0?"−":"";
+  if(a>=1e6) return sg+"$"+(a/1e6).toFixed(a>=1e7?1:2).replace(/\.0+$/,"")+"M";
+  if(a>=1e4) return sg+"$"+(a/1e3).toFixed(a>=1e5?0:1).replace(/\.0$/,"")+"K";
+  return sg+"$"+a.toLocaleString("en-US",{maximumFractionDigits:d??0}); };
+const fmtFull=v=>(v<0?"−":"")+"$"+Math.round(Math.abs(v)).toLocaleString("en-US");
+const pct=(v,d=0)=>isFinite(v)?(v*100).toFixed(d)+"%":"—";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function weeksTxt(w){ if(w==null||!isFinite(w)) return "not reached"; if(w<9) return Math.round(w)+" wk"; return (w/4.33).toFixed(w<44?1:0).replace(/\.0$/,"")+" mo"; }
+function quant(arr,q){ if(!arr.length) return NaN; const a=[...arr].sort((x,y)=>x-y); const i=(a.length-1)*q, lo=Math.floor(i), hi=Math.ceil(i); return a[lo]+(a[hi]-a[lo])*(i-lo); }
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+
+/* ---------- risk styles (all stay inside prop rules) ---------- */
+// k = recovery trades [funded, backup, pipeline]; High uses the low end of the guide's ranges so bigger risk can't break the firm limit
+const RISK_LV={low:{name:"Low",base:0.5,k:[3,4,3],line:"Slow and steady. Survives long losing streaks."},
+  med:{name:"Medium",base:1,k:[3,4,3],line:"The guide's pace. Balanced speed and safety."},
+  high:{name:"High",base:2,k:[2,3,2],line:"Faster passes, more failed tests. Fewer recovery trades, so you never break the limit."}};
+// biggest % per trade so that: 2+ losses before the cut, cut + all recovery losses stays under the firm max loss, and a day's trades stay under the daily limit
+// deepest a balance can be when recovery ends: the loss that crosses the cut can overshoot it, then K more losses
+function riskWorst(r,cut,K,rr){ const den=Math.abs(rr-Math.round(rr))<1e-9?1:2, g=r/den; const depth=Math.ceil(cut/g-1e-9)*g-g+r; return depth+K*r; }
+function riskCap(maxdd,daily,tpd,cut,K,rr){ const lim=Math.min(maxdd*0.95,daily*0.8/Math.max(1,tpd)*1e9); let r=2;
+  while(r>0.25&&(riskWorst(r,cut,K,rr||3)>lim||r*Math.max(1,tpd)>daily*0.8||r>cut/2)) r-=0.25; return r; }
+function levelRisk(lv,R){ const L=RISK_LV[lv]||RISK_LV.med, k=L.k;
+  const capE=Math.min(riskCap(R.maxdd,R.daily,R.tpd,R.c3,k[2],R.rr),riskCap(R.maxdd,R.daily,R.tpd,R.c2,k[1],R.rr)), capF=riskCap(R.maxdd,R.daily,R.tpd,R.c1,k[0],R.rr);
+  return {riskE:Math.min(L.base,capE),riskF:Math.min(L.base,capF),k1:k[0],k2:k[1],k3:k[2]}; }
+function ruleNums(){ return {rr:num("rr")||3,maxdd:num("maxdd"),daily:num("daily")||5,tpd:Math.max(1,Math.round(num("tpd"))),c1:num("c1"),c2:num("c2"),c3:num("c3")}; }
+function applyLevel(lv){ if(!RISK_LV[lv]) return; const r=levelRisk(lv,ruleNums()); ["riskE","riskF","k1","k2","k3"].forEach(k=>$(k).value=r[k]); $("risklvl").value=lv; riskUI(); }
+function riskUI(){ const R=ruleNums(), s0=num("s0"), cur=$("risklvl").value;
+  Object.keys(RISK_LV).forEach(lv=>{ const r=levelRisk(lv,R); const el=$("rs_"+lv); if(el) el.textContent=fmtFull(s0*r.riskE/100); });
+  document.querySelectorAll("#riskSeg [data-lvl]").forEach(b=>b.setAttribute("aria-checked",b.dataset.lvl===cur?"true":"false"));
+  const rE=num("riskE"), rF=num("riskF"), L=RISK_LV[cur];
+  $("riskHelp").textContent=L?`${L.line} ${rE}% per test trade, ${rF}% when funded.`:`Custom: ${rE}% per test trade, ${rF}% funded (More settings).`;
+  const rr=num("rr"); $("rrHelp").innerHTML=rr<3?`<span class="warnt">The guide says at least 1 : 3. Below that, one win can't cover the losses.</span>`:"3 means you risk $1 to make $3."; }
+
+/* ---------- inputs ---------- */
+function num(id){ const v=parseFloat($(id).value); return isFinite(v)?v:0; }
+function sizeOptions(){
+  const s0=num("s0"), tgt=num("target"); const sel=$("maxsize"); const prev=sel.value;
+  const opts=[s0, ...STD.filter(s=>s>s0)].filter((s,i,a)=>a.indexOf(s)===i && s<=Math.max(s0,tgt));
+  const auto=autoMax(s0,tgt);
+  sel.innerHTML=`<option value="auto">Auto (${fmt(auto)}, about 5 funded accounts at target)</option>`+opts.map(s=>`<option value="${s}">${fmt(s)}</option>`).join("");
+  if([...sel.options].some(o=>o.value===prev)) sel.value=prev;
+}
+function autoMax(s0,tgt){ const cap=tgt/5; const c=[s0,...STD.filter(s=>s>s0&&s<=cap)]; return c[c.length-1]; }
+function buildLadder(){
+  const s0=num("s0"), tgt=num("target"); const mx=$("maxsize").value==="auto"?autoMax(s0,tgt):parseFloat($("maxsize").value);
+  const sizes=[s0,...STD.filter(s=>s>s0&&s<=mx)];
+  const k=sizes.length;
+  return sizes.map((s,i)=>{
+    let unlockT1=0, unlockPay=0;
+    if(i>0){ const f=k===2?0.3:0.2+0.4*(i-1)/(k-2); unlockT1=Math.round(tgt*f/1000)*1000; unlockPay=10+15*(i-1); }
+    return {size:s, fee:feeMemo[s]??guessFee(s), unlockT1, unlockPay};
+  });
+}
+function renderLadder(){
+  const L=buildLadder(); const tb=$("ladderTbl").tBodies[0];
+  tb.innerHTML=L.map((r,i)=>`<tr><td class="mono">${fmt(r.size)}</td><td><input type="number" id="fee_${r.size}" data-size="${r.size}" value="${r.fee}" min="0" step="10" aria-label="Eval fee for ${fmt(r.size)}"></td><td class="hint">${i===0?"start":`T1 ≥ ${fmt(r.unlockT1)}, ${r.unlockPay}+ payouts`}</td></tr>`).join("");
+  tb.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{feeMemo[inp.dataset.size]=parseFloat(inp.value)||0;}));
+}
+function readParams(){
+  const P={s0:num("s0"), n0:Math.max(1,Math.round(num("n0"))), target:num("target"),
+    wr:num("wr")/100, rr:num("rr"), riskE:num("riskE"), riskF:num("riskF"), tpd:Math.max(1,Math.round(num("tpd"))),
+    split:num("split")/100, approve:num("approve")/100, reserve:num("reserve"), topup:num("topup"),
+    p1t:num("p1t"), p2t:num("p2t"), maxdd:num("maxdd"), mindays:Math.round(num("mindays")),
+    lock:num("lock"), horizon:num("horizon"), c1:num("c1"), c2:num("c2"), c3:num("c3"),
+    k1:Math.round(num("k1")), k2:Math.round(num("k2")), k3:Math.round(num("k3")), corr:$("corr").checked, daily:num("daily")||5, risklvl:$("risklvl").value};
+  // hard guard: never let risk break the firm's limits, whatever was typed
+  const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
+  P.capped=P.riskE>capE||P.riskF>capF; P.riskE=Math.min(P.riskE,capE); P.riskF=Math.min(P.riskF,capF);
+  P.ladder=buildLadder().map(r=>({...r, fee:feeMemo[r.size]??r.fee}));
+  if(P.target<P.s0*P.n0) P.target=P.s0*P.n0;
+  return P;
+}
+
+/* ---------- single-account Monte Carlo (unit economics) ---------- */
+function phaseSim(rng,wr,rr,risk,tgt,cut,K,maxdd,maxTrades){
+  let b=0,rec=-1,used=false,n=0;
+  while(n<maxTrades){
+    n++; b+= rng()<wr? risk*rr : -risk;
+    if(b<=-maxdd) return {ok:false,n};
+    if(rec>=0){ rec--; if(b>-cut){rec=-1;used=true;} else if(rec<=0) return {ok:false,n}; }
+    else if(b<=-cut){ if(used||K===0) return {ok:false,n}; rec=K; }
+    if(b>=tgt) return {ok:true,n};
+  }
+  return {ok:false,n};
+}
+function unitEcon(P,wr){
+  const rng=mulberry(1234567); const N=12000;
+  let p1=0,p2=0,t1n=0,t2n=0; for(let i=0;i<N;i++){ const a=phaseSim(rng,wr,P.rr,P.riskE,P.p1t,P.c3,P.k3,P.maxdd,400); if(a.ok){p1++;t1n+=a.n;
+    const b=phaseSim(rng,wr,P.rr,P.riskE,P.p2t,P.c2,P.k2,P.maxdd,400); if(b.ok){p2++;t2n+=b.n;}}}
+  const pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N;
+  // funded lifetime: count payouts until cut
+  let totPay=0, cyc=0, cycOk=0, totPctPaid=0;
+  const M=4000;
+  for(let i=0;i<M;i++){ let pays=0; for(let j=0;j<300;j++){ cyc++; const r=phaseSim(rng,wr,P.rr,P.riskF,P.lock,P.c1,P.k1,P.maxdd,500);
+      if(r.ok && rng()<P.approve){ pays++; cycOk++; } else break; } totPay+=pays; }
+  const pCycle=cycOk/cyc, ePays=totPay/M;
+  const fee=P.ladder[0].fee, size=P.s0;
+  const payout=size*P.lock/100*P.split;
+  const feePerFunded=pFund>0?fee/pFund:Infinity;
+  const netPerFunded=ePays*payout-feePerFunded;
+  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0);
+  return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,
+    ev:wr*P.rr-(1-wr)};
+}
+
+/* ---------- full portfolio Monte Carlo ---------- */
+function portfolioSim(P,wr,runs,seed,lg){
+  const rng=mulberry(seed);
+  const L=P.ladder, tgt=P.target;
+  const days=Math.round(P.horizon*4.33)*5, weeks=Math.round(P.horizon*4.33);
+  const milestones=[...L.slice(1).map(r=>r.unlockT1), tgt];
+  const minFee=Math.min(...L.map(r=>r.fee));
+  const out={weekly:[],reach:milestones.map(()=>[]),feesAt:milestones.map(()=>[]),fees:[],personal:[],capIn:[],net:[],bust:0,reached:0,
+    pays:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
+  const stageRate=t1=>t1<0.2*tgt?0.8:t1<0.6*tgt?0.65:t1<tgt?0.5:0.3;
+  for(let r=0;r<runs;r++){
+    let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
+    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0;
+    const snap=()=>({T1:accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0),T2:accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0),T3:accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0)});
+    const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
+    const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
+    const persWeek=new Float32Array(weeks+1);
+    for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
+    if(lg) lg({e:"start",d:0,w:0,n:P.n0,size:L[0].size,fee:L[0].fee,cash});
+    let T1=0, evalLane=0;
+    for(let d=0; d<days; d++){
+      const w=Math.floor(d/5);
+      if(P.topup>0 && d>0 && d%21===0){ cash+=P.topup; capIn+=P.topup; }
+      // shared trade outcomes for the day
+      const shared=[]; for(let t=0;t<P.tpd;t++) shared.push(rng()<wr);
+      let dayPay=0; const promote=[];
+      // guide: any account whose 4-week cycle ends in a loss goes offline for 1 week
+      if(d%5===0) for(const a of accts){ if(w-a.cs>=4){ if(a.b<a.cb){ a.offW=w; if(lg) lg({e:"offline",d,w,id:a.id,ph:a.ph,b:a.b,cb:a.cb}); } a.cs=w; a.cb=a.b; } }
+      // stagger evaluations: two lanes take turns by week, so two evals never trade the same window
+      if(d%5===0){ const laneBusy=[false,false]; for(const a of accts) if((a.ph===1||a.ph===2)&&a.offW!==w) laneBusy[a.lane]=true; evalLane=laneBusy[w%2]?w%2:1-(w%2); } // fixed for the whole week
+      for(const a of accts){
+        if(a.ph===4) continue; // ready (passed P2, waiting for a T1 slot)
+        const funded=a.ph===3;
+        if(a.offW===w) continue; // offline week after a losing 4-week cycle
+        if(funded && ((w+a.off)%3)!==0) continue; // OFF weeks
+        if(!funded && a.lane!==evalLane) continue; // other eval's turn
+        const tg=a.ph===1?P.p1t:a.ph===2?P.p2t:P.lock;
+        const cut=a.ph===1?P.c3:a.ph===2?P.c2:P.c1;
+        const K=a.ph===1?P.k3:a.ph===2?P.k2:P.k1;
+        const risk=funded?P.riskF:P.riskE;
+        a.d++;
+        for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){
+          const win=P.corr?shared[t]:rng()<wr;
+          a.b+= win? risk*P.rr : -risk;
+          if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
+          if(a.b<=-P.maxdd){a.dead=true;a.why="maxdd";break;}
+          if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
+          else if(a.b<=-cut){ if(a.used||K===0){a.dead=true;a.why="again";break;} a.rec=K; if(lg) lg({e:"recStart",d,w,id:a.id,ph:a.ph,b:a.b,K,cut}); }
+        }
+        if(a.dead) continue;
+        if(a.b>=tg && a.d>=P.mindays){
+          if(a.ph===1){ if(lg) lg({e:"pass1",d,w,id:a.id,size:a.size,b:a.b,days:a.d}); a.ph=2; a.b=0;a.d=0;a.rec=-1;a.used=false;a.cs=w;a.cb=0; }
+          else if(a.ph===2){ if(lg) lg({e:"pass2",d,w,id:a.id,size:a.size,b:a.b,days:a.d}); a.ph=4; a.b=0;a.d=0;a.rec=-1;a.used=false; promote.push(a); }
+          else { if(rng()<P.approve){ const amt=a.size*a.b/100*P.split; if(lg) lg({e:"payout",d,w,id:a.id,size:a.size,b:a.b,amt}); dayPay+=amt; pays++; consec++; a.b=0;a.d=0;a.rec=-1;a.cs=w;a.cb=0; /* recovery stays used: once per funded account */ } else { a.dead=true; a.why="refused"; } }
+        }
+      }
+      // remove dead
+      for(const a of accts) if(a.dead){ if(lg) lg({e:"cut",d,w,id:a.id,ph:a.ph,size:a.size,b:a.b,why:a.why}); if(a.ph===3){ cuts++; lastCut=d; consec=0; } }
+      accts=accts.filter(a=>!a.dead);
+      // promotions into T1 while below target
+      T1=accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0);
+      for(const a of accts){ if(a.ph===4 && T1<tgt){ a.ph=3; a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1}); } }
+      // allocate payouts
+      if(dayPay>0){
+        gross+=dayPay;
+        const T2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), T3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
+        const stocked=T1>0 && T2>=0.6*T1-1 && T3>=0.4*T1-1;
+        const rate=stocked?stageRate(T1):1;
+        cash+=dayPay*rate; personal+=dayPay*(1-rate); persWeek[w]+=dayPay*(1-rate);
+        if(lg) lg({e:"alloc",d,w,amt:dayPay,rate,stocked,T1,T2,T3,toPool:dayPay*rate,personal:dayPay*(1-rate),cash});
+      }
+      // upgrade ladder
+      // guide scale-up checklist: 3+ payouts in a row and no funded cut in the last 14 days (10 trading days)
+      const growOk=consec>=3 && d-lastCut>10;
+      while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut}); }
+      // buy evals (restock T3 first; T2 only refills by passing T3)
+      let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
+      let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
+      const pipeTarget=Math.max(Math.min(T1,tgt), P.n0*P.s0);
+      let guard=0;
+      while((pipe<pipeTarget || t3cap<0.4*pipeTarget-1) && guard++<50){
+        let li=lvl; let outNew=false;
+        if(lvl>proven){ outNew=accts.some(a=>a.li===lvl && a.ph!==3); if(outNew) li=proven; }
+        const fee=L[li].fee; if(cash<fee) break;
+        const why=t3cap<0.4*pipeTarget-1?"t3":"pipe";
+        cash-=fee; fees+=fee; evals++;
+        const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
+      }
+      // milestones
+      for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }
+      if(lg&&(d+1)%5===0) lg({e:"week",d,w,...snap(),cash,personal,fees,pays,lvl});
+      if(lg&&reach[reach.length-1]!=null) break;
+      if((d+1)%5===0) weekly[w+1]=T1;
+      if(accts.length===0 && cash<minFee && P.topup<=0){ busted=true; break; }
+    }
+    out.weekly.push(weekly);
+    reach.forEach((v,m)=>{ if(v!=null){ out.reach[m].push(v); out.feesAt[m].push(feesAt[m]); } });
+    if(reach[reach.length-1]!=null) out.reached++;
+    if(busted) out.bust++; out.bustFlags.push(busted);
+    out.fees.push(fees); out.personal.push(personal); out.capIn.push(capIn);
+    out.net.push(personal+cash-capIn); out.pays.push(pays); out.cutsT1.push(cuts); out.evals.push(evals); out.grossPaid.push(gross);
+    out.endT1.push(T1); out.reachedFlags.push(reach[reach.length-1]!=null);
+    let last=0; for(let k=Math.max(0,weeks-13);k<=weeks;k++) last+=persWeek[k]; out.monthlyEnd.push(last/3);
+  }
+  out.runs=runs; out.weeks=weeks;
+  out.median=new Array(weeks+1).fill(0).map((_,i)=>quant(out.weekly.map(x=>x[i]),0.5));
+  out.p10=new Array(weeks+1).fill(0).map((_,i)=>quant(out.weekly.map(x=>x[i]),0.1));
+  out.p90=new Array(weeks+1).fill(0).map((_,i)=>quant(out.weekly.map(x=>x[i]),0.9));
+  return out;
+}
+
+
+/* ---------- front end ---------- */
+const SIZES=[5000,10000,25000,50000,100000];
+function outs(){ const v=$("s0").value; document.querySelectorAll("#sizeQuick button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v)); }
+function bindControls(){
+  $("sizeQuick").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $("s0").value=b.dataset.v; sizeOptions(); renderLadder(); schedule(); });
+  document.querySelectorAll(".st-b").forEach(b=>b.addEventListener("click",()=>{ const i=$(b.dataset.for); const d=parseFloat(b.dataset.d);
+    let v=Math.round(((parseFloat(i.value)||0)+d)*100)/100; v=Math.max(parseFloat(i.min),Math.min(parseFloat(i.max),v)); i.value=v; schedule(); }));
+}
+function chart(P,S){
+  const W=640,H=260,pl=50,pr=10,pt=12,pb=28; const weeks=S[0].sim.weeks;
+  const ymax=P.target*1.15; const x=i=>pl+(W-pl-pr)*i/weeks; const y=v=>pt+(H-pt-pb)*(1-Math.min(v,ymax)/ymax);
+  let g="";
+  for(let k=0;k<=4;k++){ const v=ymax*k/4; g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--hair)" stroke-width="1"/><text x="${pl-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(v)}</text>`; }
+  const step=P.horizon<=24?6:12;
+  for(let m=0;m<=P.horizon;m+=step){ g+=`<text x="${x(Math.round(m*4.33))}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${m===0?"Now":m+" mo"}</text>`; }
+  g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(P.target)}" y2="${y(P.target)}" stroke="var(--muted)" stroke-dasharray="3 4"/><text x="${W-pr}" y="${y(P.target)-7}" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">Goal ${fmt(P.target)}</text>`;
+  const real=S[1].sim; let band="";
+  for(let i=0;i<=weeks;i++) band+=(i?"L":"M")+x(i).toFixed(1)+","+y(real.p90[i]).toFixed(1);
+  for(let i=weeks;i>=0;i--) band+="L"+x(i).toFixed(1)+","+y(real.p10[i]).toFixed(1);
+  g+=`<path class="bd" d="${band}Z" fill="var(--t2)" fill-opacity=".14"/>`;
+  const line=(arr,c,cls)=>{ let d=""; arr.forEach((v,i)=>d+=(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)); return `<path class="ln ${cls}" pathLength="1" d="${d}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`; };
+  g+=line(S[2].sim.median,"var(--bad)","l3")+line(real.median,"var(--t2)","l2")+line(S[0].sim.median,"var(--t1)","l1");
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Funded capital over time for three scenarios">${g}</svg>`;
+}
+
+function render(P,S){
+  const L=P.ladder, top=L[L.length-1], tgt=P.target, best=S[0].sim, sim=S[1].sim, lose=S[2].sim;
+  const n1=Math.ceil(tgt/top.size), n2=Math.ceil(tgt*.6/top.size), n3=Math.ceil(tgt*.4/top.size);
+  const startCost=P.n0*L[0].fee+P.reserve;
+  const last=a=>a[a.length-1];
+  const bR=last(best.reach), rR=last(sim.reach);
+  const bestT=bR.length>best.runs*0.5?weeksTxt(quant(bR,0.5)):null;
+  const realT=rR.length>sim.runs*0.5?weeksTxt(quant(rR,0.5)):null;
+  const reachedIncome=(m)=>{ const v=m.monthlyEnd.filter((_,i)=>m.reachedFlags[i]); return v.length?quant(v,0.5):0; };
+  const income=reachedIncome(best);
+  const bust=sim.bust/sim.runs;
+  const ev=S[0].ue.ev, be=1/(1+P.rr);
+  const long=w=>w.replace(" mo"," months").replace(" wk"," weeks");
+
+  let head;
+  if(bestT) head=`<h3>${fmt(tgt)} funded in about <em>${long(bestT)}</em>.</h3><p class="sub">${realT?`If your real win rate is a little lower, plan for about ${long(realT)}.`:`If your real win rate is a little lower, it may take longer than ${P.horizon} months.`}</p>`;
+  else head=`<h3>${fmt(tgt)} is out of reach at these numbers.</h3><p class="sub">Raise your win rate or reward, or lower the goal.</p>`;
+
+  let vc,vt,vp;
+  if(ev<=0){vc="bad";vt="Your trading loses money.";vp=`At 1 : ${P.rr} you need to win more than ${pct(be)} of trades. Fix that before buying evaluations.`;}
+  else if(bust>0.25){vc="warn";vt="Works, but the start is fragile.";vp=`In ${pct(bust)} of realistic runs, every account is lost before payouts start. A bigger rebuy budget lowers this.`;}
+  else {vc="good";vt="The numbers work.";vp=`You make ${ev.toFixed(2)}× your risk per trade on average. Keep logging trades to make sure your win rate holds.`;}
+
+  const stops=[{t:"Start",g:fmt(P.n0*P.s0),s:`${P.n0} × ${fmt(P.s0)} evaluations`,w:"Now"}];
+  for(let i=1;i<L.length;i++){ const r=best.reach[i-1]; stops.push({t:`Move to ${fmt(L[i].size)}`,g:fmt(L[i].unlockT1),s:`funded, ${L[i].unlockPay}+ payouts`,w:r.length?"~"+weeksTxt(quant(r,0.5)):"—"}); }
+  stops.push({t:"Goal",g:fmt(tgt),s:`${n1} × ${fmt(top.size)} funded`,w:bestT?"~"+bestT:"—"});
+
+  const stepsArr=[
+    [`Buy ${P.n0} × ${fmt(P.s0)} evaluations`,`Cost ${fmtFull(P.n0*L[0].fee)}. Keep ${fmtFull(P.reserve)} aside for rebuys. Risk ${P.riskE}% per trade (${fmtFull(P.s0*P.riskE/100)}), never more after a loss.`],
+    [`Pass Phase 1 (+${P.p1t}%) and Phase 2 (+${P.p2t}%)`,`About ${pct(S[0].ue.pFund)} of evaluations make it to funded at your numbers. ${P.n0>1?"Evaluations take turns by week, never the same trade on two at once. ":""}Stop and rebuy if one falls ${P.c3}% and does not recover in ${P.k3} trades.`],
+    [`Start cycling your funded accounts`,`Each account trades one week, then rests two. Start dates are staggered so a bad week only touches a third of them. Any account that loses over 4 weeks rests 1 week.`],
+    [`Take payouts at +${P.lock}%`,`On ${fmt(P.s0)} that is ${fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
+    [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and pipeline 40% of funded. Spend in this order: pipeline, backup, funded, then yourself.`],
+  ];
+  for(let i=1;i<L.length;i++) stepsArr.push([`Move up to ${fmt(L[i].size)} accounts`,`When funded reaches ${fmt(L[i].unlockT1)} with ${L[i].unlockPay}+ payouts, 3 in a row and no funded cut in 14 days. Pass one ${fmt(L[i].size)} account first, then buy more.`]);
+  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup, ${n3} pipeline accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
+
+  const sc=(s,label)=>{ const m=s.sim, r=last(m.reach); return `<div class="sc"><span class="n">${label}</span><span class="v">${r.length>m.runs*0.5?weeksTxt(quant(r,0.5)):"Not reached"}</span><span class="s">${pct(s.wr)} win rate · ${pct(m.bust/m.runs)} lose it all</span></div>`; };
+  const row=s=>{ const u=s.ue,m=s.sim; return `<tr><td>${s.name}</td><td>${pct(s.wr)}</td><td>${u.ev>=0?"+":""}${u.ev.toFixed(2)}R</td><td>${pct(u.pFund)}</td><td>${fmt(u.feePerFunded)}</td><td>${pct(u.pCycle)}</td><td>${u.ePays.toFixed(1)}</td><td>${pct(m.reached/m.runs)}</td><td>${pct(m.bust/m.runs)}</td><td>${fmt(quant(m.fees,0.5))}</td><td>${fmt(quant(m.net,0.5))}</td></tr>`; };
+
+  const u0=S[0].ue; const w10=Math.round(P.wr*10); const W100=Math.round(P.wr*100), L100=100-W100; const netR=W100*P.rr-L100;
+  const tradesHtml=Array.from({length:10},(_,i)=>i<w10?`<span class="tr w" style="animation-delay:${i*70}ms">+${P.rr}</span>`:`<span class="tr l" style="animation-delay:${i*70}ms">−1</span>`).join("");
+  const mult=u0.feePerFunded>0&&isFinite(u0.feePerFunded)?(u0.ePays*u0.payout)/u0.feePerFunded:0;
+  const tot=sim.runs; let rc=0,bc=0; for(let i=0;i<tot;i++){ if(sim.reachedFlags[i]) rc++; else if(sim.bustFlags[i]) bc++; }
+  const wc=[Math.round(rc/tot*100),0,Math.round(bc/tot*100)]; wc[1]=100-wc[0]-wc[2];
+  const waffle=Array.from({length:100},(_,i)=>`<i style="animation-delay:${(i%20)*25+Math.floor(i/20)*60}ms;background:${i<wc[0]?"var(--gold)":i<wc[0]+wc[1]?"var(--dim)":"var(--bad)"}"></i>`).join("");
+
+  $("out").innerHTML=`
+  <div class="card headline"><span class="k">Your result</span>${head}
+    <div class="kpis">
+      <div class="kpi"><span class="v">${fmtFull(startCost)}</span><span class="k">to get started</span></div>
+      <div class="kpi"><span class="v">${income>0?fmt(income):"—"}</span><span class="k">a month once you reach the goal</span></div>
+      <div class="kpi"><span class="v" style="color:${bust>0.25?"var(--bad)":"inherit"}">${pct(bust)}</span><span class="k">chance of losing it all</span></div>
+  </div>
+    ${vc!=="good"?`<div class="verdict ${vc}"><span class="ic">!</span><div><b>${vt}</b><p>${vp}</p></div></div>`:""}
+    <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
+  </div>
+
+  <div class="card"><h3 class="ct">The road there</h3>
+    <div class="road">${stops.map((s,k)=>`<div class="stop" style="animation-delay:${k*120}ms"><div class="node"><b></b><i></i></div><span class="t">${s.t}</span><span class="g">${s.g}</span><span class="s">${s.s}</span><span class="w">${s.w}</span></div>`).join("")}</div>
+  </div>
+
+  <div class="card"><h3 class="ct">Growth over time</h3>
+    ${chart(P,S)}
+    <div class="legend"><span><i class="sw" style="background:var(--t1)"></i>Your numbers</span><span><i class="sw" style="background:var(--t2)"></i>Win rate 20% lower</span><span><i class="sw" style="background:var(--bad)"></i>Losing trader</span></div>
+  </div>
+
+  <div class="card"><h3 class="ct">Your rules, every day</h3>
+    <div class="rules">
+      <div class="rule"><span class="big">${fmtFull(P.s0*P.riskE/100)}</span><p>Risk per trade on a ${fmt(P.s0)} test${RISK_LV[P.risklvl]?" ("+RISK_LV[P.risklvl].name+")":""}. Same size after a loss.${P.capped?" Lowered to stay inside the firm\u2019s limits.":""}</p></div>
+      <div class="rule"><span class="big">1 : ${P.rr}</span><p>Every trade aims for at least ${P.rr}× what it risks.</p></div>
+      ${P.n0>1?`<div class="rule"><span class="big">Take turns</span><p>Your tests trade in different weeks, never the same trade on two.</p></div>`:""}
+      <div class="rule"><span class="big">+${P.lock}%</span><p>Ask for the payout the moment a funded account is up ${P.lock}%.</p></div>
+      <div class="rule"><span class="big">−${P.c1}% · −${P.c3}%</span><p>Cut a funded account at −${P.c1}%, a test at −${P.c3}%, if ${P.k3} recovery trades fail.</p></div>
+      <div class="rule"><span class="big">1 on · 2 off</span><p>Each funded account trades one week, then rests two.</p></div>
+    </div>
+  </div>
+
+  <details class="full card"><summary>See the math, odds and full plan</summary>
+  <div class="sub-card"><h3 class="ct">Your portfolio at the goal</h3>
+    <div class="tierbar"><i style="flex:5;background:var(--t1)"></i><i style="flex:3;background:var(--t2)"></i><i style="flex:2;background:var(--t3)"></i></div>
+    <div class="tierkey">
+      <div><span><i class="dotl" style="background:var(--t1)"></i>Funded</span><b>${fmt(tgt)}</b><span>${n1} × ${fmt(top.size)}</span></div>
+      <div><span><i class="dotl" style="background:var(--t2)"></i>Backup</span><b>${fmt(tgt*.6)}</b><span>${n2} × ${fmt(top.size)}</span></div>
+      <div><span><i class="dotl" style="background:var(--t3)"></i>Pipeline</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>
+    </div>
+  </div>
+
+  <div class="sub-card"><h3 class="ct">The math, with your numbers</h3>
+    <p class="sub2">Out of 10 trades, you win about ${w10}.</p>
+    <div class="trades">${tradesHtml}</div>
+    <div class="eq"><span>${W100} wins × ${P.rr}</span><span class="op">−</span><span>${L100} losses × 1</span><span class="op">=</span><span class="res ${ev<=0?"neg":""}">${netR>=0?"+":""}${netR.toFixed(0)}</span></div>
+    <p class="hint">For every 100 trades you ${netR>=0?"gain":"lose"} ${Math.abs(netR).toFixed(0)} times your risk. You risk ${fmtFull(P.s0*P.riskE/100)} per trade, so that is about ${fmtFull(Math.abs(netR)*P.s0*P.riskE/100)} ${netR>=0?"profit":"loss"} per 100 trades on one ${fmt(P.s0)} account.</p>
+    <div class="flow">
+      <div class="fl"><span class="k">One funded account costs</span><span class="v">${fmtFull(u0.feePerFunded)}</span><p>${fmtFull(L[0].fee)} test fee, and ${pct(u0.pFund)} of tests pass both phases.</p></div>
+      <div class="fl"><span class="k">It pays you back</span><span class="v">${fmtFull(u0.ePays*u0.payout)}</span><p>About ${u0.ePays.toFixed(1)} payouts of ${fmtFull(u0.payout)} before it is lost.</p></div>
+      <div class="fl"><span class="k">So every $1 you spend</span><span class="v" style="color:${mult>=1?"var(--gold)":"var(--bad)"}">${isFinite(mult)?"$"+mult.toFixed(mult<10?1:0):"$0"}</span><p>comes back on average.</p></div>
+    </div>
+  </div>
+
+  <div class="sub-card"><h3 class="ct">We played your plan 100 times</h3>
+    <p class="sub2">To be safe, we lowered your win rate by 20% (to ${pct(S[1].wr)}). Each square is one possible future over ${P.horizon} months.</p>
+    <div class="waffle">${waffle}</div>
+    <div class="wkey"><span><i class="dotl" style="background:var(--gold)"></i>Reached the goal <b>${wc[0]}</b></span><span><i class="dotl" style="background:var(--dim)"></i>Still growing <b>${wc[1]}</b></span><span><i class="dotl" style="background:var(--bad)"></i>Lost everything <b>${wc[2]}</b></span></div>
+    <p class="hint">At your exact numbers (${pct(P.wr)}): ${Math.round(best.reached/best.runs*100)} reach the goal, ${Math.round(best.bust/best.runs*100)} lose everything.</p>
+  </div>
+
+  <div class="sub-card"><h3 class="ct">Reality check</h3>
+    <div class="verdict ${vc}"><span class="ic">${vc==="good"?"✓":"!"}</span><div><b>${vt}</b><p>${vp}</p></div></div>
+    <p class="hint">Losing trader test (${pct(S[2].wr)} win rate): ${Math.round(lose.bust/lose.runs*100)} out of 100 lose everything. A losing trader almost always runs out of money. This system multiplies an edge you already have. It does not create one.</p>
+  </div>
+
+    <h3 class="ct">Step by step</h3>
+
+    <ol class="steps">${stepsArr.map((s,i)=>`<li><span class="no">${i+1}</span><div><h4>${s[0]}</h4><p>${s[1]}</p></div></li>`).join("")}</ol>
+    <div class="tbl"><table class="data"><thead><tr><th>Scenario</th><th>Win rate</th><th>Edge</th><th>Eval → funded</th><th>Fees per funded</th><th>Payout cycle wins</th><th>Payouts per account</th><th>Reach goal</th><th>Lose it all</th><th>Fees paid</th><th>Net result</th></tr></thead><tbody>${S.map(row).join("")}</tbody></table></div>
+    <p class="hint">Medians from ${sim.runs} simulated runs per scenario over ${P.horizon} months. Net result = money taken home + cash left − money put in.</p>
+  </details>`;
+}
+
+function countUp(ms){
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.querySelectorAll("#out .kpi .v, #out .fl .v, #out .headline em, #out .stop .g, #out .tierkey b").forEach(el=>{
+    const txt=el.textContent; const m=txt.match(/[0-9][0-9,]*\.?[0-9]*/); if(!m) return;
+    const raw=m[0], target=parseFloat(raw.replace(/,/g,"")), dec=(raw.split(".")[1]||"").length, comma=raw.includes(",");
+    const t0=performance.now();
+    const step=now=>{ const k=Math.min(1,(now-t0)/ms), e=1-Math.pow(1-k,3); let v=(target*e).toFixed(dec);
+      if(comma) v=Number(v).toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec});
+      el.textContent=txt.replace(raw,v); if(k<1) requestAnimationFrame(step); else el.textContent=txt; };
+    requestAnimationFrame(step);
+  });
+}
+let timer=null, busy=false, again=false;
+function schedule(){ outs(); $("out").classList.add("loading"); clearTimeout(timer); timer=setTimeout(run,350); }
+function run(){
+  if(busy){again=true;return;} busy=true;
+  setTimeout(()=>{
+    try{
+      const P=readParams(); const be=1/(1+P.rr);
+      const S=[{name:"Your numbers",wr:P.wr},{name:"Win rate 20% lower",wr:P.wr*0.8},{name:"Losing trader",wr:Math.max(0.01,be-0.03)}];
+      const runs=P.horizon>48?150:220;
+      S.forEach((s,i)=>{ s.ue=unitEcon(P,s.wr); s.sim=portfolioSim(P,s.wr,runs,9001+i*7); });
+      const first=!$("out").dataset.done; render(P,S); $("out").dataset.done="1"; if(first&&window.fillHome) window.fillHome(P,S); if(typeof firmApplied!=="undefined"&&firmApplied){ const k=$("out").querySelector(".headline>.k"); if(k) k.insertAdjacentHTML("afterend",`<span class="fbadge" style="width:max-content">Using ${esc(firmApplied)} rules</span>`); }
+      const o=$("out"); o.classList.remove("anim"); void o.offsetWidth; o.classList.add("anim"); countUp(first?1100:500);
+    }catch(e){ $("out").innerHTML=`<div class="card"><p>These settings could not be calculated: ${esc(e.message)}</p></div>`; console.error(e); }
+    $("out").classList.remove("loading"); busy=false; if(again){again=false;run();}
+  },20);
+}
+(function(){ const root=document.documentElement; const mq=window.matchMedia("(prefers-color-scheme: dark)");
+  const isDark=()=>root.dataset.theme?root.dataset.theme==="dark":mq.matches;
+  const sync=()=>{ document.body.classList.toggle("isdark",isDark()); $("themeBtn").setAttribute("aria-label",isDark()?"Switch to light mode":"Switch to dark mode"); };
+  try{ const t=localStorage.getItem("tp-theme"); if(t==="dark"||t==="light") root.dataset.theme=t; }catch(e){}
+  $("themeBtn").addEventListener("click",()=>{ const t=isDark()?"light":"dark"; root.dataset.theme=t; try{localStorage.setItem("tp-theme",t);}catch(e){} sync(); });
+  mq.addEventListener&&mq.addEventListener("change",sync); sync(); })();
+bindControls(); sizeOptions(); renderLadder(); outs();
+$("f").addEventListener("input",e=>{ const id=e.target.id; if(id==="target"||id==="s0"){ sizeOptions(); renderLadder(); }
+  if(["riskE","riskF","k1","k2","k3"].includes(id)) $("risklvl").value="custom";
+  else if(["maxdd","daily","tpd","c1","c2","c3"].includes(id)&&RISK_LV[$("risklvl").value]) applyLevel($("risklvl").value);
+  riskUI(); schedule(); });
+$("riskSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-lvl]"); if(!b) return; applyLevel(b.dataset.lvl); schedule(); });
+applyLevel("med");
+$("f").addEventListener("change",e=>{ if(e.target.id==="maxsize"){ renderLadder(); schedule(); } });
+$("f").addEventListener("submit",e=>e.preventDefault());
+
+/* ---------- firm rules library (checked 2 Nov 2026) ---------- */
+const FIRMS=[
+{id:"ftmo",name:"FTMO",program:"2-Step Challenge",aliases:["ftmo"],checked:"2 Nov 2026",
+ sources:[{l:"PropRuleGuard (checked vs FTMO, 25 Oct 2026)",u:"https://propruleguard.com/firms/ftmo"},{l:"StonkJournal FTMO review (13 Oct 2026)",u:"https://stonkjournal.com/articles/ftmo-review"}],
+ plan:{p1t:10,p2t:5,maxdd:10,daily:5,mindays:4,split:80,fees:{100000:540},cur:"€"},
+ rules:[
+  ["Price","€540 for $100K","Other sizes ($10K to $200K) are priced on ftmo.com. You get the fee back with your first payout.","info"],
+  ["Phase 1 goal","+10%","Make $10,000 on a $100K account to pass the first test.","info"],
+  ["Phase 2 goal","+5%","Then make $5,000 more on the second test.","info"],
+  ["Daily loss limit","5%","In one day you can't drop $5,000 below where you started that day. Open losing trades count too. Resets at midnight Central Europe time.","danger"],
+  ["Total loss limit","10%, fixed","Your account must never fall below $90,000. This line never moves.","danger"],
+  ["Minimum days","4 days","Trade on at least 4 different days in each phase, even if you hit the goal earlier.","info"],
+  ["Time limit","None","Take as long as you need.","good"],
+  ["Your share","80%","You keep 80% of the profit. It can rise to 90% with scaling.","good"],
+  ["First payout","14 days","You can ask for your first payout 14 days after your first trade. Approval takes 1 to 2 business days.","info"],
+  ["News trading","Limited when funded","Fine during the tests. On a funded account, no trades 2 minutes before or after big news on that market.","warn"],
+  ["Weekends","Close on Friday when funded","Fine during the tests. On a standard funded account, close everything before the weekend.","warn"],
+  ["Robots (EAs)","Allowed","Allowed, unless they send more than 2,000 server requests a day.","good"],
+  ["Someone else trading","Not allowed","Only you may trade your account.","danger"],
+  ["Copy trading","Allowed with limits","Check FTMO's exact limits before copying trades across accounts.","warn"],
+  ["Consistency rule","None","No rule about one big day.","good"],
+  ["Growing your account","+25% every 4 months","If you're up 10% and have had 2 payouts, the account grows by 25%, up to $2M.","good"]],
+ traps:["Open losing trades count toward the 5% daily limit, so a floating loss can end the account.","Weekend holding is banned on standard funded accounts.","The fee shown here is in euros."],
+ fit:[["check","Copying the same trade across your accounts is allowed with limits. Read them first."],["no","Funded accounts must close before the weekend, so plan your ON weeks to end on Friday."],["yes","No time limit fits the 1 week on, 2 weeks off rhythm."]]},
+
+{id:"fundednext",name:"FundedNext",program:"Stellar 2-Step",aliases:["fundednext","funded next","stellar"],checked:"2 Nov 2026",
+ sources:[{l:"FundedNext Help Center (2 Oct 2026)",u:"https://help.fundednext.com/en/articles/17255124-stellar-2-step-challenge"}],
+ plan:{p1t:8,p2t:5,maxdd:10,daily:5,mindays:5,split:80,fees:{6000:59.99,15000:119.99,25000:199.99,50000:299.99,100000:549.99,200000:999.99},cur:"$"},
+ rules:[
+  ["Price","$59.99 to $999.99","$25K costs $199.99, $50K $299.99, $100K $549.99. You get the fee back with your first payout.","info"],
+  ["Phase 1 goal","+8%","Make $8,000 on a $100K account.","info"],
+  ["Phase 2 goal","+5%","Then make $5,000 more.","info"],
+  ["Daily loss limit","5%","Never lose more than $5,000 in one day on a $100K account.","danger"],
+  ["Total loss limit","10%","Your balance or equity must never go below $90,000.","danger"],
+  ["Minimum days","5 days","Trade on at least 5 different days in each phase, with at least 1 trade each day.","info"],
+  ["Time limit","None","No deadline in either phase.","good"],
+  ["Your share","80%","80% on the normal 21-day cycle. Other options: 60% after 3 profitable days, or 90% on demand.","good"],
+  ["Payouts","21 days, then every 14","First payout after 21 days, then every 14 days if you're in profit. Paid within 24 hours of approval.","info"],
+  ["News trading","Only 40% counts","Profit from trades placed 5 minutes before or after big news on a related pair only counts 40%. Losses count fully.","warn"],
+  ["Quick trades","Under 30%","Profit from trades closed within 30 seconds must stay under 30% of your profit.","warn"],
+  ["Robots (EAs)","Under $50K only","EAs are allowed on accounts below $50K. Not allowed on $50K and up.","warn"],
+  ["Copy trading","Tests only","You may copy between your own challenge accounts, not with funded accounts or other people.","danger"],
+  ["Weekends","Not stated","The help page doesn't cover it. Ask support.","warn"],
+  ["Growing your account","+25% each time","Scale-Up adds 25% to the balance each time you qualify, and your share rises to 90%.","good"]],
+ traps:["News profits only count 40%, so trading big news can quietly cut your payout.","No EAs on $50K or bigger accounts.","Copy trading isn't allowed across funded accounts."],
+ fit:[["no","Copying the same trade across funded accounts isn't allowed. Trade each funded account by hand."],["yes","No time limit fits the cycling rhythm."],["check","5 minimum days per phase makes each test take at least a week."]]},
+
+{id:"fundingpips",name:"FundingPips",program:"2-Step",aliases:["fundingpips","funding pips"],checked:"2 Nov 2026",
+ sources:[{l:"Tanto rules guide (9 May 2026, third party)",u:"https://tradetanto.com/learn/fundingpips-rules"}],
+ plan:{p1t:8,p2t:5,maxdd:10,daily:5,mindays:3,split:80,fees:{},cur:"$"},
+ rules:[
+  ["Price","See website","Sizes from $5K to $100K. One-time fee, no monthly charge.","info"],
+  ["Phase 1 goal","+8% (or 10%)","Make 8% to pass. You can pick 10% at checkout for a lower price.","info"],
+  ["Phase 2 goal","+5%","Then make 5% more.","info"],
+  ["Daily loss limit","5%","In one day, don't lose more than 5% of your start-of-day balance or equity, whichever is higher. Open trades count. Resets at midnight (UTC+3).","danger"],
+  ["Total loss limit","10%, fixed","Never fall more than 10% below your starting size. This line never moves.","danger"],
+  ["Minimum days","3 days","Trade on at least 3 days in each phase.","info"],
+  ["Time limit","Not stated","No deadline is listed.","good"],
+  ["Your share","60% to 100%","Weekly payouts pay 60%, every 2 weeks 80%, on demand 90%, monthly 100%.","good"],
+  ["First payout","7 days","On the weekly plan you can ask 7 days after your first trade. Minimum payout is 1% of the account.","info"],
+  ["News trading","Profit doesn't count","On funded accounts, profit from trades opened or closed 5 minutes around big news doesn't count.","warn"],
+  ["Weekends","Auto-close Friday","On funded accounts, trades close automatically at Friday's close (for now).","warn"],
+  ["Copy trading","Own accounts only","Copying between your own accounts is fine. Not with other people.","good"],
+  ["Robots (EAs)","Managers only","Only EAs that manage trades or risk are allowed.","warn"],
+  ["Consistency rule","On-demand only","Only the 90% on-demand option needs no single day above 35% of total profit.","info"],
+  ["Inactivity","30 days","30 days without a closed trade breaks the account.","danger"]],
+ traps:["The daily limit uses the higher of balance or equity, so a winning open trade raises the bar.","A rest week is fine, but don't leave an account untouched for 30 days.","This summary comes from a third-party guide (May 2026). Confirm on fundingpips.com."],
+ fit:[["yes","Copying trades across your own accounts is allowed."],["check","The 30-day inactivity rule means every account needs at least one closed trade each month. 2 weeks off is fine."],["no","Funded trades close on Friday, so don't plan to hold over weekends."]]},
+
+{id:"the5ers",name:"The5ers",program:"High Stakes (2-step)",aliases:["the5ers","5ers","the 5ers","five percenters","the5%ers"],checked:"2 Nov 2026",
+ sources:[{l:"The5ers official blog (25 Jun 2026)",u:"https://the5ers.com/challenge-programs-bootcamp-high-stakes-hyper-growth-explained/"}],
+ plan:{p1t:8,p2t:5,maxdd:10,daily:5,mindays:3,split:80,fees:{},cur:"$"},
+ rules:[
+  ["Price","See website","Several sizes. You can hold more than one at a time.","info"],
+  ["Phase 1 goal","+8% (check)","The official page says 8% in one place and 10% in another. Confirm before buying.","warn"],
+  ["Phase 2 goal","+5%","Then make 5% more.","info"],
+  ["Daily loss limit","5%","Lose 5% in one day and the account ends right away, with no second chance.","danger"],
+  ["Total loss limit","10%","Never fall more than 10% below your starting balance.","danger"],
+  ["Minimum days","3 profitable days","You need 3 days in each step where you closed at least 0.5% profit.","info"],
+  ["Time limit","None","No deadline, as long as you trade at least once every 30 days.","good"],
+  ["Your share","80% to 100%","Starts at 80% and can grow to 100% as the account scales.","good"],
+  ["Payouts","Every 2 weeks","Paid every two weeks. Minimum payout is $150.","info"],
+  ["News trading","2-minute pause","No orders 2 minutes before or after big news.","warn"],
+  ["Weekends","Allowed","You can hold overnight and over the weekend. Index swaps cost more.","good"],
+  ["Robots (EAs)","Allowed","Allowed, but no latency, tick or rollover scalping.","good"],
+  ["Copy trading","Own accounts only","Copying between your own accounts is fine. Copying outside signals is not.","good"],
+  ["Hedging","Allowed","Allowed, with a stop-loss on each position.","info"],
+  ["Inactivity","30 days","An account with no trades for 30 days closes automatically.","danger"],
+  ["Growing your account","Every +10%","The account scales each time you make 10%, up to $500K.","good"]],
+ traps:["The daily limit ends the account instantly. There's no recovery.","Profitable days must be at least +0.5% each, not just any green day.","The official page shows both 8% and 10% for Step 1."],
+ fit:[["yes","Copying trades across your own accounts is allowed."],["yes","Weekend holding is allowed."],["check","Trade each account at least once every 30 days. 2 weeks off is fine."]]},
+
+{id:"alpha",name:"Alpha Capital",program:"Alpha Pro 8%",aliases:["alpha capital","alpha capital group","alpha","acg","alpha pro"],checked:"2 Nov 2026",
+ sources:[{l:"Alpha Capital Help Center (22 Jul 2026)",u:"https://help.alphacapitalgroup.uk/en/articles/8420429-alpha-pro-8-10"}],
+ plan:{p1t:8,p2t:5,maxdd:8,daily:4,mindays:3,split:80,fees:{},cur:"$"},
+ rules:[
+  ["Price","See website","Sizes from $5K to $300K. Prices aren't on the rules page.","info"],
+  ["Phase 1 goal","+8%","Make $8,000 on a $100K account. (Pro 10% asks for 10%.)","info"],
+  ["Phase 2 goal","+5%","Then make $5,000 more.","info"],
+  ["Daily loss limit","4%","Never lose more than $4,000 in one day on $100K. Based on your balance. (Pro 10%: 5%.)","danger"],
+  ["Total loss limit","8%, fixed","Never fall below $92,000 on $100K. (Pro 10%: 10%.)","danger"],
+  ["Minimum days","3 days","Trade on at least 3 days in each phase.","info"],
+  ["Lot limit","40 lots on $100K","Max open size: 10 lots on $25K, 20 on $50K, 40 on $100K. Going over twice closes the funded account.","danger"],
+  ["News trading","5-minute pause","Don't open or close trades on that market 5 minutes before or after big news.","warn"],
+  ["Weekends","Not when funded","Allowed during the tests, not on the funded account.","warn"],
+  ["Leverage","1:100 forex","Forex 1:100, metals 1:30, indices 1:20, oil 1:10.","info"],
+  ["Most you can hold","$400K total","All your Alpha accounts together can't go above $400K.","danger"],
+  ["Your share","Not on this page","Check alphacapitalgroup.uk for split and payout timing.","warn"]],
+ traps:["The daily limit is 4%, tighter than most firms.","Too many lots is only checked when you ask for a payout, and it can cost the payout.","Your total across all accounts is capped at $400K."],
+ fit:[["no","The $400K cap means a TierStack goal above $400K can't be done at this firm alone."],["check","Copy trading isn't covered on the rules page. Ask support."],["check","Max loss is 8%, so keep the funded cut rule at −6% or lower."]]}
+];
+
+function findFirm(q){ q=q.trim().toLowerCase().replace(/[^a-z0-9% ]/g,""); if(q.length<2) return null;
+  return FIRMS.find(f=>f.aliases.some(a=>a===q||a.startsWith(q)||q.startsWith(a))) || null; }
+
+const LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const safeUrl=u=>/^https:\/\/[^\s"'<>]+$/.test(u||"")?u:null;
+function firmHtml(F,opts={}){
+  const p=F.plan||{};
+  const rules=F.rules||[];
+  const danger=rules.filter(r=>r[3]==="danger");
+  const fitIc={yes:"✓",no:"✕",check:"!"};
+  const fits=F.fit||[];
+  const nNo=fits.filter(f=>f[0]==="no").length, nChk=fits.filter(f=>f[0]==="check").length;
+  const fitV=nNo?["no","Works, with changes"]:nChk?["check","Works, check "+nChk+" thing"+(nChk>1?"s":"")]:["yes","Works well"];
+  const src=(F.sources||[]).map(s=>{const u=safeUrl(s.u);return u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(s.l)}</a>`:esc(s.l||"");}).filter(Boolean).join(" · ");
+  const big=[["Pass test 1",p.p1t!=null?"+"+p.p1t+"%":"—","t1"],["Pass test 2",p.p2t!=null?"+"+p.p2t+"%":"—","t1"],["Max loss / day",p.daily!=null?"−"+p.daily+"%":"—","bad"],["Max loss total",p.maxdd!=null?"−"+p.maxdd+"%":"—","bad"]];
+  return `
+  <div class="fx">
+    <div class="fx-head">
+      <div class="fx-id"><span class="fx-mono">${esc((F.name||"?").charAt(0).toUpperCase())}</span><div><h2>${esc(F.name)}</h2><span class="fx-prog">${esc(F.program||"")}</span></div></div>
+      <span class="fbadge ${opts.ai?"ai":""}"><i></i>${opts.ai?esc(opts.ai):`Updated ${esc(F.checked||"")}`}</span>
+    </div>
+    <div class="fx-big">${big.map(b=>`<div><span class="v ${b[2]}">${b[1]}</span><span class="k">${b[0]}</span></div>`).join("")}</div>
+    <div class="fx-cta"><button type="button" class="btn gold" id="useFirm">Use in my plan <span class="arr">→</span></button><span class="fitv ${fitV[0]}"><b>${fitIc[fitV[0]]}</b>TierStack: ${fitV[1]}</span></div>
+  </div>
+
+  ${danger.length?`<div class="sec"><h3>Break one of these and the account is gone</h3>
+  <div class="kill">${danger.map((r,i)=>`<div class="kc" style="animation-delay:${i*70}ms"><span class="kv">${esc(r[1])}</span><b>${esc(r[0])}</b><p>${esc(r[2])}</p></div>`).join("")}</div></div>`:""}
+
+  ${fits.length?`<div class="sec"><h3>Will it work with your plan?</h3><div class="fitrow">${fits.map(f=>`<div class="fc ${f[0]}"><span>${fitIc[f[0]]||"!"}</span><p>${esc(f[1])}</p></div>`).join("")}</div></div>`:""}
+
+  <div class="sec"><h3>Every rule, A to Z</h3>
+    <div class="azl">${rules.map((r,i)=>`<details class="azr ${r[3]||"info"}"><summary><span class="lt">${LETTERS[i]||"•"}</span><b>${esc(r[0])}</b><span class="azv">${esc(r[1])}</span></summary><p>${esc(r[2])}</p></details>`).join("")}</div>
+    <p class="hint">Tap a rule to read it in one simple sentence.</p>
+  </div>
+
+  ${(F.traps||[]).length?`<div class="sec tips"><h3>Tips</h3><ul>${F.traps.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:""}
+  ${src?`<p class="hint srcs">Sources: ${src}. Firms change rules. Always confirm on the firm's site before you pay.</p>`:""}`;
+}
+
+/* live library from the database (refreshed weekly); embedded list is the fallback */
+let firmsUpdated=null;
+function validFirm(o){ return o&&typeof o.id==="string"&&typeof o.name==="string"&&Array.isArray(o.rules)&&o.plan&&typeof o.plan==="object"; }
+async function loadLiveFirms(onDone){
+  if(!(window.claude&&window.claude.use)) return;
+  let db=null; try{ db=await window.claude.use("db"); }catch(e){}
+  if(!db) return;
+  try{
+    const snap=await Promise.race([db.collection("firms").get(),new Promise((_,r)=>setTimeout(()=>r(new Error("timeout")),10000))]);
+    let n=0;
+    snap.docs.forEach(d=>{ const x=d.data(); if(!x||typeof x.json!=="string") return; let o; try{o=JSON.parse(x.json);}catch(e){return;}
+      if(!validFirm(o)) return; if(!Array.isArray(o.aliases)) o.aliases=[o.name.toLowerCase()];
+      const i=FIRMS.findIndex(f=>f.id===o.id); if(i>=0) FIRMS[i]=o; else FIRMS.push(o); n++; });
+    try{ const m=await db.doc("meta/status").get(); const md=m.data(); if(md&&typeof md.lastRun==="string") firmsUpdated=md.lastRun.slice(0,40); }catch(e){}
+    if(n||firmsUpdated) onDone();
+  }catch(e){}
+}
+
+/* ---------- firm rules controller ---------- */
+let currentFirm=null, samplePromise=null;
+function getSample(){ if(!samplePromise) samplePromise=(window.claude&&window.claude.use)?window.claude.use("sample").catch(()=>null):Promise.resolve(null); return samplePromise; }
+const RULE_TOPICS="Price, Phase 1 goal, Phase 2 goal, Daily loss limit, Total loss limit, Minimum days, Time limit, Your share, Payouts, News trading, Weekends, Robots (EAs), Copy trading, Consistency rule, Inactivity, Fee refund, Growing your account";
+function aiPrompt(name,text){
+  return `You explain prop trading firm rules to complete beginners, in words a 10-year-old understands.
+${text?`Use ONLY the rules text below, copied from the firm's website. If a topic is not in the text, use value "Not stated".`:`Use what you know about this firm. If you are not sure about a rule, use value "Not sure" and say "Check the firm's website" in the sentence.`}
+Firm: ${name}
+Reply with only one JSON object, no other text:
+{"name":string,"program":string (the 2-step program these rules describe, or ""),
+"plan":{"p1t":number|null,"p2t":number|null,"daily":number|null,"maxdd":number|null,"mindays":number|null,"split":number|null} (percent numbers, e.g. 8 for 8%),
+"rules":[[topic,value,sentence,tag]] one entry per topic in this order: ${RULE_TOPICS}. value is short (e.g. "+8%", "5%", "None"). sentence is one plain sentence with an example on a $100K account where it helps. tag is "danger" if breaking it ends the account, "warn" if it can cost money, "good" if it helps the trader, else "info".
+"traps":[3 short sentences about the easiest rules to break],
+"fit":[["yes"|"no"|"check", sentence]] for exactly these 3 checks: copying the same trade across your own accounts; holding trades over the weekend on a funded account; owning many accounts at once (total capital limit)}
+${text?`\nRULES TEXT:\n"""\n${text.slice(0,30000)}\n"""`:""}`;
+}
+function cleanAI(o,name){
+  if(!o||typeof o!=="object") throw new Error("Unexpected answer");
+  const str=v=>typeof v==="string"?v.slice(0,400):"";
+  const num=v=>typeof v==="number"&&isFinite(v)&&v>0&&v<=100?v:null;
+  const p=o.plan||{};
+  const tags=["danger","warn","good","info"];
+  return {name:str(o.name)||name,program:str(o.program),plan:{p1t:num(p.p1t),p2t:num(p.p2t),daily:num(p.daily),maxdd:num(p.maxdd),mindays:typeof p.mindays==="number"&&p.mindays>=0&&p.mindays<60?Math.round(p.mindays):null,split:num(p.split),fees:{}},
+    rules:(Array.isArray(o.rules)?o.rules:[]).slice(0,26).filter(r=>Array.isArray(r)&&r.length>=3).map(r=>[str(r[0]),str(r[1]),str(r[2]),tags.includes(r[3])?r[3]:"info"]),
+    traps:(Array.isArray(o.traps)?o.traps:[]).slice(0,5).map(str).filter(Boolean),
+    fit:(Array.isArray(o.fit)?o.fit:[]).slice(0,5).filter(f=>Array.isArray(f)).map(f=>[["yes","no","check"].includes(f[0])?f[0]:"check",str(f[1])]),
+    sources:[]};
+}
+function showFirm(F,opts){
+  currentFirm=F; const o=$("firmOut");
+  o.innerHTML=firmHtml(F,opts); o.classList.remove("fanim"); void o.offsetWidth; o.classList.add("fanim");
+  $("useFirm").addEventListener("click",()=>useFirm(F));
+}
+function useFirm(F){
+  const p=F.plan||{}; const set=(id,v)=>{ if(v!=null&&isFinite(v)) $(id).value=v; };
+  set("p1t",p.p1t); set("p2t",p.p2t); set("maxdd",p.maxdd); set("mindays",p.mindays); set("split",p.split); set("daily",p.daily);
+  if(p.maxdd!=null){ const c1=parseFloat($("c1").value); if(c1>=p.maxdd) $("c1").value=Math.max(1,p.maxdd-2); ["c2","c3"].forEach(id=>{ if(parseFloat($(id).value)>=p.maxdd) $(id).value=Math.max(1,p.maxdd-4); }); }
+  if(p.fees) Object.entries(p.fees).forEach(([k,v])=>{ feeMemo[k]=Math.round(v); });
+  const s0=parseFloat($("s0").value); if(p.fees&&!p.fees[s0]){ const sizes=Object.keys(p.fees).map(Number); if(sizes.includes(25000)) $("s0").value=25000; }
+  sizeOptions(); renderLadder(); if(RISK_LV[$("risklvl").value]) applyLevel($("risklvl").value); else riskUI();
+  try{ sessionStorage.setItem("ts-firm",F.name); }catch(e){}
+  firmApplied=F.name+(F.program?" "+F.program:"");
+  location.hash="build"; schedule();
+}
+let firmApplied=null;
+function unknownFirm(name){
+  currentFirm=null;
+  const o=$("firmOut");
+  if(!(window.claude&&window.claude.use)){ o.innerHTML=`<div class="fx unk"><span class="kicker">Not checked yet</span><h2 style="font-size:clamp(24px,3vw,32px)">We haven't checked ${esc(name)} yet</h2>
+    <p class="sub2" style="margin-top:0">Right now TierStack has hand-checked rules for ${FIRMS.map(f=>esc(f.name)).join(", ")}. Pick one above. Until we add ${esc(name)}, read its rules page and type its numbers into More settings on your plan.</p></div>`; return; }
+  o.innerHTML=`<div class="fx unk"><span class="kicker">New firm</span><h2 style="font-size:clamp(24px,3vw,32px)">We haven't checked ${esc(name)} yet</h2>
+    <p class="sub2" style="margin-top:0">Copy the text from ${esc(name)}'s rules page, paste it below, and get the rules in simple words in a few seconds.</p>
+    <textarea id="pasteRules" placeholder="Paste ${esc(name)}'s rules here"></textarea>
+    <div class="fx-cta"><button type="button" class="btn gold" id="btnPaste">Make it simple</button><button type="button" class="linkbtn" id="btnAsk">No text? Explain ${esc(name)} from memory</button></div>
+    <p class="err" id="aiErr" hidden></p></div>`;
+  getSample().then(sample=>{
+    if(!sample){ $("btnPaste").disabled=true; $("btnAsk").disabled=true; const e=$("aiErr"); e.hidden=false; e.textContent="This needs you to be signed in on claude.ai. Meanwhile, pick one of the checked firms above."; return; }
+    const go=async(btn,text)=>{
+      const label=btn.innerHTML; btn.disabled=true; btn.innerHTML=`<span class="spin"></span> Reading the rules…`; $("aiErr").hidden=true;
+      try{
+        const res=await sample.json(aiPrompt(name,text),{modelTier:"default"});
+        const AF=cleanAI(res,name); AF._ai=true; showFirm(AF,{ai:text?"Simplified from your text":"From memory · may be outdated"});
+      }catch(err){ btn.disabled=false; btn.innerHTML=label; const e=$("aiErr"); e.hidden=false;
+        e.textContent=err&&err.code==="rate_limited"?"Too many requests right now. Try again in a minute.":err&&err.code==="not_granted"?"Permission to use Claude was declined.":"That didn't work. Try again, or paste the rules text."; }
+    };
+    $("btnPaste").addEventListener("click",()=>{ const t=$("pasteRules").value.trim(); if(t.length<80){ const e=$("aiErr"); e.hidden=false; e.textContent="Paste the full rules text first (a few sentences at least)."; return; } go($("btnPaste"),t); });
+    $("btnAsk").addEventListener("click",()=>go($("btnAsk"),null));
+  });
+}
+function searchFirm(q){
+  q=(q||"").trim(); if(!q) return;
+  const F=findFirm(q);
+  if(F) showFirm(F); else unknownFirm(q.slice(0,60));
+}
+function renderChips(){ $("firmChips").innerHTML=FIRMS.map(f=>`<button type="button" data-f="${esc(f.id)}">${esc(f.name)}</button>`).join(""); const u=$("firmFresh"); if(u) u.textContent=firmsUpdated?`Rules auto-checked weekly · last check ${firmsUpdated}`:`Rules checked ${FIRMS[0].checked} · auto-checked weekly`; }
+renderChips();
+$("firmChips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; const F=FIRMS.find(f=>f.id===b.dataset.f); if(!F) return; $("firmQ").value=F.name; showFirm(F); });
+$("firmForm").addEventListener("submit",e=>{ e.preventDefault(); searchFirm($("firmQ").value); });
+document.querySelectorAll('form.fsearch[data-go="rules"]').forEach(f=>f.addEventListener("submit",e=>{ e.preventDefault(); const q=f.querySelector("input").value; $("firmQ").value=q; location.hash="rules"; setTimeout(()=>searchFirm(q),60); }));
+$("firmQ").value=FIRMS[0].name; showFirm(FIRMS[0]);
+loadLiveFirms(()=>{ renderChips(); if(currentFirm&&!currentFirm._ai){ const F=FIRMS.find(f=>f.id===currentFirm.id); if(F) showFirm(F); } });
+
+/* ---------- live tracker ---------- */
+const TK={state:null, store:null, ready:false};
+const DAY=86400000;
+const todayStr=()=>{ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
+const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const uid=()=>Math.random().toString(36).slice(2,9);
+const PH={1:"Pipeline · Phase 1",2:"Backup · Phase 2",3:"Funded"};
+const PHC={1:"t3",2:"t2",3:"t1"};
+
+/* storage: private per-trader doc in db, else this browser */
+async function tkStoreInit(){
+  let db=null,user=null;
+  try{ if(window.claude&&window.claude.use){ [db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]); } }catch(e){}
+  if(db&&user){ try{ const id=await user.id(); if(id){ const ref=db.collection("data/users/"+id).doc("tracker");
+    TK.store={kind:"cloud",async load(){ const s=await ref.get(); const d=s.data(); return d&&typeof d.json==="string"?JSON.parse(d.json):null; },async save(o){ await ref.set({json:JSON.stringify(o),updated:Date.now()}); }}; return; } }catch(e){} }
+  TK.store={kind:"local",async load(){ try{ const t=localStorage.getItem("ts-tracker"); return t?JSON.parse(t):null; }catch(e){ return null; } },async save(o){ try{ localStorage.setItem("ts-tracker",JSON.stringify(o)); }catch(e){} }};
+}
+let saveT=null;
+function tkSave(){ clearTimeout(saveT); saveT=setTimeout(async()=>{ try{ await TK.store.save(TK.state); tkSaved(true); }catch(e){ tkSaved(false); } },400); }
+function tkSaved(ok){ const el=$("tkSave"); if(el) el.textContent=ok?(TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"):"Couldn't save. Check your connection."; }
+function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK.state.log.slice(0,200); }
+
+/* create from plan */
+function tkFromPlan(){
+  const P=readParams();
+  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl"];
+  const p={}; keep.forEach(k=>p[k]=P[k]);
+  p.ladder=P.ladder.map(r=>({size:r.size,fee:r.fee,unlockT1:r.unlockT1,unlockPay:r.unlockPay}));
+  p.firm=typeof firmApplied!=="undefined"&&firmApplied?firmApplied:"";
+  const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
+  for(let i=0;i<P.n0;i++) st.accounts.push(newAcct(P.s0,1,st));
+  TK.state=st; log(`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
+  tkSave(); location.hash="track"; tkRender();
+}
+function newAcct(size,phase,st){ const n=(st.accounts.length+1); return {id:uid(),name:`#${n} ${fmt(size)}`,size,phase,bal:size,dayStart:size,days:[],rec:-1,recUsed:false,off:0,lane:freeLane(st),cyc:{s:todayStr(),b:size},offUntil:"",status:"active",created:todayStr(),hist:[]}; }
+/* evals take turns by week (2 lanes) so two evals never trade the same window */
+function freeLane(st){ const c=[0,0]; st.accounts.forEach(x=>{ if(x.status==="active"&&x.phase!==3&&x.lane!=null) c[x.lane]++; }); return c[0]<=c[1]?0:1; }
+function tkMigrate(st){ if(!st) return st; st.trades=st.trades||[]; st.cuts=st.cuts||[];
+  let i=0; st.accounts.forEach(a=>{ if(a.lane==null) a.lane=(i++)%2; if(!a.cyc) a.cyc={s:a.created||st.start,b:a.size}; if(a.offUntil==null) a.offUntil=""; }); return st; }
+/* guide: a 4-week cycle that ends in a loss puts the account offline for 1 week */
+function tkTick(st){ let ch=false; const t=todayStr();
+  st.accounts.forEach(a=>{ if(a.status!=="active") return; if(dnum(t)-dnum(a.cyc.s)>=28){ if(a.bal<a.cyc.b){ const u=new Date(new Date(t+"T12:00:00").getTime()+7*DAY).toISOString().slice(0,10); a.offUntil=u; log(`${a.name} lost money over its 4-week cycle. Offline until ${fmtDate(u)}.`); } a.cyc={s:t,b:a.bal}; ch=true; } });
+  return ch; }
+const offline=a=>a.offUntil&&todayStr()<a.offUntil;
+
+/* rules per account */
+function rulesFor(a,p){ const ph=a.phase;
+  return {tgt:ph===1?p.p1t:ph===2?p.p2t:p.lock, cut:ph===1?p.c3:ph===2?p.c2:p.c1, K:ph===1?p.k3:ph===2?p.k2:p.k1, risk:ph===3?p.riskF:p.riskE}; }
+function weekIdx(st){ return Math.floor((dnum(todayStr())-dnum(st.start))/7); }
+function evalLane(st){ const w=weekIdx(st);
+  if(st.laneWeek&&st.laneWeek.w===w) return st.laneWeek.lane; // fixed for the whole week
+  const busy=[false,false]; st.accounts.forEach(x=>{ if(x.status==="active"&&x.phase!==3&&!offline(x)) busy[x.lane]=true; });
+  const lane=busy[w%2]?w%2:1-(w%2); st.laneWeek={w,lane}; return lane; }
+function isOn(a,st){ if(offline(a)) return false; return a.phase===3 ? (weekIdx(st)%3)===a.off : a.lane===evalLane(st); }
+function nextOnDate(a,st){ if(offline(a)) return a.offUntil; const w=weekIdx(st), m=a.phase===3?3:2, o=a.phase===3?a.off:a.lane; let k=1; while(((w+k)%m)!==o) k++; const d=new Date(new Date(st.start+"T12:00:00").getTime()+(w+k)*7*DAY); return d.toISOString().slice(0,10); }
+
+function advise(a,st){
+  const p=st.p, r=rulesFor(a,p), pct=(a.bal-a.size)/a.size*100;
+  const riskUsd=a.size*r.risk/100, tgtUsd=a.size*(1+r.tgt/100), cutUsd=a.size*(1-r.cut/100);
+  const dailyStop=a.dayStart-a.size*Math.min(p.daily,r.cut)/100*0.8;
+  const daysDone=a.days.length, needDays=a.phase===3?p.mindays:p.mindays;
+  const base={riskUsd,tgtUsd,cutUsd,pct,dailyStop,r};
+  if(pct<=-r.cut){
+    if(a.rec<0&&!a.recUsed&&r.K>0) return {...base,kind:"recover",pill:"RECOVERY",title:`Recovery: up to ${r.K} trades`,text:`It's down ${Math.abs(pct).toFixed(1)}%. Take at most ${r.K} trades at the normal ${fmtFull(riskUsd)} risk to get back above ${fmtFull(cutUsd)}. Never bigger. Log the balance after each trade.`,act:"startRec"};
+    if(a.rec>0) return {...base,kind:"recover",pill:"RECOVERY",title:`${a.rec} recovery trade${a.rec>1?"s":""} left`,text:`Risk ${fmtFull(riskUsd)} per trade. Get above ${fmtFull(cutUsd)} or close it. Log the balance after each trade.`,act:"recTrade"};
+    return {...base,kind:"cut",pill:"CUT IT",title:"Close this account",text:a.phase===3?`It didn't recover. Close it. Your best backup account replaces it as soon as it passes, and buy a new Phase 1 evaluation.`:`It didn't recover. Close it and buy a new evaluation from the pool.`,act:"cut"};
+  }
+  if(pct>=r.tgt){
+    if(daysDone<needDays) return {...base,kind:"wait",pill:"HOLD",title:`Target hit. ${needDays-daysDone} more trading day${needDays-daysDone>1?"s":""}`,text:`Don't risk the gain. Take one tiny trade a day until you have ${needDays} trading days.`};
+    if(a.phase===3){ const pay=(a.bal-a.size)*p.split/100; return {...base,kind:"payout",pill:"PAYOUT",title:`Request your payout: about ${fmtFull(pay)}`,text:`It's up ${pct.toFixed(1)}%. Ask the firm for the payout now, then log it here.`,act:"payout",pay}; }
+    return {...base,kind:"pass",pill:"PASSED",title:a.phase===1?"Passed Phase 1":"Passed Phase 2, now funded",text:a.phase===1?"Mark it passed. It moves to Backup (Phase 2).":"Mark it passed. It joins your funded accounts.",act:"pass"};
+  }
+  if(!isOn(a,st)){ if(offline(a)) return {...base,kind:"rest",pill:"OFFLINE",title:"Offline week, don't trade",text:`Its last 4 weeks ended in a loss. Rule: rest it 1 full week. Back on ${fmtDate(a.offUntil)}.`};
+    if(a.phase===3) return {...base,kind:"rest",pill:"REST",title:"Rest week, don't trade",text:`Funded accounts trade 1 week, rest 2. Next trading week starts ${fmtDate(nextOnDate(a,st))}.`};
+    return {...base,kind:"rest",pill:"WAIT",title:"Not its turn yet",text:`Your other evaluation trades this week. Two evals never trade the same week, so one bad week can't hit both. Its turn starts ${fmtDate(nextOnDate(a,st))}.`}; }
+  const toGo=tgtUsd-a.bal;
+  return {...base,kind:"trade",pill:"TRADE",title:`Trade today: risk ${fmtFull(riskUsd)} per trade`,text:`Aim for 1 : ${p.rr}. ${fmtFull(toGo)} to go to ${a.phase===3?"payout":"pass"}. Stop for the day if it drops to ${fmtFull(dailyStop)}.`};
+}
+
+function portfolio(st){
+  const act=st.accounts.filter(a=>a.status==="active");
+  const T1=act.filter(a=>a.phase===3).reduce((s,a)=>s+a.size,0), T2=act.filter(a=>a.phase===2).reduce((s,a)=>s+a.size,0), T3=act.filter(a=>a.phase===1).reduce((s,a)=>s+a.size,0);
+  const p=st.p, L=p.ladder, pays=st.payouts.length;
+  const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
+  const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T3>=0.4*T1-1,"Pipeline = 40% of funded"]];
+  const growOk=grow.every(g=>g[0]);
+  let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
+  const provenMax=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
+  const pipeTarget=Math.max(Math.min(T1,p.target),p.n0*p.s0);
+  const needT3=Math.max(0,0.4*pipeTarget-T3), needPipe=Math.max(0,pipeTarget-T2-T3);
+  let buySize=L[lvl].size; let note="";
+  if(lvl>provenMax){ const outNew=act.some(a=>a.size===L[lvl].size&&a.phase!==3); if(outNew){ buySize=L[provenMax].size; note=`Wait for your first ${fmt(L[lvl].size)} account to get funded before buying more of that size.`; } else note=`You unlocked ${fmt(L[lvl].size)} accounts. Buy just ONE first.`; }
+  const fee=(L.find(r=>r.size===buySize)||L[0]).fee;
+  const stocked=T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1;
+  const rate=!stocked?1:T1<0.2*p.target?0.8:T1<0.6*p.target?0.65:T1<p.target?0.5:0.3;
+  return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
+}
+
+/* ---------- render ---------- */
+function tkRender(){
+  const o=$("tkOut"); if(!o) return;
+  if(!TK.ready){ o.innerHTML=`<div class="card"><p class="sub2" style="margin:0"><span class="spin"></span> Loading your tracker…</p></div>`; return; }
+  const st=TK.state;
+  if(!st){ o.innerHTML=`<div class="fx tk-empty"><span class="kicker">Live tracker</span><h2 style="font-size:clamp(26px,3.4vw,38px)">Your daily coach, from first test to goal.</h2>
+    <p class="sub2" style="margin:0;max-width:560px">Build your plan, then tap "Start tracking". Every day you log your balances and TierStack tells you which account to trade, how much to risk, and what to do with the rest.</p>
+    <div class="tk-how"><div><b>1</b>Build your plan</div><div><b>2</b>Log balances daily</div><div><b>3</b>Follow today's moves</div></div>
+    <div class="fx-cta"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a></div></div>`; return; }
+  const p=st.p, pf=portfolio(st), act=st.accounts.filter(a=>a.status==="active");
+  const adv=act.map(a=>({a,v:advise(a,st)}));
+  const order={cut:0,recover:1,payout:2,pass:3,trade:4,wait:5,rest:6};
+  adv.sort((x,y)=>order[x.v.kind]-order[y.v.kind]||y.a.phase-x.a.phase);
+  const nTrade=adv.filter(x=>["trade","recover"].includes(x.v.kind)).length, nRest=adv.filter(x=>x.v.kind==="rest").length, nAct=adv.filter(x=>["payout","pass","cut"].includes(x.v.kind)).length;
+  const prog=Math.min(100,pf.T1/p.target*100);
+  let next;
+  if(pf.done) next={t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`};
+  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in the pool. Buy it now.`:`Pool has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
+  else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
+  else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into the pool, ${Math.round((1-pf.rate)*100)}% to you.`};
+  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
+  o.innerHTML=`
+  <div class="fx">
+    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="fbadge" id="tkSave">${TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span></div>
+    <div class="tk-goal"><div class="tk-gtop"><span>Funded <b>${fmt(pf.T1)}</b> of ${fmt(p.target)}</span><span>${prog.toFixed(0)}%</span></div><div class="tk-bar"><i style="width:${prog}%"></i></div></div>
+    <div class="fx-big">
+      <div><span class="v t1">${nTrade}</span><span class="k">trade today</span></div>
+      <div><span class="v t1">${nRest}</span><span class="k">resting</span></div>
+      <div><span class="v t1">${fmt(st.pool)}</span><span class="k">in the reinvest pool</span></div>
+      <div><span class="v t1">${fmt(st.personal)}</span><span class="k">taken home</span></div>
+    </div>
+  </div>
+
+  <div class="card tk-risk"><span class="kicker">Risk style</span><div class="riskseg">${Object.keys(RISK_LV).map(lv=>{ const r=levelRisk(lv,{rr:p.rr,maxdd:p.maxdd,daily:p.daily||5,tpd:p.tpd||1,c1:p.c1,c2:p.c2,c3:p.c3}); return `<button type="button" role="radio" aria-checked="${p.risklvl===lv}" data-tk="risk" data-lvl="${lv}"><b>${RISK_LV[lv].name}</b><span class="rs-v">${r.riskE}%</span><span class="rs-s">${r.riskE===r.riskF?"tests and funded":`tests, ${r.riskF}% funded`}</span></button>`; }).join("")}</div></div>
+
+  <div class="tk-next"><span class="kicker">Next step to your goal</span><b>${next.t}</b><p>${next.s}</p>${next.btn?`<button class="btn gold sm" data-tk="buy" data-size="${pf.buySize}" data-fee="${pf.fee}">I bought it</button>`:""}</div>
+
+  <div class="sec"><h3>Your accounts</h3>
+  <div class="tk-list">${adv.map(({a,v})=>{
+    const lo=v.cutUsd, hi=v.tgtUsd, pos=Math.max(0,Math.min(100,(a.bal-lo)/(hi-lo)*100)), zero=Math.max(0,Math.min(100,(a.size-lo)/(hi-lo)*100));
+    return `<div class="tk-acc k-${v.kind}" data-id="${a.id}">
+      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${PH[a.phase]} · ${a.days.length}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
+      <div class="tk-do"><b>${v.title}</b><p>${v.text}</p></div>
+      <div class="tk-meter"><div class="tk-track"><i class="z" style="left:${zero}%"></i><i class="m" style="left:${pos}%"></i></div><div class="tk-ends"><span>Cut ${fmt(lo)}</span><span class="${v.pct>=0?"up":"dn"}">${fmtFull(a.bal)} (${v.pct>=0?"+":""}${v.pct.toFixed(1)}%)</span><span>${a.phase===3?"Payout":"Pass"} ${fmt(hi)}</span></div></div>
+      <div class="tk-acts">
+        <input type="number" inputmode="decimal" aria-label="New balance for ${esc(a.name)}" placeholder="New balance" class="tk-in" data-bal="${a.id}">
+        <button class="btn gold sm" data-tk="log" data-id="${a.id}">Log balance</button>
+        ${v.act==="pass"?`<button class="btn ghost sm" data-tk="pass" data-id="${a.id}">Mark passed</button>`:""}
+        ${v.act==="payout"?`<button class="btn ghost sm" data-tk="payout" data-id="${a.id}" data-pay="${Math.round(v.pay)}">Log payout</button>`:""}
+        ${v.act==="cut"?`<button class="btn ghost sm" data-tk="cut" data-id="${a.id}">Close account</button>`:""}
+        <button class="linkbtn tk-more" data-tk="close" data-id="${a.id}">Account failed</button>
+      </div>
+    </div>`; }).join("")}</div></div>
+
+  <div class="g2f">
+    <div class="card"><h3 class="ct">Tier balance</h3>${tiers.map(t=>{ const w=t[2]>0?Math.min(100,t[1]/t[2]*100):0; return `<div class="tk-tb"><div class="tk-gtop"><span><i class="dotl" style="background:var(--${t[3]})"></i>${t[0]}</span><span>${fmt(t[1])} / ${fmt(t[2])}</span></div><div class="tk-bar sm"><i style="width:${w}%;background:var(--${t[3]})"></i></div></div>`; }).join("")}
+      <p class="hint">Backup must reach 60% and Pipeline 40% of Funded before you take money home.</p>
+      ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
+      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
+    <div class="card"><h3 class="ct">Activity log</h3><ul class="tk-log">${st.log.slice(0,14).map(l=>`<li><span>${fmtDate(l.d)}</span>${esc(l.t)}</li>`).join("")}</ul>
+      <button class="linkbtn" data-tk="reset">Start over</button></div>
+  </div>`;
+}
+
+/* ---------- actions ---------- */
+function acct(id){ return TK.state.accounts.find(a=>a.id===id); }
+function doLog(a,bal){
+  const st=TK.state, t=todayStr(), r=rulesFor(a,st.p);
+  if(!a.days.includes(t)){ a.days.push(t); a.dayStart=a.bal; }
+  if(a.rec>0){ a.rec--; }
+  if(bal!==a.bal) st.trades.push(bal>a.bal?1:0); st.trades=st.trades.slice(-100);
+  a.bal=bal; a.hist.push([t,bal]); a.hist=a.hist.slice(-120);
+  const pct=(bal-a.size)/a.size*100;
+  if(a.rec>=0 && pct>-r.cut){ a.rec=-1; a.recUsed=true; log(`${a.name} recovered to ${fmtFull(bal)}.`); }
+  else if(pct<=-r.cut && a.rec<0 && !a.recUsed && r.K>0){ a.rec=r.K; log(`${a.name} hit −${r.cut}%. Recovery: ${r.K} trades.`); }
+  else log(`${a.name}: balance ${fmtFull(bal)} (${pct>=0?"+":""}${pct.toFixed(1)}%).`);
+  if(pct<=-st.p.maxdd){ a.status="failed"; st.cuts.push({d:t,phase:a.phase}); log(`${a.name} broke the firm's max loss and is closed.`); }
+}
+function promoteBackupIfNeeded(){ /* T2 accounts become funded only by passing; nothing to auto-move */ }
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-tk]"); if(!b||!TK.state&&b.dataset.tk!=="start") return;
+  const k=b.dataset.tk, st=TK.state;
+  if(k==="log"){ const a=acct(b.dataset.id); const inp=document.querySelector(`[data-bal="${a.id}"]`); const v=parseFloat(inp.value); if(!(v>0)){ inp.focus(); inp.classList.add("bad"); return; } doLog(a,v); }
+  else if(k==="pass"){ const a=acct(b.dataset.id); a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
+    if(a.phase===3){ const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt)); log(`${a.name} is now FUNDED. Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the pipeline.`); }
+    else log(`${a.name} passed Phase 1. Now a backup (Phase 2).`); }
+  else if(k==="payout"){ const a=acct(b.dataset.id); const pf=portfolio(st); const amt=parseFloat(b.dataset.pay)||0;
+    const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
+    log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to the pool, ${fmtFull(amt-re)} for you.`); }
+  else if(k==="cut"||k==="close"){ const a=acct(b.dataset.id); if(k==="close"&&!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to confirm"; return; }
+    a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". Move your best backup up as soon as it passes.":". Buy a new evaluation when the pool allows."}`); }
+  else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; }
+    const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
+    log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from the pool"}.`); }
+  else if(k==="risk"){ const lv=b.dataset.lvl; if(!RISK_LV[lv]||st.p.risklvl===lv) return; const r=levelRisk(lv,{rr:st.p.rr,maxdd:st.p.maxdd,daily:st.p.daily||5,tpd:st.p.tpd||1,c1:st.p.c1,c2:st.p.c2,c3:st.p.c3}); Object.assign(st.p,r); st.p.risklvl=lv;
+    log(`Risk style set to ${RISK_LV[lv].name}: ${r.riskE}% per test trade, ${r.riskF}% funded, ${r.k3} recovery trades on tests.`); }
+  else if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to delete this tracker"; return; } TK.state=null; tkSave(); tkRender(); return; }
+  else return;
+  tkSave(); tkRender();
+});
+document.addEventListener("click",e=>{ if(e.target.closest("#startTrack")){ if(TK.state&&!e.target.closest("#startTrack").dataset.sure){ const b=e.target.closest("#startTrack"); b.dataset.sure="1"; b.innerHTML="This replaces your current tracker. Tap again"; return; } tkFromPlan(); } });
+(async()=>{ await tkStoreInit(); try{ TK.state=tkMigrate(await TK.store.load()); }catch(e){ TK.state=null; } TK.ready=true; if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); })();
+
+/* ---------- rule check demo: one future, every step, checked against the guide ---------- */
+const PH_NAME={1:"Phase 1 test",2:"Phase 2 test",3:"Funded",4:"Ready (passed Phase 2)"};
+const TIER={1:"T3",2:"T2",3:"T1",4:"T2"};
+let demoSeed=7;
+function demoRun(){
+  const P=readParams(); const wr=P.wr;
+  const ev=[]; portfolioSim(P,wr,1,demoSeed,x=>ev.push(x));
+  return {P,wr,ev};
+}
+function demoCheck(P,ev){
+  const tgt=P.target, L=P.ladder;
+  const stageRate=t1=>t1<0.2*tgt?0.8:t1<0.6*tgt?0.65:t1<tgt?0.5:0.3;
+  const C=[];
+  const add=(id,guide,ok,bad,detail)=>C.push({id,guide,ok,bad,detail});
+  const trades=ev.filter(x=>x.e==="trade");
+  // 1 fixed risk
+  let bad=trades.filter(t=>Math.abs(t.risk-(t.ph===3?P.riskF:P.riskE))>1e-9).length;
+  add("Fixed risk","Same risk on every trade, never bigger after a loss (TierStack choice, safer than the guide's size-up).",trades.length-bad,bad,`${P.riskE}% per test trade, ${P.riskF}% funded.`);
+  // 2 inside firm limits
+  const wE=Math.max(riskWorst(P.riskE,P.c3,P.k3,P.rr),riskWorst(P.riskE,P.c2,P.k2,P.rr)), wF=riskWorst(P.riskF,P.c1,P.k1,P.rr);
+  const capOk=wE<P.maxdd&&wF<P.maxdd&&P.tpd*Math.max(P.riskE,P.riskF)<=P.daily;
+  const mdd=ev.filter(x=>x.e==="cut"&&x.why==="maxdd").length;
+  add("Inside firm limits","Always trade within the specific rules of your chosen prop firm.",capOk&&!mdd?1:0,(capOk?0:1)+mdd,`Worst case after the cut and every recovery trade: tests −${wE.toFixed(2)}%, funded −${wF.toFixed(2)}%. Firm limit −${P.maxdd}%. Daily: ${P.tpd} × ${Math.max(P.riskE,P.riskF)}% vs ${P.daily}%. Firm limit hit in this run: ${mdd}.`);
+  // 3 reward
+  add("1 : 3 or better","Minimum 1:3 risk-reward on every trade.",P.rr>=3?1:0,P.rr>=3?0:1,`You set 1 : ${P.rr}.`);
+  // 4 tests take turns
+  const wk={}; trades.filter(t=>t.ph!==3).forEach(t=>{ (wk[t.w]=wk[t.w]||new Set()).add(t.lane); });
+  const wks=Object.keys(wk); bad=wks.filter(k=>wk[k].size>1).length;
+  add("Tests take turns","Never trade all accounts during the same window. Stagger start dates.",wks.length-bad,bad,`${wks.length} test weeks checked. In each one, only one lane of tests traded.`);
+  // 5 funded 1 on 2 off
+  const ft=trades.filter(t=>t.ph===3); bad=ft.filter(t=>((t.w+t.off)%3)!==0).length;
+  add("Funded: 1 week on, 2 off","1 week ON / 2 weeks OFF cycle per account. Only trade accounts in their active ON window.",ft.length-bad,bad,`${ft.length} funded trades checked.`);
+  // 6 payout at +3%
+  const po=ev.filter(x=>x.e==="payout"); bad=po.filter(x=>x.b<P.lock-1e-9).length;
+  add(`Payout at +${P.lock}%`,"Lock payout at exactly +3%. The moment an account hits 3% gain, request the payout.",po.length-bad,bad,`${po.length} payouts, each requested at +${P.lock}% or more.`);
+  // 7 cut rules
+  const cuts=ev.filter(x=>x.e==="cut"&&x.why!=="refused");
+  bad=cuts.filter(c=>{ const cut=c.ph===1?P.c3:c.ph===2?P.c2:P.c1; return !(c.b<=-cut+1e-9); }).length;
+  add("Cut levels",`Cut funded at −6%, Phase 2 at −4%, Phase 1 at −4%, after the recovery trades.`,cuts.length-bad,bad,`${cuts.length} accounts closed. Funded −${P.c1}%, Phase 2 −${P.c2}%, Phase 1 −${P.c3}%.`);
+  // 8 recovery once, limited trades
+  const rs={}; let recBad=0; ev.forEach(x=>{ if(x.e==="recStart"){ const k=x.id+"_"+x.ph; rs[k]=(rs[k]||0)+1; if(rs[k]>1) recBad++; } });
+  const recN=Object.keys(rs).length;
+  add("Recovery once",`Recovery is attempted once, never twice: ${P.k1} trades funded, ${P.k2} Phase 2, ${P.k3} Phase 1.`,recN-recBad,recBad,`${recN} recovery attempts in this run.`);
+  // 9 4-week loss offline
+  const off=ev.filter(x=>x.e==="offline"); bad=off.filter(o=>trades.some(t=>t.id===o.id&&t.w===o.w)).length;
+  add("Losing 4 weeks → rest 1 week","4-week cycle ends in loss: put the account offline for 1 full week.",off.length-bad,bad,`${off.length} offline weeks, no trades on them.`);
+  // 10 reinvest
+  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T3>=0.4*a.T1-1)); }).length;
+  add("Reinvest ladder","Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then 80% / 65% / 50% / 30% by stage.",al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
+  // 11 spend priority
+  const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||b.t3cap<0.4*b.pipeTarget-1)).length;
+  add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the T3 pipeline.`);
+  // 12 ladder
+  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10)).length;
+  add("Upgrade ladder",`Bigger accounts only after enough funded money and payouts, 3 payouts in a row and no funded cut in 14 days.`,up.length-bad,bad,up.length?up.map(u=>`${fmt(u.size)} at ${fmt(u.T1)} funded, ${u.pays} payouts`).join(" · "):"No upgrade in this run.");
+  // 13 one new size first
+  bad=by.filter((b,i)=>b.newSize&&!b.heldBack&&by.slice(0,i).some(x=>x.size===b.size&&!ev.some(f=>f.e==="funded"&&f.id===x.id&&f.d<=b.d)&&!ev.some(c=>c.e==="cut"&&c.id===x.id&&c.d<=b.d))).length;
+  add("One new size first","Pass one account of a new size before buying multiples.",by.filter(b=>b.newSize).length-bad,bad,`${by.filter(b=>b.newSize&&!b.heldBack).length} first buys at a new size.`);
+  // 14 ratio at goal
+  const g=ev.find(x=>x.e==="milestone"&&x.goal);
+  if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Pipeline ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the pipeline keeps refilling after the goal.`); }
+  return C;
+}
+function evText(x,P){
+  const nm=id=>`#${id}`;
+  switch(x.e){
+    case "start": return [`Buy ${x.n} × ${fmt(x.size)} tests (${fmtFull(x.fee)} each). ${fmtFull(x.cash)} kept for rebuys.`,"Step 1: start with two $25K evaluations."];
+    case "pass1": return [`${nm(x.id)} ${fmt(x.size)} passed Phase 1 at +${x.b.toFixed(2)}% → now Backup (T2).`,"Once both pass Phase 1, they move into Tier 2."];
+    case "pass2": return [`${nm(x.id)} ${fmt(x.size)} passed Phase 2 at +${x.b.toFixed(2)}%.`,"T2 is one winning trade from funded."];
+    case "funded": return [`${nm(x.id)} is FUNDED. Funded total ${fmt(x.T1)}. Trades in week group ${x.off+1} of 3.`,"Begin staggered cycling. Offset start dates."];
+    case "payout": return [`${nm(x.id)} payout at +${x.b.toFixed(2)}%: ${fmtFull(x.amt)} to you from the firm.`,"Lock payout at +3%."];
+    case "alloc": return [`${fmtFull(x.amt)} split: ${fmtFull(x.toPool)} back in (${Math.round(x.rate*100)}%), ${fmtFull(x.personal)} to you. Tiers ${x.stocked?"full":"not full yet"} (T2 ${fmt(x.T2)}, T3 ${fmt(x.T3)} vs funded ${fmt(x.T1)}).`,x.stocked?"Reinvestment ladder by stage.":"Before T2 = 60% and T3 = 40%, every payout goes back in."];
+    case "buy": return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill pipeline":"refill backup + pipeline"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
+    case "recStart": return [`${nm(x.id)} ${PH_NAME[x.ph]} down ${x.b.toFixed(2)}% → recovery: max ${x.K} trades, same risk.`,"Controlled recovery over 2–4 trades. Once."];
+    case "recovered": return [`${nm(x.id)} recovered to ${x.b.toFixed(2)}%.`,"Recovery worked, keep normal rules."];
+    case "cut": return [`${nm(x.id)} ${PH_NAME[x.ph]} closed at ${x.b.toFixed(2)}%${x.why==="recfail"?" (recovery failed)":x.why==="again"?" (hit the cut again)":x.why==="refused"?" (payout refused by firm)":x.why==="maxdd"?" (firm limit!)":""}.`,x.ph===3?"Cut T1 at −6%. A T2 replaces it when it passes.":"Cut tests at −4%. Rebuy from payouts."];
+    case "offline": return [`${nm(x.id)} lost over its 4-week cycle → offline this week.`,"4-week cycle ends in loss: offline 1 week."];
+    case "upgrade": return [`Unlocked ${fmt(x.size)} accounts (funded ${fmt(x.T1)}, ${x.pays} payouts, ${x.consec} in a row).`,"Upgrade ladder + scale-up checklist."];
+    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}, pipeline ${fmt(x.T3)}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
+  }
+  return null;
+}
+function demoRender(){
+  const o=$("demoOut"); if(!o) return;
+  let R; try{ R=demoRun(); }catch(err){ o.innerHTML=`<div class="card"><p>Could not run: ${esc(err.message)}</p></div>`; return; }
+  const {P,ev}=R, C=demoCheck(P,ev);
+  const allOk=C.every(c=>!c.bad), goal=ev.find(x=>x.e==="milestone"&&x.goal), last=ev.filter(x=>x.e==="week").pop()||{};
+  const weeks={}; ev.forEach(x=>{ (weeks[x.w]=weeks[x.w]||[]).push(x); });
+  const wkeys=Object.keys(weeks).map(Number).sort((a,b)=>a-b);
+  const rows=wkeys.map(w=>{ const xs=weeks[w], tr=xs.filter(x=>x.e==="trade"), main=xs.filter(x=>!["trade","week"].includes(x.e)), snap=xs.find(x=>x.e==="week");
+    if(!main.length&&!tr.length) return "";
+    const wins=tr.filter(t=>t.win).length;
+    const lanes=[...new Set(tr.filter(t=>t.ph!==3).map(t=>t.id))], fids=[...new Set(tr.filter(t=>t.ph===3).map(t=>t.id))];
+    return `<details class="dw${main.length?" has":""}"${w<3||main.some(m=>m.e==="milestone")?" open":""}><summary><span class="dwk">Week ${w+1}</span><span class="dws">${tr.length?`${tr.length} trade${tr.length>1?"s":""} · ${wins} won`:"no trades"}${lanes.length?` · tests: ${lanes.map(i=>"#"+i).join(", ")}`:""}${fids.length?` · funded: ${fids.map(i=>"#"+i).join(", ")}`:""}</span>${snap?`<span class="dwt">T1 ${fmt(snap.T1)} · T2 ${fmt(snap.T2)} · T3 ${fmt(snap.T3)}</span>`:""}</summary>
+      <ul class="dl">${main.map(x=>{ const t=evText(x,P); return t?`<li class="e-${x.e}"><b>${esc(t[0])}</b><span class="g">Guide: ${esc(t[1])}</span></li>`:""; }).join("")}
+      ${tr.length?`<li class="trs">${tr.map(t=>`<span class="${t.win?"w":"l"}" title="#${t.id} ${PH_NAME[t.ph]}">#${t.id} ${t.win?"+":"−"}${fmtFull(t.size*t.risk/100*(t.win?P.rr:1))} → ${t.b>=0?"+":""}${t.b.toFixed(2)}%</span>`).join("")}</li>`:""}</ul></details>`; }).join("");
+  o.innerHTML=`
+  <div class="fx">
+    <div class="fx-head"><div><span class="kicker">One possible future · ${pct(R.wr)} win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name:"Custom"} risk</span>
+      <h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${goal?`Goal reached in week ${goal.w+1}`:`Not reached in ${P.horizon} months`}</h2></div>
+      <span class="fbadge" style="${allOk?"":"background:var(--bad-bg);color:var(--bad)"}">${allOk?`All ${C.length} guide rules followed`:`${C.filter(c=>c.bad).length} rule${C.filter(c=>c.bad).length>1?"s":""} broken`}</span></div>
+    <div class="fx-big">
+      <div><span class="v t1">${fmt(last.T1||0)}</span><span class="k">funded at the end</span></div>
+      <div><span class="v t1">${last.pays||0}</span><span class="k">payouts</span></div>
+      <div><span class="v t1">${fmtFull(last.fees||0)}</span><span class="k">spent on tests</span></div>
+      <div><span class="v t1">${fmt(last.personal||0)}</span><span class="k">taken home</span></div>
+    </div>
+    <div class="fx-cta"><button type="button" class="btn gold" id="demoAgain">Run another future <span class="arr">↻</span></button><a class="btn ghost" href="#build" data-nav="build">Change the numbers</a></div>
+  </div>
+  <div class="card"><h3 class="ct">Guide rules, checked</h3>
+    <div class="ck">${C.map(c=>`<div class="ckr ${c.bad?"no":"ok"}"><span class="ci">${c.bad?"✗":"✓"}</span><div><b>${esc(c.id)}</b><p class="gq">“${esc(c.guide)}”</p><p>${esc(c.detail)}${c.ok+c.bad>1?` <span class="cn">${c.ok} ok${c.bad?`, ${c.bad} broken`:""}</span>`:""}</p></div></div>`).join("")}</div></div>
+  <div class="card"><h3 class="ct">Every step, week by week</h3><p class="hint" style="margin-top:-6px">Tap a week to open it. Each line shows what happened and the guide rule behind it.</p><div class="dweeks">${rows}</div></div>`;
+  $("demoAgain").addEventListener("click",()=>{ demoSeed=(demoSeed*48271)%2147483647; demoRender(); });
+}
+
+
+/* ---------- home example ---------- */
+window.fillHome=function(P,S){
+  const best=S[0].sim, sim=S[1].sim; const last=a=>a[a.length-1];
+  const bR=last(best.reach), rR=last(sim.reach);
+  $("ex_cost").textContent=fmtFull(P.n0*P.ladder[0].fee+P.reserve);
+  $("ex_best").textContent=bR.length>best.runs/2?weeksTxt(quant(bR,0.5)):"—";
+  $("ex_real").textContent=rR.length>sim.runs/2?weeksTxt(quant(rR,0.5)):"over "+P.horizon+" mo";
+  $("ex_bust").textContent=pct(sim.bust/sim.runs);
+  $("ex_chart").innerHTML=chart(P,S); $("ex_chart").classList.add("anim");
+};
+
+/* ---------- router ---------- */
+function show(){
+  const v=["build","rules","track","check"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
+  if(v==="check") setTimeout(demoRender,30);
+  document.querySelectorAll("[data-view]").forEach(m=>{ const on=m.dataset.view===v; m.hidden=!on; if(on){ m.classList.remove("view-in"); void m.offsetWidth; m.classList.add("view-in"); } });
+  document.querySelectorAll("[data-nav]").forEach(a=>a.toggleAttribute("aria-current",a.dataset.nav===v));
+  document.querySelectorAll('.links a[data-nav="home"]').forEach(a=>a.setAttribute("aria-current",v==="home"?"page":"false"));
+  if(!pendingJump) window.scrollTo(0,0);
+}
+let pendingJump=null;
+document.addEventListener("click",e=>{ const a=e.target.closest("[data-jump]"); if(!a) return; e.preventDefault(); pendingJump=a.dataset.jump;
+  if(location.hash&&location.hash!=="#home"){ location.hash="home"; } else show();
+  setTimeout(()=>{ const t=document.getElementById(pendingJump); pendingJump=null; if(t) t.scrollIntoView({behavior:"smooth"}); },80); });
+window.addEventListener("hashchange",show);
+show();
+run();
+})();
+</script>
+<dialog class="film" id="filmDlg" aria-label="TierStack film"><button type="button" class="x" id="filmX" aria-label="Close film">✕</button><video id="filmV" src="tierstack-journey.mp4" poster="tierstack-journey-poster.jpg" controls playsinline preload="none"></video></dialog>
+<script>
+/* TierStack motion scenes. Each scene is a 1280x720 stage driven by draw(t) so it can loop live on the page
+   and be rendered frame-by-frame into the film. Colors come from the page's theme tokens. */
+(function(){
+"use strict";
+const CSS=`
+.mx{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:24px;background:var(--card,#0a0f15);border:1px solid var(--line2,rgba(125,211,252,.18));container-type:inline-size;isolation:isolate}
+.mx.bare{border:0;border-radius:0}
+.mx-st{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;font-family:var(--f-b,"Manrope",sans-serif);color:var(--ink,#f2f8fc)}
+.mx-st *{box-sizing:border-box}
+.mx-st>*{position:absolute}
+.mx-grid{inset:0;background-image:linear-gradient(var(--grid,rgba(56,189,248,.05)) 1px,transparent 1px),linear-gradient(90deg,var(--grid,rgba(56,189,248,.05)) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 45%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse 75% 70% at 50% 45%,#000 30%,transparent 80%)}
+.mx-glow{width:900px;height:900px;left:190px;top:-520px;border-radius:50%;background:radial-gradient(circle,var(--glow,rgba(56,189,248,.3)),transparent 62%)}
+.mx-k{font-family:var(--f-m,"JetBrains Mono",monospace);font-size:17px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold,#38bdf8);font-weight:600}
+.mx-h{font-family:var(--f-d,"Sora",sans-serif);font-weight:800;letter-spacing:-.03em;line-height:1.05;white-space:nowrap}
+.mx-h em{font-style:normal;color:var(--gold,#38bdf8)}
+.mx-c{text-align:center;left:0;width:1280px}
+.mx-mut{color:var(--muted,#8fa3b3)}
+.mx-card{background:var(--card2,#0f161f);border:1px solid var(--line2,rgba(125,211,252,.18));border-radius:22px}
+.mx-dot{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-m,monospace);font-weight:700;font-size:15px;box-shadow:0 10px 30px -10px rgba(0,0,0,.6)}
+.mx-chip{font-family:var(--f-m,monospace);font-size:15px;font-weight:700;padding:7px 12px;border-radius:99px;white-space:nowrap}
+.mx-pitch{border:2px solid var(--line2,rgba(125,211,252,.18));border-radius:22px;background:linear-gradient(90deg,transparent 49.85%,var(--line2,rgba(125,211,252,.18)) 49.85%,var(--line2,rgba(125,211,252,.18)) 50.15%,transparent 50.15%),var(--sky-bg,rgba(56,189,248,.06))}
+.mx-pitch::after{content:"";position:absolute;width:120px;height:120px;border:2px solid var(--line2,rgba(125,211,252,.18));border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.mx-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:0 22px}
+.mx-bar{height:12px;border-radius:99px;background:var(--line,rgba(125,211,252,.1));overflow:hidden}
+.mx-bar i{display:block;height:100%;border-radius:99px;width:0}
+.mx-node{width:104px;height:104px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line2,rgba(125,211,252,.18));background:var(--card,#0a0f15)}
+.mx-node svg{width:44px;height:44px}
+.mx-num{font-family:var(--f-d,"Sora",sans-serif);font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.mx-btn{font-family:var(--f-b,sans-serif);font-weight:800;font-size:26px;background:var(--gold,#38bdf8);color:var(--gold-ink,#00121c);padding:18px 34px;border-radius:18px;box-shadow:0 20px 50px -16px var(--glow,rgba(56,189,248,.5))}
+`;
+/* ---------- helpers ---------- */
+const E={o:x=>1-Math.pow(1-x,3),io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,b:x=>{const c=1.9;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)},l:x=>x};
+const tw=(t,a,b,e)=>t<=a?0:t>=b?1:E[e||"o"]((t-a)/(b-a));
+const L=(a,b,p)=>a+(b-a)*p;
+function S(el,o){ if(!el)return; const st=el.style;
+  if(o.x!==undefined||o.y!==undefined||o.s!==undefined||o.r!==undefined) st.transform=`translate(${(o.x||0).toFixed(2)}px,${(o.y||0).toFixed(2)}px) scale(${(o.s===undefined?1:o.s).toFixed(4)}) rotate(${(o.r||0).toFixed(2)}deg)`;
+  if(o.o!==undefined) st.opacity=Math.max(0,Math.min(1,o.o)).toFixed(3);
+  if(o.bg!==undefined) st.background=o.bg; if(o.c!==undefined) st.color=o.c; if(o.w!==undefined) st.width=o.w;
+  if(o.bs!==undefined) st.boxShadow=o.bs; if(o.bc!==undefined) st.borderColor=o.bc; }
+const mix=(a,b,p)=>`color-mix(in srgb, ${b} ${(p*100).toFixed(1)}%, ${a})`;
+const sceneFade=(t,d)=>tw(t,0,.45)*(1-tw(t,d-.55,d-.05,"io"));
+const money=n=>"$"+Math.round(n).toLocaleString("en-US");
+const P=(x,y,extra)=>`style="left:${x}px;top:${y}px;${extra||""}"`;
+const LOGO=(w)=>`<svg viewBox="0 0 28 28" width="${w}" height="${w}" aria-hidden="true"><rect data-k="lb3" x="3" y="17" width="22" height="7" rx="2.5" fill="var(--t3,#cfeefe)"/><rect data-k="lb2" x="6" y="9.5" width="16" height="6" rx="2.2" fill="var(--t2,#0b7fc0)"/><rect data-k="lb1" x="9" y="3" width="10" height="5" rx="2" fill="var(--gold,#38bdf8)"/></svg>`;
+const IC={
+ test:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>`,
+ pass:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>`,
+ paid:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.2c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.4 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6M12 6v1.7M12 16.5V18"/></svg>`,
+ loop:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 3v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16M20 21v-5h-5"/></svg>`
+};
+
+/* ---------- scenes ---------- */
+const SC={};
+
+SC.hero={dur:8,label:"One prop firm account is a coin flip. Three tiers of accounts make it a system.",
+html:`<div class="mx-grid"></div><div class="mx-glow"></div>
+<div data-k="mark" ${P(586,70)}>${LOGO(108)}</div>
+<div data-k="word" class="mx-h mx-c" ${P(0,192,"font-size:38px;font-weight:700")}>TierStack</div>
+<div data-k="la" class="mx-h mx-c" ${P(0,290,"font-size:66px")}>One account is a <em>coin flip.</em></div>
+<div data-k="acc" class="mx-card" ${P(390,410,"width:500px;height:200px;padding:22px 26px")}>
+  <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">Funded · $100K</b><span data-k="br" class="mx-chip" style="background:var(--bad,#ff5c7a);color:#fff">BREACHED −6%</span></div>
+  <svg viewBox="0 0 448 110" width="448" height="110" style="margin-top:10px;overflow:visible"><path data-k="dl" pathLength="1" d="M0,30 L40,24 L80,34 L120,22 L160,30 L200,44 L240,40 L280,62 L320,58 L360,80 L400,92 L448,104" fill="none" stroke="var(--bad,#ff5c7a)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
+<div data-k="lb" class="mx-h mx-c" ${P(0,290,"font-size:66px")}>Three tiers make it a <em>system.</em></div>
+${["Funded","Backup","Pipeline"].map((n,i)=>`<div data-k="r${i}" class="mx-card mx-row" ${P(330,410+i*76,"width:620px;height:62px")}><b style="font-size:20px;width:110px">${n}</b><div class="mx-bar"><i data-k="f${i}" style="background:var(--t${i+1})"></i></div><span class="mx-num" style="font-size:24px;color:var(--t${i+1})">${[50,30,20][i]}%</span></div>`).join("")}`,
+draw(e,t){
+  const F=sceneFade(t,this.dur);
+  S(e.lb3,{o:tw(t,.2,.7),y:L(-14,0,tw(t,.2,.8,"b"))}); S(e.lb2,{o:tw(t,.35,.85),y:L(-14,0,tw(t,.35,.95,"b"))}); S(e.lb1,{o:tw(t,.5,1),y:L(-14,0,tw(t,.5,1.1,"b"))});
+  S(e.mark,{o:F,s:L(.8,1,tw(t,0,1))}); S(e.word,{o:tw(t,.9,1.5)*F,y:L(14,0,tw(t,.9,1.5))});
+  const outA=tw(t,3.7,4.2,"io");
+  S(e.la,{o:tw(t,1.4,2)*(1-outA),y:L(24,0,tw(t,1.4,2))-outA*30});
+  const shake=t>3.05&&t<3.45?Math.sin(t*90)*6*(1-tw(t,3.05,3.45)):0;
+  S(e.acc,{o:tw(t,1.7,2.3)*(1-outA),y:L(30,0,tw(t,1.7,2.3))-outA*30,x:shake});
+  e.dl.style.strokeDashoffset=(1-tw(t,2.1,3.05,"io")).toFixed(3);
+  S(e.br,{o:tw(t,3.05,3.25),s:L(.4,1,tw(t,3.05,3.4,"b"))});
+  S(e.lb,{o:tw(t,4.2,4.8)*F,y:L(24,0,tw(t,4.2,4.8))});
+  [100,60,40].forEach((w,i)=>{ S(e["r"+i],{o:tw(t,4.4+i*.15,4.9+i*.15)*F,y:L(26,0,tw(t,4.4+i*.15,5+i*.15))}); e["f"+i].style.width=(w*tw(t,4.9+i*.2,6.1+i*.2,"io")).toFixed(2)+"%"; });
+}};
+
+SC.team={dur:8,label:"Like a football team: funded accounts play, backups wait on the bench, new tests train in the academy. When one account is lost, the bench steps in and the academy moves up.",
+html:`<div class="mx-glow" style="left:-300px;top:-560px"></div>
+<div data-k="kk" class="mx-k" ${P(80,52)}>The 3-tier system</div>
+<div data-k="hh" class="mx-h" ${P(80,84,"font-size:50px")}>Like a <em>football team.</em></div>
+<div data-k="pitch" class="mx-pitch" ${P(80,172,"width:680px;height:300px")}></div>
+<div data-k="lbB" class="mx-k" ${P(80,520,"color:var(--muted,#8fa3b3);font-size:15px")}>Bench</div>
+<div data-k="lbA" class="mx-k" ${P(80,604,"color:var(--muted,#8fa3b3);font-size:15px")}>Academy</div>
+${[[210,252],[210,392],[420,322],[620,252],[620,392]].map((p,i)=>`<div data-k="F${i}" class="mx-dot" ${P(p[0]-26,p[1]-26,"background:var(--t1);color:var(--t1-ink,#00121c)")}>F</div>`).join("")}
+<div data-k="brk" class="mx-chip" ${P(372,250,"background:var(--bad,#ff5c7a);color:#fff")}>Account lost</div>
+${[300,380,460].map((x,i)=>`<div data-k="B${i}" class="mx-dot" ${P(x-26,532-26,"background:var(--t2);color:var(--t2-ink,#fff)")}>B</div>`).join("")}
+${[300,380].map((x,i)=>`<div data-k="A${i}" class="mx-dot" ${P(x-26,616-26,"background:var(--t3);color:var(--t3-ink,#00121c)")}>P</div>`).join("")}
+<div data-k="An" class="mx-dot" ${P(300-26,616-26,"background:var(--t3);color:var(--t3-ink,#00121c)")}>P</div>
+<div data-k="newc" class="mx-chip" ${P(420,598,"background:var(--sky-bg,rgba(56,189,248,.12));color:var(--gold,#38bdf8);border:1px dashed var(--gold,#38bdf8)")}>+ new test, paid by payouts</div>
+${[["Funded","On the field. Earns payouts.","50%"],["Backup","On the bench. One step away.","30%"],["Pipeline","In the academy. New tests.","20%"]].map((c,i)=>`<div data-k="C${i}" class="mx-card" ${P(820,172+i*124,"width:380px;height:108px;padding:20px 22px;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:16px;align-items:center")}><i style="width:18px;height:18px;border-radius:6px;background:var(--t${i+1})"></i><div><b style="font-size:22px;font-family:var(--f-d,sans-serif)">${c[0]}</b><div class="mx-mut" style="font-size:16px">${c[1]}</div></div><span class="mx-num" style="font-size:34px;color:var(--t${i+1})">${c[2]}</span></div>`).join("")}
+<div data-k="cap" class="mx-h" ${P(820,560,"font-size:30px;line-height:1.2;white-space:normal;width:400px")}>Lose one. <em>The team keeps playing.</em></div>`,
+draw(e,t){
+  const F=sceneFade(t,this.dur);
+  S(e.kk,{o:tw(t,.1,.6)*F}); S(e.hh,{o:tw(t,.2,.8)*F,y:L(20,0,tw(t,.2,.8))}); S(e.pitch,{o:tw(t,.2,.8)*F,s:L(.96,1,tw(t,.2,.9))});
+  S(e.lbB,{o:tw(t,.9,1.3)*F}); S(e.lbA,{o:tw(t,1.5,1.9)*F});
+  for(let i=0;i<5;i++){ const a=.45+i*.07; if(i===2)continue; S(e["F"+i],{o:tw(t,a,a+.2)*F,s:tw(t,a,a+.45,"b")}); }
+  // the breached funded account
+  const a2=.45+2*.07, red=tw(t,2.8,3.1), gone=tw(t,3.4,3.9,"io");
+  S(e.F2,{o:tw(t,a2,a2+.2)*(1-gone)*F,s:tw(t,a2,a2+.45,"b")*(1-.5*gone)+(t>2.8&&t<3.4?Math.sin((t-2.8)*30)*.06:0),bg:mix("var(--t1)","var(--bad,#ff5c7a)",red),c:red>.5?"#fff":"var(--t1-ink,#00121c)"});
+  S(e.brk,{o:tw(t,2.9,3.15)*(1-tw(t,3.8,4.1)),y:L(10,0,tw(t,2.9,3.2))});
+  for(let i=0;i<3;i++){ const a=1.0+i*.07; if(i===0)continue; S(e["B"+i],{o:tw(t,a,a+.2)*F,s:tw(t,a,a+.45,"b")}); }
+  // bench steps onto the field
+  const mB=tw(t,4.0,4.9,"io");
+  S(e.B0,{o:tw(t,1,1.2)*F,s:tw(t,1,1.45,"b")*(1+.18*Math.sin(Math.PI*mB)),x:120*mB,y:-210*mB,bg:mix("var(--t2)","var(--t1)",tw(t,4.4,4.9)),c:tw(t,4.4,4.9)>.5?"var(--t1-ink,#00121c)":"var(--t2-ink,#fff)"});
+  e.B0.textContent=t>4.6?"F":"B";
+  // academy moves up to the bench
+  const mA=tw(t,4.9,5.6,"io");
+  S(e.A0,{o:tw(t,1.6,1.8)*F,s:tw(t,1.6,2.05,"b")*(1+.18*Math.sin(Math.PI*mA)),y:-84*mA,bg:mix("var(--t3)","var(--t2)",mA),c:mA>.5?"var(--t2-ink,#fff)":"var(--t3-ink,#00121c)"});
+  e.A0.textContent=mA>.5?"B":"P";
+  S(e.A1,{o:tw(t,1.67,1.87)*F,s:tw(t,1.67,2.12,"b")});
+  S(e.An,{o:tw(t,5.8,6.0)*F,s:tw(t,5.8,6.3,"b")});
+  S(e.newc,{o:tw(t,5.95,6.3)*F,x:L(-14,0,tw(t,5.95,6.4))});
+  [0,1,2].forEach(i=>{ const hi=i===1?tw(t,3.9,4.2)*(1-tw(t,4.9,5.2)):i===2?tw(t,4.9,5.1)*(1-tw(t,5.6,5.9)):i===0?tw(t,4.6,4.9)*(1-tw(t,5.3,5.6)):0;
+    S(e["C"+i],{o:tw(t,.6+i*.25,1.1+i*.25)*F,x:L(30,0,tw(t,.6+i*.25,1.2+i*.25)),s:1+.03*hi,bc:mix("var(--line2,rgba(125,211,252,.18))","var(--gold,#38bdf8)",hi)}); });
+  S(e.cap,{o:tw(t,6.2,6.8)*F,y:L(16,0,tw(t,6.2,6.8))});
+}};
+
+SC.steps={dur:8,label:"How it works: buy a test, pass it, get paid, reinvest. Then it repeats.",
+html:`<div class="mx-grid"></div>
+<div data-k="kk" class="mx-k mx-c" ${P(0,62)}>How it works</div>
+<div data-k="hh" class="mx-h mx-c" ${P(0,96,"font-size:54px")}>Four steps. <em>Then it repeats.</em></div>
+<div data-k="rail" ${P(190,318,"width:900px;height:4px;border-radius:4px;background:var(--line2,rgba(125,211,252,.18))")}><i data-k="fill" style="position:absolute;left:0;top:0;height:4px;width:0;border-radius:4px;background:var(--gold,#38bdf8);box-shadow:0 0 18px var(--gold,#38bdf8)"></i></div>
+${[["test","Buy a test","Small fee for an evaluation"],["pass","Pass it","Hit the target, keep the loss limit"],["paid","Get paid","Trade firm money. Payout at +3%"],["loop","Reinvest","Payouts buy the next tests"]].map((s,i)=>`
+<div data-k="n${i}" class="mx-node" ${P(190+i*300-52,320-52)}>${IC[s[0]]}</div>
+<div data-k="no${i}" class="mx-chip" ${P(190+i*300+24,320-74,"background:var(--card,#0a0f15);border:1px solid var(--line2);color:var(--muted)")}>${i+1}</div>
+<div data-k="t${i}" style="left:${190+i*300-140}px;top:396px;width:280px;text-align:center"><div class="mx-h" style="font-size:30px">${s[1]}</div><div class="mx-mut" style="font-size:18px;margin-top:8px">${s[2]}</div></div>`).join("")}
+<svg data-k="arc" ${P(0,0,"width:1280px;height:720px;overflow:visible")} viewBox="0 0 1280 720"><path data-k="ap" pathLength="1" d="M1090,510 C1090,660 190,660 190,510" fill="none" stroke="var(--gold,#38bdf8)" stroke-width="3" stroke-dasharray="1" stroke-dashoffset="1" stroke-linecap="round"/><path data-k="ah" d="M176,528 L190,508 L204,528" fill="none" stroke="var(--gold,#38bdf8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div data-k="rep" class="mx-chip" ${P(560,604,"background:var(--gold,#38bdf8);color:var(--gold-ink,#00121c);font-size:17px")}>↺ repeat, bigger</div>`,
+draw(e,t){
+  const F=sceneFade(t,this.dur);
+  S(e.kk,{o:tw(t,.1,.6)*F}); S(e.hh,{o:tw(t,.15,.75)*F,y:L(20,0,tw(t,.15,.8))}); S(e.rail,{o:tw(t,.3,.8)*F});
+  const T=[.8,2.2,3.6,5.0]; e.fill.style.width=(100*tw(t,.8,5.0,"l")).toFixed(2)+"%";
+  T.forEach((a,i)=>{ const on=tw(t,a,a+.35), p=tw(t,a,a+.5,"b");
+    S(e["n"+i],{o:tw(t,.4+i*.1,.8+i*.1)*F,s:.92+.08*p+.1*Math.sin(Math.PI*tw(t,a,a+.5)),bg:mix("var(--card,#0a0f15)","var(--gold,#38bdf8)",on),c:on>.5?"var(--gold-ink,#00121c)":"var(--muted,#8fa3b3)",bc:mix("var(--line2,rgba(125,211,252,.18))","var(--gold,#38bdf8)",on),bs:`0 0 ${(50*on).toFixed(0)}px -6px var(--glow,rgba(56,189,248,.5))`});
+    S(e["no"+i],{o:tw(t,.5+i*.1,.9+i*.1)*F});
+    S(e["t"+i],{o:L(.35,1,on)*tw(t,.4+i*.1,.8+i*.1)*F,y:L(10,0,on)}); });
+  e.ap.style.strokeDashoffset=(1-tw(t,5.5,6.6,"io")).toFixed(3);
+  S(e.arc,{o:F}); S(e.ah,{o:tw(t,6.5,6.7)});
+  S(e.rep,{o:tw(t,6.4,6.8)*F,s:tw(t,6.4,6.9,"b")});
+}};
+
+SC.payout={dur:8,label:"Every payout fills the team first: new tests, then backups, then funded accounts, then you. Once the tiers are full, 70% is yours.",
+html:`<div class="mx-glow" style="left:-360px;top:-300px"></div>
+<div data-k="kk" class="mx-k" ${P(80,52)}>Every payout</div>
+<div data-k="hh" class="mx-h" ${P(80,84,"font-size:50px")}>Fills the team first. <em>Then you.</em></div>
+<div data-k="card" class="mx-card" ${P(80,190,"width:460px;height:300px;padding:30px;background:linear-gradient(160deg,var(--card2,#0f161f),var(--card,#0a0f15))")}>
+  <span data-k="ok" class="mx-chip" style="background:var(--good,#2fd795);color:#00140c;display:inline-block">✓ PAYOUT APPROVED</span>
+  <div data-k="amt" class="mx-num" style="font-size:96px;margin-top:22px;line-height:1">$0</div>
+  <div class="mx-mut" style="font-size:19px;margin-top:14px">From a funded account at +3%</div>
+  <div class="mx-bar" style="margin-top:22px;height:10px"><i data-k="left" style="background:var(--gold,#38bdf8);width:100%"></i></div></div>
+${[0,1,2,3,4,5].map(i=>`<i data-k="coin${i}" ${P(0,0,"width:20px;height:20px;border-radius:50%;background:var(--gold,#38bdf8);box-shadow:0 0 16px var(--gold,#38bdf8);opacity:0")}></i>`).join("")}
+${[["Pipeline","New tests","var(--t3)"],["Backup","Bench accounts","var(--t2)"],["Funded","The playing team","var(--t1)"],["You","Your pocket","var(--good,#2fd795)"]].map((r,i)=>`<div data-k="R${i}" class="mx-card mx-row" ${P(640,190+i*80,"width:560px;height:66px;grid-template-columns:34px 170px minmax(0,1fr) 92px")}><span class="mx-num" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;border:1.5px solid var(--line2);color:var(--muted)">${i+1}</span><div><b style="font-size:20px">${r[0]}</b><div class="mx-mut" style="font-size:14px">${r[1]}</div></div><div class="mx-bar"><i data-k="RF${i}" style="background:${r[2]}"></i></div><span data-k="RV${i}" class="mx-num" style="font-size:21px;text-align:right">$0</span></div>`).join("")}
+<div data-k="cap" class="mx-mut" ${P(640,532,"font-size:21px;width:560px;line-height:1.4")}>Once every tier is full: <b style="color:var(--ink)">70% is yours</b>, 30% replaces lost accounts.</div>
+<div data-k="ex" class="mx-mut" ${P(80,640,"font-size:14px;font-family:var(--f-m,monospace)")}>Example numbers</div>`,
+draw(e,t){
+  const F=sceneFade(t,this.dur), TOT=4800, W=[0,1,2,3].map(i=>[2.4+i*.85,3.15+i*.85]);
+  S(e.kk,{o:tw(t,.1,.6)*F}); S(e.hh,{o:tw(t,.15,.75)*F,y:L(20,0,tw(t,.15,.8))});
+  S(e.card,{o:tw(t,.3,.8)*F,y:L(30,0,tw(t,.3,.9))}); S(e.ok,{o:tw(t,.7,.9),s:tw(t,.7,1.1,"b")});
+  let poured=0; W.forEach((w,i)=>poured+=1200*tw(t,w[0],w[1],"io"));
+  const got=TOT*tw(t,.9,2.1,"o"); e.amt.textContent=money(Math.max(0,got-poured));
+  e.left.style.width=(100*(got>0?(got-poured)/TOT:0)).toFixed(2)+"%";
+  W.forEach((w,i)=>{ const p=tw(t,w[0],w[1],"io"), y0=190+i*80;
+    S(e["R"+i],{o:tw(t,.5+i*.12,1+i*.12)*F,x:L(30,0,tw(t,.5+i*.12,1.1+i*.12)),bc:mix("var(--line2,rgba(125,211,252,.18))","var(--gold,#38bdf8)",Math.sin(Math.PI*p))});
+    e["RF"+i].style.width=(100*p).toFixed(2)+"%"; e["RV"+i].textContent=money(1200*p); });
+  // coins: two per active window, arc from card to the active row
+  for(let c=0;c<6;c++){ let o=0,x=0,y=0;
+    for(let i=0;i<4;i++){ const w=W[i], st=w[0]+(c%3)*.18, en=st+.5; if(t>=st&&t<=en){ const p=tw(t,st,en,"io"); const x0=540,y0=340,x1=660,y1=223+i*80;
+      x=L(x0,x1,p); y=L(y0,y1,p)-Math.sin(Math.PI*p)*60; o=Math.sin(Math.PI*p); } }
+    S(e["coin"+c],{x:x-10,y:y-10,o:o*F}); }
+  S(e.cap,{o:tw(t,6.1,6.7)*F,y:L(14,0,tw(t,6.1,6.7))}); S(e.ex,{o:tw(t,.8,1.2)*F*.8});
+}};
+
+SC.end={dur:4,label:"TierStack. Build your plan in two minutes.",
+html:`<div class="mx-grid"></div><div class="mx-glow" style="top:-400px"></div>
+<div data-k="mark" ${P(570,150)}>${LOGO(140)}</div>
+<div data-k="word" class="mx-h mx-c" ${P(0,318,"font-size:84px")}>TierStack</div>
+<div data-k="sub" class="mx-c mx-mut" ${P(0,428,"font-size:28px")}>Stop betting on one account. Build a funded portfolio.</div>
+<div data-k="btn" class="mx-btn" ${P(510,510)}>Build my plan →</div>`,
+draw(e,t){
+  S(e.lb3,{o:tw(t,.1,.5),y:L(-16,0,tw(t,.1,.7,"b"))}); S(e.lb2,{o:tw(t,.25,.65),y:L(-16,0,tw(t,.25,.85,"b"))}); S(e.lb1,{o:tw(t,.4,.8),y:L(-16,0,tw(t,.4,1,"b"))});
+  S(e.mark,{o:tw(t,0,.3)}); S(e.word,{o:tw(t,.6,1.1),y:L(20,0,tw(t,.6,1.2))}); S(e.sub,{o:tw(t,.9,1.4),y:L(16,0,tw(t,.9,1.5))});
+  S(e.btn,{o:tw(t,1.2,1.6),s:tw(t,1.2,1.8,"b")*(1+.025*Math.sin(Math.max(0,t-2)*4))});
+}};
+
+/* ---------- mount ---------- */
+function mount(box){
+  const sc=SC[box.dataset.scene]; if(!sc||box._mx)return;
+  const st=document.createElement("div"); st.className="mx-st"; st.innerHTML=sc.html; box.appendChild(st);
+  const e={}; st.querySelectorAll("[data-k]").forEach(n=>e[n.dataset.k]=n);
+  box.setAttribute("role","img"); box.setAttribute("aria-label",sc.label);
+  const crop=()=>((box.dataset.cropSm&&(box.parentElement||box).clientWidth<600)?box.dataset.cropSm:(box.dataset.crop||"0,0,1280,720")).split(",").map(Number);
+  const fit=()=>{ const cr=crop(); box.style.aspectRatio=cr[2]+"/"+cr[3]; st.style.transform=`scale(${box.clientWidth/cr[2]}) translate(${-cr[0]}px,${-cr[1]}px)`; }; fit();
+  if(window.ResizeObserver) new ResizeObserver(fit).observe(box);
+  box._mx={sc,e,draw:t=>sc.draw.call(sc,e,t)};
+  box._mx.draw(sc.dur*.82);
+  return box._mx;
+}
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+function start(){
+  if(!document.getElementById("mx-css")){ const s=document.createElement("style"); s.id="mx-css"; s.textContent=CSS; document.head.appendChild(s); }
+  const boxes=[...document.querySelectorAll(".mx[data-scene]")]; boxes.forEach(mount);
+  if(reduce||window.MX_MANUAL)return;
+  const live=new Set();
+  const io=new IntersectionObserver(es=>es.forEach(en=>{ const m=en.target._mx; if(!m)return; if(en.isIntersecting){ m.t0=performance.now(); live.add(m); } else live.delete(m); }),{threshold:.25});
+  boxes.forEach(b=>io.observe(b));
+  const loop=now=>{ live.forEach(m=>{ const t=((now-m.t0)/1000)%m.sc.dur; m.draw(t); }); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+}
+window.TierMotion={scenes:SC,mount,start};
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
+})();
+
+(function(){ const d=document.getElementById("filmDlg"), v=document.getElementById("filmV");
+  document.getElementById("filmBtn").addEventListener("click",()=>{ if(d.showModal) d.showModal(); else d.setAttribute("open",""); v.currentTime=0; v.play().catch(()=>{}); });
+  const close=()=>{ v.pause(); d.close?d.close():d.removeAttribute("open"); };
+  document.getElementById("filmX").addEventListener("click",close);
+  d.addEventListener("click",e=>{ if(e.target===d) close(); });
+  d.addEventListener("close",()=>v.pause()); })();
+</script>
+
+<script>
+(function(){ const v=document.getElementById("journeyV"); if(!v) return;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!reduce&&"IntersectionObserver" in window) new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) v.play().catch(()=>{}); else v.pause(); }),{threshold:.4}).observe(v);
+  document.getElementById("journeySound").addEventListener("click",e=>{ v.controls=true; v.currentTime=0; v.play().catch(()=>{}); e.currentTarget.remove(); }); })();
+</script>
+
+</body>
+</html>

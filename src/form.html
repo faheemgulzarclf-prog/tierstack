@@ -1,0 +1,56 @@
+<form class="controls" id="f" autocomplete="off">
+      <p class="formhead">Type your own numbers. Results update as you type.</p>
+      <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
+        <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
+        <p class="help">Size of the test you buy first.</p></div>
+      <div class="box"><label for="n0">How many tests to start</label><div class="field step"><button type="button" class="st-b" data-for="n0" data-d="-1" aria-label="One less">−</button><input type="number" id="n0" value="2" min="1" max="20" step="1" inputmode="numeric"><button type="button" class="st-b" data-for="n0" data-d="1" aria-label="One more">+</button></div></div>
+      <div class="box"><label for="target">Your goal (funded money)</label><div class="field"><span class="pre">$</span><input type="number" id="target" value="500000" min="10000" step="50000" inputmode="numeric"></div><p class="help">How much firm money you want to trade.</p></div>
+      <div class="box"><label for="wr">Win rate</label><div class="field step"><button type="button" class="st-b" data-for="wr" data-d="-1" aria-label="Lower">−</button><input type="number" id="wr" value="40" min="5" max="90" step="1" inputmode="numeric"><span class="post">%</span><button type="button" class="st-b" data-for="wr" data-d="1" aria-label="Higher">+</button></div><p class="help">Out of 100 trades, how many win? Use your real record.</p></div>
+      <div class="box"><label for="rr">Reward for each $1 risked</label><div class="field step"><button type="button" class="st-b" data-for="rr" data-d="-0.5" aria-label="Lower">−</button><span class="pre">$</span><input type="number" id="rr" value="3" min="0.5" max="10" step="0.5" inputmode="decimal"><button type="button" class="st-b" data-for="rr" data-d="0.5" aria-label="Higher">+</button></div><p class="help" id="rrHelp">3 means you risk $1 to make $3.</p></div>
+      <div class="box"><label id="riskLbl">Your risk style</label>
+        <div class="riskseg" id="riskSeg" role="radiogroup" aria-labelledby="riskLbl">
+          <button type="button" role="radio" data-lvl="low"><b>Low</b><span class="rs-v" id="rs_low">$125</span><span class="rs-s">per trade</span></button>
+          <button type="button" role="radio" data-lvl="med"><b>Medium</b><span class="rs-v" id="rs_med">$250</span><span class="rs-s">per trade</span></button>
+          <button type="button" role="radio" data-lvl="high"><b>High</b><span class="rs-v" id="rs_high">$500</span><span class="rs-s">per trade</span></button>
+        </div>
+        <input type="hidden" id="risklvl" value="med">
+        <p class="help" id="riskHelp">Every level stays inside the prop firm's loss limits.</p></div>
+      <div class="box"><label for="split">Your share of profit</label><div class="field step"><button type="button" class="st-b" data-for="split" data-d="-5" aria-label="Lower">−</button><input type="number" id="split" value="80" min="10" max="100" step="5" inputmode="numeric"><span class="post">%</span><button type="button" class="st-b" data-for="split" data-d="5" aria-label="Higher">+</button></div></div>
+      <details class="more"><summary>More settings</summary>
+        <div class="adv">
+          <h4>Evaluation fees</h4>
+          <table class="ladder" id="ladderTbl"><thead><tr><th>Size</th><th>Fee $</th><th>Unlocks at</th></tr></thead><tbody></tbody></table>
+          <label class="f" for="maxsize">Largest account size<select id="maxsize"></select></label>
+          <h4>Risk and budget</h4>
+          <div class="grid3">
+            <label class="f" for="riskE">Risk evals %<input type="number" id="riskE" value="1" min="0.1" max="5" step="0.1"></label>
+            <label class="f" for="riskF">Risk funded %<input type="number" id="riskF" value="1" min="0.1" max="5" step="0.1"></label>
+            <label class="f" for="tpd">Trades / day<input type="number" id="tpd" value="1" min="1" max="5" step="1"></label>
+            <label class="f" for="reserve">Rebuy budget $<input type="number" id="reserve" value="500" min="0" step="50"></label>
+            <label class="f" for="topup">Monthly add $<input type="number" id="topup" value="0" min="0" step="50"></label>
+            <label class="f" for="approve">Payouts paid %<input type="number" id="approve" value="95" min="10" max="100" step="1"></label>
+          </div>
+          <h4>Prop firm rules</h4>
+          <div class="grid2">
+            <label class="f" for="p1t">Phase 1 target %<input type="number" id="p1t" value="8" min="1" max="20" step="0.5"></label>
+            <label class="f" for="p2t">Phase 2 target %<input type="number" id="p2t" value="5" min="1" max="20" step="0.5"></label>
+            <label class="f" for="maxdd">Max drawdown %<input type="number" id="maxdd" value="10" min="2" max="20" step="0.5"></label>
+            <label class="f" for="daily">Daily loss limit %<input type="number" id="daily" value="5" min="1" max="20" step="0.5"></label>
+            <label class="f" for="mindays">Min trading days<input type="number" id="mindays" value="4" min="0" max="30" step="1"></label>
+          </div>
+          <h4>System rules</h4>
+          <div class="grid3">
+            <label class="f" for="lock">Payout at +%<input type="number" id="lock" value="3" min="0.5" max="10" step="0.5"></label>
+            <label class="f" for="horizon">Months<input type="number" id="horizon" value="36" min="6" max="72" step="6"></label>
+            <span></span>
+            <label class="f" for="c1">Funded cut −%<input type="number" id="c1" value="6" min="1" max="20" step="0.5"></label>
+            <label class="f" for="c2">Backup cut −%<input type="number" id="c2" value="4" min="1" max="20" step="0.5"></label>
+            <label class="f" for="c3">Pipeline cut −%<input type="number" id="c3" value="4" min="1" max="20" step="0.5"></label>
+            <label class="f" for="k1">Funded retries<input type="number" id="k1" value="3" min="0" max="10" step="1"></label>
+            <label class="f" for="k2">Backup retries<input type="number" id="k2" value="4" min="0" max="10" step="1"></label>
+            <label class="f" for="k3">Pipeline retries<input type="number" id="k3" value="3" min="0" max="10" step="1"></label>
+          </div>
+          <label class="chk" for="corr"><input type="checkbox" id="corr" checked> Same trade on all accounts</label>
+        </div>
+      </details>
+    </form>
