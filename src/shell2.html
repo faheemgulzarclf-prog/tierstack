@@ -80,6 +80,12 @@ section.s{padding-block:110px}
 .badge i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--sky-bg)}
 .hero h1{font-size:clamp(40px,6vw,72px);line-height:1.02;font-weight:800;margin-top:22px}
 .hero h1 .g{color:var(--gold)}
+.slogans{display:flex;align-items:center;gap:14px;margin-top:22px}
+.sl-bar{width:4px;align-self:stretch;min-height:30px;border-radius:4px;background:var(--gold);box-shadow:0 0 18px var(--glow)}
+.sl-stack{display:grid;overflow:hidden}
+.sl{grid-area:1/1;font-family:"Inter Tight",Inter,sans-serif;font-weight:700;font-size:clamp(19px,2.2vw,26px);letter-spacing:-.01em;color:var(--ink);opacity:0;transform:translateY(110%);transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .6s}
+.sl b{color:var(--gold);font-weight:800}
+.sl.on{opacity:1;transform:none}.sl.out{opacity:0;transform:translateY(-110%)}
 .hero .lead{font-size:clamp(17px,1.8vw,20px);color:var(--muted);margin-top:22px;max-width:540px}
 .hero .ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
 .trust{display:flex;gap:28px;flex-wrap:wrap;margin-top:40px}
@@ -614,6 +620,7 @@ dialog.film .x{position:absolute;top:-46px;right:0;width:36px;height:36px;border
   <div>
     <span class="badge a1"><i></i>Prop firm plan + daily coach</span>
     <h1 class="a2">Two tests today. <span class="g">A funded portfolio tomorrow.</span></h1>
+    <div class="slogans a3" aria-live="polite"><span class="sl-bar" aria-hidden="true"></span><div class="sl-stack"><span class="sl on">Attack the prop with the <b>3-Tier plan.</b></span><span class="sl">Two tests in. <b>A funded team out.</b></span><span class="sl">Pass. Get paid. <b>Reinvest. Repeat.</b></span><span class="sl">Fixed risk. Clear rules. <b>No guessing.</b></span></div></div><script>(function(){var ss=document.querySelectorAll(".slogans .sl");if(ss.length<2||matchMedia("(prefers-reduced-motion: reduce)").matches)return;var i=0;setInterval(function(){var a=ss[i];a.classList.remove("on");a.classList.add("out");i=(i+1)%ss.length;var b=ss[i];b.classList.remove("out");void b.offsetWidth;b.classList.add("on");setTimeout(function(){a.classList.remove("out")},650)},3200)})();</script>
     <p class="lead a3">Get your plan in 2 minutes. Then TierStack tells you every day which account to trade and how much to risk.</p>
     <div class="ctas a4"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a><a class="btn ghost" href="#track" data-nav="track">Open my coach</a><button type="button" class="btn ghost filmbtn" id="filmBtn"><span class="pl" aria-hidden="true">▶</span>Watch the 76-sec film</button></div>
     <div class="trust a5"><div><b>3</b><span>risk styles</span></div><div><b>5 : 3 : 2</b><span>tier ratio</span></div><div><b>+3%</b><span>payout lock</span></div></div>
