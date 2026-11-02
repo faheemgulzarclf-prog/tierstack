@@ -10,7 +10,7 @@ const PHC={1:"t3",2:"t2",3:"t1"};
 
 /* storage: private per-trader doc in db, else this browser */
 async function tkStoreInit(){
-  if(window.TSAuth&&window.TSAuthReady){ try{ await window.TSAuthReady; }catch(e){} if(window.TSAuth.user){ TK.store=window.TSAuth.store(); return; } }
+  if(window.TSAuth&&window.TSAuthReady){ try{ await window.TSAuthReady; }catch(e){} if(window.TSAuth.user&&window.TSAuth.ok){ TK.store=window.TSAuth.store(); return; } }
   let db=null,user=null;
   try{ if(window.claude&&window.claude.use){ [db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]); } }catch(e){}
   if(db&&user){ try{ const id=await user.id(); if(id){ const ref=db.collection("data/users/"+id).doc("tracker");
@@ -233,7 +233,7 @@ tkBoot();
 /* account switch: on sign in, load the cloud coach; if the account has none yet, move this browser's coach into it */
 if(window.TSAuth) window.TSAuth.onChange(async u=>{
   const local=TK.store&&TK.store.kind==="local"?TK.state:null;
-  if(u){ TK.store=window.TSAuth.store(); let cloud=null; try{ cloud=await TK.store.load(); }catch(e){}
+  if(u&&window.TSAuth.ok){ TK.store=window.TSAuth.store(); let cloud=null; try{ cloud=await TK.store.load(); }catch(e){}
     if(cloud){ TK.state=tkMigrate(cloud); } else if(local){ TK.state=local; try{ await TK.store.save(local); }catch(e){} } else TK.state=null;
     if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); }
   else { await tkBoot(); }

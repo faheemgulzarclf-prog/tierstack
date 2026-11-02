@@ -86,4 +86,4 @@ $("firmQ").value=FIRMS[0].name; showFirm(FIRMS[0]);
 loadLiveFirms(()=>{ renderChips(); if(currentFirm&&!currentFirm._ai){ const F=FIRMS.find(f=>f.id===currentFirm.id); if(F) showFirm(F); } });
 
 if(window.TSAuth) window.TSAuth.onChange(()=>{ renderChips(); if(currentFirm) showFirm(currentFirm); });
-if(window.TSAuth&&window.TSAuthReady&&window.TSAuth.sb) window.TSAuthReady.then(()=>{ document.body.classList.toggle("ts-locked",!window.TSAuth.user); renderChips(); if(currentFirm) showFirm(currentFirm); });
+if(window.TSAuth&&window.TSAuthReady&&window.TSAuth.sb) window.TSAuthReady.then(()=>{ document.body.classList.toggle("ts-locked",!window.TSAuth.ok); renderChips(); if(currentFirm) showFirm(currentFirm); });
