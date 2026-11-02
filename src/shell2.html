@@ -285,6 +285,13 @@ details.more[open] summary::after{content:"−"}
 .rule{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px}
 .rule .big{font-family:var(--f-d);font-size:24px;font-weight:700;letter-spacing:-.02em}
 .rule p{font-size:13.5px;color:var(--muted)}
+.imp summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}.imp summary::-webkit-details-marker{display:none}
+.imp summary b{display:block;font-size:15px}.imp summary small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.4}
+.imp-plus{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line2);flex:none;transition:transform .25s}.imp[open] .imp-plus{transform:rotate(45deg)}
+.imp-in{display:grid;gap:10px;margin-top:12px}.imp-in textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);padding:10px 12px;font:13px/1.5 var(--f-m);resize:vertical}
+.imp-file{width:max-content;cursor:pointer}.imp-err{color:var(--bad);font-size:13px;margin:0}
+.imp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.imp-stats span{display:flex;flex-direction:column;font-size:12px;color:var(--muted);background:var(--bg2,rgba(127,127,127,.06));border-radius:10px;padding:8px}.imp-stats b{font-size:17px;color:var(--ink);font-family:var(--f-h)}
+#impOut .verdict{margin-bottom:10px}
 .verdict{border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
 .verdict.good{background:var(--good-bg)}.verdict.warn{background:var(--warn-bg)}.verdict.bad{background:var(--bad-bg)}
 .verdict .ic{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800}
@@ -1059,6 +1066,7 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
 (function(){
 "use strict";
 /*ENGINE*/
+/*TRADES*/
 /*FRONT*/
 /*FIRMS*/
 /*FIRMCTL*/

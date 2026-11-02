@@ -130,7 +130,7 @@ function portfolioSim(P,wr,runs,seed,lg){
     pays:[],setupsGoal:[],ordersGoal:[],setupsAll:[],ordersAll:[],daysAll:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
-    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
+    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[], last100=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
     const snap=()=>({T1:accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0),T2:accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0),T3:accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0)});
     const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
     const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
@@ -161,7 +161,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         a.d++; let nT=0;
         for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){ nT++;
           const win=P.corr?shared[t]:rng()<wr;
-          a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift();
+          a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift(); last100.push(win?1:0); if(last100.length>100) last100.shift();
           if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
           if(a.b<=-P.maxdd){a.dead=true;a.why="maxdd";break;}
           if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
@@ -208,8 +208,8 @@ function portfolioSim(P,wr,runs,seed,lg){
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
       const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
-      let guard=0;
-      while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
+      let guard=0; const noEdge=P.edgeGate!==false&&last100.length>=30&&edgeOf(last100.map(x=>x?P.rr:-1)).state==="none";
+      while(!noEdge&&(pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
         if(lvl>proven){ outNew=accts.some(a=>a.li===lvl && a.ph!==3); if(outNew) li=proven; }
         const fee=L[li].fee; if(cash<fee) break;

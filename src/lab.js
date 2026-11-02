@@ -84,6 +84,7 @@ function labStepDay(){
     labCheck("money",Math.abs(st.pool-expPool)<0.01&&Math.abs(st.personal-LAB.home)<0.01,`Reinvestment ${fmtFull(st.pool)} vs ${fmtFull(expPool)}, taken home ${fmtFull(st.personal)} vs ${fmtFull(LAB.home)}`);
     const minFee=Math.min(...p.ladder.map(r=>r.fee));
     if(!st.accounts.some(a=>a.status==="active")&&st.pool<minFee){ LAB.done=true; LAB.bust=true; log(`Plan ended: every test failed and Reinvestment (${fmtFull(st.pool)}) can't buy a new one. The guide says no new personal money, so the plan stops here.`); }
+    if(!LAB.done&&!st.accounts.some(a=>a.status==="active")&&pf.noEdge){ LAB.done=true; LAB.bust=true; log(`Plan stopped: every account is gone and your last ${pf.edge.n} trades lose money on average (${pf.edge.ev.toFixed(2)}R). The edge check blocks new tests until your trading is positive again.`); }
     if(pf.done){ LAB.done=true; log(`Goal reached: ${fmt(pf.T1)} funded.`); }
     labTrack(st,pf);
   }

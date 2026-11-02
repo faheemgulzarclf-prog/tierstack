@@ -60,7 +60,7 @@ function render(P,S){
 
   let vc,vt,vp;
   if(ev<=0){vc="bad";vt="Your trading loses money.";vp=`At 1 : ${P.rr} you need to win more than ${pct(be)} of trades. Fix that before buying evaluations.`;}
-  else if(bust>0.25){vc="warn";vt="Works, but the start is fragile.";vp=`In ${pct(bust)} of realistic runs, every account is lost before payouts start. A bigger rebuy budget lowers this.`;}
+  else if(bust>0.25){vc="warn";vt="Works, but the start is fragile.";vp=`In ${pct(bust)} of realistic runs, every account is lost before payouts start. Starting with more tests or a lower risk style lowers this.`;}
   else {vc="good";vt="The numbers work.";vp=`You make ${ev.toFixed(2)}× your risk per trade on average. Keep logging trades to make sure your win rate holds.`;}
 
   const stops=[{t:"Start",g:fmt(P.n0*P.s0),s:`${P.n0} × ${fmt(P.s0)} evaluations`,w:"Now"}];
@@ -94,6 +94,7 @@ function render(P,S){
       <div class="kpi"><span class="v">${income>0?fmt(income):"—"}</span><span class="k">a month once you reach the goal</span></div>
       <div class="kpi"><span class="v" style="color:${bust>0.25?"var(--bad)":"inherit"}">${pct(bust)}</span><span class="k">chance of losing it all</span></div>
   </div>
+    ${TS_IMPORT&&Math.round(TS_IMPORT.wr*100)===Math.round(P.wr*100)?(()=>{ const e=TS_IMPORT.edge, c=e.state==="proven"?"good":e.state==="none"?"bad":"warn"; return `<div class="verdict ${c}"><span class="ic">${c==="good"?"✓":"!"}</span><div><b>Your real trades: ${EDGE_TXT[e.state].toLowerCase()}</b><p>${edgeLine(e)}</p></div></div>`; })():""}
     ${vc!=="good"?`<div class="verdict ${vc}"><span class="ic">!</span><div><b>${vt}</b><p>${vp}</p></div></div>`:""}
     <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#road" data-nav="road">Week-by-week roadmap</a><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
   </div>
@@ -200,7 +201,7 @@ function run(){
   try{ const t=localStorage.getItem("tp-theme"); if(t==="dark"||t==="light") root.dataset.theme=t; }catch(e){}
   $("themeBtn").addEventListener("click",()=>{ const t=isDark()?"light":"dark"; root.dataset.theme=t; try{localStorage.setItem("tp-theme",t);}catch(e){} sync(); });
   mq.addEventListener&&mq.addEventListener("change",sync); sync(); })();
-bindControls(); sizeOptions(); renderLadder(); outs();
+bindControls(); importBoxInit(); sizeOptions(); renderLadder(); outs();
 $("f").addEventListener("input",e=>{ const id=e.target.id; if(id==="target"||id==="s0"){ sizeOptions(); renderLadder(); }
   if(["riskE","riskF","k1","k2","k3"].includes(id)) $("risklvl").value="custom";
   else if(["maxdd","daily","tpd","c1","c2","c3"].includes(id)&&RISK_LV[$("risklvl").value]) applyLevel($("risklvl").value);

@@ -9,6 +9,11 @@
 <meta property="og:description" content="Two tests today. A funded portfolio tomorrow. Plan, firm rules and a daily coach.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B132B'/%3E%3Crect x='9' y='7' width='14' height='4' rx='2' fill='%235BC0DE'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%23F4D6B0'/%3E%3Crect x='5' y='21' width='22' height='4' rx='2' fill='%238297B6'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TierStack">
 <title>TierStack · Prop firm plan + daily coach</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -296,6 +301,13 @@ details.more[open] summary::after{content:"−"}
 .rule{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px}
 .rule .big{font-family:var(--f-d);font-size:24px;font-weight:700;letter-spacing:-.02em}
 .rule p{font-size:13.5px;color:var(--muted)}
+.imp summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}.imp summary::-webkit-details-marker{display:none}
+.imp summary b{display:block;font-size:15px}.imp summary small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.4}
+.imp-plus{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line2);flex:none;transition:transform .25s}.imp[open] .imp-plus{transform:rotate(45deg)}
+.imp-in{display:grid;gap:10px;margin-top:12px}.imp-in textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);padding:10px 12px;font:13px/1.5 var(--f-m);resize:vertical}
+.imp-file{width:max-content;cursor:pointer}.imp-err{color:var(--bad);font-size:13px;margin:0}
+.imp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.imp-stats span{display:flex;flex-direction:column;font-size:12px;color:var(--muted);background:var(--bg2,rgba(127,127,127,.06));border-radius:10px;padding:8px}.imp-stats b{font-size:17px;color:var(--ink);font-family:var(--f-h)}
+#impOut .verdict{margin-bottom:10px}
 .verdict{border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
 .verdict.good{background:var(--good-bg)}.verdict.warn{background:var(--warn-bg)}.verdict.bad{background:var(--bad-bg)}
 .verdict .ic{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800}
@@ -1169,6 +1181,14 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
   <div class="in"><div class="planner">
 <form class="controls" id="f" autocomplete="off">
       <p class="formhead">Type your own numbers. Results update as you type.</p>
+      <details class="box imp" id="impBox"><summary><span><b>Use my real trades</b><small id="impNote">Paste or upload your trade history. We read your win rate, reward and trades a day.</small></span><span class="imp-plus" aria-hidden="true">+</span></summary>
+        <div class="imp-in">
+          <label class="btn ghost sm imp-file">Choose CSV file<input type="file" id="impFile" accept=".csv,.txt,.tsv,text/csv,text/plain" hidden></label>
+          <textarea id="impText" rows="5" placeholder="Paste from your journal or platform export. One trade per line with a Profit, P&amp;L or R column, for example:&#10;Date,Profit&#10;2026-10-01,250&#10;2026-10-02,-100"></textarea>
+          <button type="button" class="btn sm" id="impRead">Read my trades</button>
+          <p class="help">Works with MT4/MT5, cTrader, TradingView and most journal CSV exports. Nothing leaves your device.</p>
+          <div id="impOut"></div>
+        </div></details>
       <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
         <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
         <p class="help">Size of the test you buy first.</p></div>
@@ -1384,7 +1404,7 @@ function portfolioSim(P,wr,runs,seed,lg){
     pays:[],setupsGoal:[],ordersGoal:[],setupsAll:[],ordersAll:[],daysAll:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
-    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
+    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[], last100=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
     const snap=()=>({T1:accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0),T2:accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0),T3:accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0)});
     const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
     const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
@@ -1415,7 +1435,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         a.d++; let nT=0;
         for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){ nT++;
           const win=P.corr?shared[t]:rng()<wr;
-          a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift();
+          a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift(); last100.push(win?1:0); if(last100.length>100) last100.shift();
           if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
           if(a.b<=-P.maxdd){a.dead=true;a.why="maxdd";break;}
           if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
@@ -1462,8 +1482,8 @@ function portfolioSim(P,wr,runs,seed,lg){
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
       const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
-      let guard=0;
-      while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
+      let guard=0; const noEdge=P.edgeGate!==false&&last100.length>=30&&edgeOf(last100.map(x=>x?P.rr:-1)).state==="none";
+      while(!noEdge&&(pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
         if(lvl>proven){ outNew=accts.some(a=>a.li===lvl && a.ph!==3); if(outNew) li=proven; }
         const fee=L[li].fee; if(cash<fee) break;
@@ -1513,6 +1533,87 @@ function tradeRow(Q,m,t){
   const setG=ok?quant(m.setupsGoal,0.5):null, ordG=ok?quant(m.ordersGoal,0.5):null;
   const perMo=ok?setG/mo:quant(m.setupsAll.map((v,i)=>v/Math.max(1,m.daysAll[i]/21.65)),0.5);
   return {tpd:t,riskE:Q.riskE,riskF:Q.riskF,ok,wk,mo,setG,ordG,perMo,ordMo:ok?ordG/mo:null,reach:m.reached/m.runs,bust:m.bust/m.runs};
+}
+
+/* ---------- real trades: import a CSV / pasted list, read win rate, reward, trades a day and the edge ---------- */
+// edge from a list of results in R (win = +reward, loss = -1). One-sided 90% lower bound on the average.
+function edgeOf(R){
+  const n=R.length; if(!n) return {n:0,state:"few",ev:0,lo:0,wr:0};
+  const ev=R.reduce((s,x)=>s+x,0)/n, sd=Math.sqrt(R.reduce((s,x)=>s+(x-ev)**2,0)/Math.max(1,n-1)), lo=ev-1.28*sd/Math.sqrt(n), hi=ev+1.28*sd/Math.sqrt(n);
+  const wr=R.filter(x=>x>0).length/n;
+  /* none = losing and very unlikely to be bad luck (blocks new tests); weak = losing lately but could be luck */
+  const state=n<30?"few":hi<0?"none":ev<=0?"weak":lo<=0?"unclear":"proven";
+  return {n,ev,lo,hi,sd,wr,state};
+}
+const EDGE_TXT={few:"Not enough trades yet",none:"No edge",weak:"Losing lately",unclear:"Edge not proven yet",proven:"Edge proven"};
+function edgeLine(e){ const k=e.state;
+  if(k==="few") return `${e.n} trades. You need at least 30 to know if your edge is real.`;
+  if(k==="none") return `Over your last ${e.n} trades you lost ${Math.abs(e.ev).toFixed(2)}× your risk per trade on average. Do not buy new tests until this turns positive. Practise on demo first.`;
+  if(k==="weak") return `Your last ${e.n} trades lost ${Math.abs(e.ev).toFixed(2)}× your risk per trade on average. It could still be bad luck, so keep risk small and review your trades before buying more tests.`;
+  if(k==="unclear") return `You make ${e.ev.toFixed(2)}× your risk per trade, but ${e.n} trades is not enough to rule out luck. Keep going with small size.`;
+  return `You make ${e.ev.toFixed(2)}× your risk per trade over ${e.n} trades, and that is very unlikely to be luck.`;
+}
+function tsNum(v){ if(v==null) return NaN; let s=String(v).trim(); if(!s) return NaN; let neg=false;
+  if(/^\(.*\)$/.test(s)){ neg=true; s=s.slice(1,-1); }
+  s=s.replace(/[$€£\s]/g,"").replace(/[^\d.,\-+eE]/g,"");
+  if(/,\d{1,2}$/.test(s)&&!/\.\d/.test(s)) s=s.replace(/\./g,"").replace(",","."); else s=s.replace(/,/g,"");
+  const x=parseFloat(s); return isFinite(x)?(neg?-Math.abs(x):x):NaN; }
+function tsSplit(line,d){ const out=[]; let cur="", q=false; for(let i=0;i<line.length;i++){ const c=line[i];
+  if(c==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++;} else q=!q; } else if(c===d&&!q){ out.push(cur); cur=""; } else cur+=c; } out.push(cur); return out.map(x=>x.trim()); }
+function tsDay(v){ if(!v) return null; const s=String(v).trim();
+  let m=s.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/); if(m) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
+  m=s.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})/); if(m) return `${m[3]}-${m[1].padStart(2,"0")}-${m[2].padStart(2,"0")}`;
+  const d=new Date(s); return isNaN(d)?null:d.toISOString().slice(0,10); }
+/* returns {trades:[{v,r,day}], wins, losses, wr, rr, tpd, days, R:[...], edge, col, err} */
+function parseTrades(text){
+  const lines=String(text||"").replace(/\r/g,"").split("\n").map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return {err:"Nothing to read. Paste your trades or choose a file."};
+  const d=[",",";","\t","|"].map(c=>[c,(lines[0].match(new RegExp(c==="|"?"\\|":c,"g"))||[]).length]).sort((a,b)=>b[1]-a[1])[0];
+  const delim=d[1]>0?d[0]:null;
+  let rows=lines.map(l=>delim?tsSplit(l,delim):[l]);
+  const head=rows[0].map(h=>h.toLowerCase().replace(/[^a-z&%]/g,""));
+  const hasHead=rows[0].some(c=>isNaN(tsNum(c))&&/[a-z]/i.test(c));
+  let pi=-1, ri=-1, di=-1;
+  if(hasHead){
+    const find=keys=>{ for(const k of keys){ const i=head.findIndex(h=>h===k); if(i>=0) return i; } for(const k of keys){ const i=head.findIndex(h=>h.includes(k)); if(i>=0) return i; } return -1; };
+    ri=head.findIndex(h=>/^(r|rr|rmultiple|rmult|rmultiplier|rvalue)$/.test(h));
+    pi=find(["netprofit","netp&l","netpnl","realizedpnl","pnl","p&l","profit","netpl","pl","result","gain","return"]);
+    di=find(["closetime","closedate","exittime","exitdate","close","date","time","opentime","opendate"]);
+    rows=rows.slice(1);
+  } else { // no header: last numeric column is the result
+    const c=rows[0].length; for(let i=c-1;i>=0;i--) if(!isNaN(tsNum(rows[0][i]))){ pi=i; break; }
+    for(let i=0;i<c;i++) if(tsDay(rows[0][i])&&isNaN(Number(rows[0][i]))){ di=i; break; }
+  }
+  if(pi<0&&ri<0) return {err:"Could not find a profit or P&L column. Name one column Profit, P&L or R."};
+  const trades=[]; for(const r of rows){ const v=pi>=0?tsNum(r[pi]):NaN, rr=ri>=0?tsNum(r[ri]):NaN; const x=ri>=0&&isFinite(rr)?rr:v; if(!isFinite(x)||x===0) continue; trades.push({v:x,day:di>=0?tsDay(r[di]):null}); }
+  if(trades.length<5) return {err:`Only ${trades.length} trades found. Add at least 5 (30+ is better).`};
+  const W=trades.filter(t=>t.v>0), Lo=trades.filter(t=>t.v<0);
+  const avgW=W.length?W.reduce((s,t)=>s+t.v,0)/W.length:0, avgL=Lo.length?Lo.reduce((s,t)=>s-t.v,0)/Lo.length:0;
+  const wr=W.length/trades.length, rr=avgL>0?avgW/avgL:avgW>0?99:0;
+  const R=avgL>0?trades.map(t=>t.v/avgL):trades.map(t=>t.v>0?rr:-1);
+  const days=new Set(trades.map(t=>t.day).filter(Boolean)).size;
+  const tpd=days?trades.length/days:null;
+  return {trades,wins:W.length,losses:Lo.length,wr,rr,avgW,avgL,tpd,days,R,edge:edgeOf(R),col:ri>=0?"R":"profit"};
+}
+let TS_IMPORT=null;
+try{ const s=JSON.parse(localStorage.getItem("ts-import")||"null"); if(s&&s.R) TS_IMPORT=s; }catch(e){}
+function importBoxInit(){
+  const box=$("impBox"); if(!box) return;
+  const show=r=>{ const o=$("impOut");
+    if(!r){ o.innerHTML=""; return; }
+    if(r.err){ o.innerHTML=`<p class="imp-err">${esc(r.err)}</p>`; return; }
+    const e=r.edge, cls=e.state==="proven"?"good":e.state==="none"?"bad":"warn";
+    o.innerHTML=`<div class="imp-stats"><span><b>${r.trades.length}</b>trades</span><span><b>${Math.round(r.wr*100)}%</b>win rate</span><span><b>1 : ${r.rr.toFixed(1)}</b>reward</span><span><b>${r.tpd?r.tpd.toFixed(1):"—"}</b>a day</span></div>
+      <div class="verdict ${cls}"><span class="ic">${cls==="good"?"✓":"!"}</span><div><b>${EDGE_TXT[e.state]}</b><p>${edgeLine(e)}</p></div></div>
+      <button type="button" class="btn gold sm" id="impUse">Use these numbers <span class="arr">→</span></button>`;
+    $("impUse").onclick=()=>{ $("wr").value=Math.max(5,Math.min(90,Math.round(r.wr*100))); $("rr").value=Math.max(0.5,Math.min(10,Math.round(r.rr*10)/10));
+      if(r.tpd) $("tpd").value=Math.max(1,Math.min(5,Math.round(r.tpd)));
+      TS_IMPORT={n:r.trades.length,wr:r.wr,rr:r.rr,tpd:r.tpd,R:r.R,edge:r.edge,at:todayStr()}; try{localStorage.setItem("ts-import",JSON.stringify(TS_IMPORT));}catch(e){}
+      $("f").dispatchEvent(new Event("input",{bubbles:true})); box.open=false; };
+  };
+  $("impRead").onclick=()=>show(parseTrades($("impText").value));
+  $("impFile").onchange=ev=>{ const f=ev.target.files&&ev.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ $("impText").value=String(rd.result).slice(0,400000); show(parseTrades(rd.result)); }; rd.readAsText(f); };
+  if(TS_IMPORT) $("impNote").textContent=`Using ${TS_IMPORT.n} real trades (${Math.round(TS_IMPORT.wr*100)}% · 1 : ${TS_IMPORT.rr.toFixed(1)}).`;
 }
 
 /* ---------- front end ---------- */
@@ -1577,7 +1678,7 @@ function render(P,S){
 
   let vc,vt,vp;
   if(ev<=0){vc="bad";vt="Your trading loses money.";vp=`At 1 : ${P.rr} you need to win more than ${pct(be)} of trades. Fix that before buying evaluations.`;}
-  else if(bust>0.25){vc="warn";vt="Works, but the start is fragile.";vp=`In ${pct(bust)} of realistic runs, every account is lost before payouts start. A bigger rebuy budget lowers this.`;}
+  else if(bust>0.25){vc="warn";vt="Works, but the start is fragile.";vp=`In ${pct(bust)} of realistic runs, every account is lost before payouts start. Starting with more tests or a lower risk style lowers this.`;}
   else {vc="good";vt="The numbers work.";vp=`You make ${ev.toFixed(2)}× your risk per trade on average. Keep logging trades to make sure your win rate holds.`;}
 
   const stops=[{t:"Start",g:fmt(P.n0*P.s0),s:`${P.n0} × ${fmt(P.s0)} evaluations`,w:"Now"}];
@@ -1611,6 +1712,7 @@ function render(P,S){
       <div class="kpi"><span class="v">${income>0?fmt(income):"—"}</span><span class="k">a month once you reach the goal</span></div>
       <div class="kpi"><span class="v" style="color:${bust>0.25?"var(--bad)":"inherit"}">${pct(bust)}</span><span class="k">chance of losing it all</span></div>
   </div>
+    ${TS_IMPORT&&Math.round(TS_IMPORT.wr*100)===Math.round(P.wr*100)?(()=>{ const e=TS_IMPORT.edge, c=e.state==="proven"?"good":e.state==="none"?"bad":"warn"; return `<div class="verdict ${c}"><span class="ic">${c==="good"?"✓":"!"}</span><div><b>Your real trades: ${EDGE_TXT[e.state].toLowerCase()}</b><p>${edgeLine(e)}</p></div></div>`; })():""}
     ${vc!=="good"?`<div class="verdict ${vc}"><span class="ic">!</span><div><b>${vt}</b><p>${vp}</p></div></div>`:""}
     <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#road" data-nav="road">Week-by-week roadmap</a><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
   </div>
@@ -1717,7 +1819,7 @@ function run(){
   try{ const t=localStorage.getItem("tp-theme"); if(t==="dark"||t==="light") root.dataset.theme=t; }catch(e){}
   $("themeBtn").addEventListener("click",()=>{ const t=isDark()?"light":"dark"; root.dataset.theme=t; try{localStorage.setItem("tp-theme",t);}catch(e){} sync(); });
   mq.addEventListener&&mq.addEventListener("change",sync); sync(); })();
-bindControls(); sizeOptions(); renderLadder(); outs();
+bindControls(); importBoxInit(); sizeOptions(); renderLadder(); outs();
 $("f").addEventListener("input",e=>{ const id=e.target.id; if(id==="target"||id==="s0"){ sizeOptions(); renderLadder(); }
   if(["riskE","riskF","k1","k2","k3"].includes(id)) $("risklvl").value="custom";
   else if(["maxdd","daily","tpd","c1","c2","c3"].includes(id)&&RISK_LV[$("risklvl").value]) applyLevel($("risklvl").value);
@@ -2091,7 +2193,9 @@ function portfolio(st){
   const tgtB=base1+growS, needT3=T1>0?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   const stocked=T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1;
   const rate=reinvRate(p,T1,stocked);
-  return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
+  /* edge check: once 30+ trades are logged, stop buying new tests while the average trade loses money */
+  const edge=edgeOf(st.trades.map(w=>w?p.rr:-1)), noEdge=p.edgeGate!==false&&edge.state==="none";
+  return {T1,T2,T3,lvl,buySize,fee,need:noEdge?0:Math.max(needT3,needPipe),needRaw:Math.max(needT3,needPipe),noEdge,edge,stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
 
 /* ---------- daily reminder: calendar alarm + WhatsApp share (no account needed) ---------- */
@@ -2163,6 +2267,7 @@ function tkRenderInner(){
   let next;
   if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to Reinvestment until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
   else if(!st.accounts.some(a=>a.status==="active")&&st.pool<Math.min(...p.ladder.map(r=>r.fee))) next={t:"Every test failed and Reinvestment is empty",s:"The guide says no new personal money after the first tests. Stop, review your trades, and only start again with a fresh plan."};
+  else if(pf.noEdge&&pf.needRaw>0){ next={t:"Stop buying tests: no edge right now",s:edgeLine(pf.edge)+" Keep trading your current accounts with the same small risk.",btn:false}; }
   else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
@@ -2370,6 +2475,7 @@ function labStepDay(){
     labCheck("money",Math.abs(st.pool-expPool)<0.01&&Math.abs(st.personal-LAB.home)<0.01,`Reinvestment ${fmtFull(st.pool)} vs ${fmtFull(expPool)}, taken home ${fmtFull(st.personal)} vs ${fmtFull(LAB.home)}`);
     const minFee=Math.min(...p.ladder.map(r=>r.fee));
     if(!st.accounts.some(a=>a.status==="active")&&st.pool<minFee){ LAB.done=true; LAB.bust=true; log(`Plan ended: every test failed and Reinvestment (${fmtFull(st.pool)}) can't buy a new one. The guide says no new personal money, so the plan stops here.`); }
+    if(!LAB.done&&!st.accounts.some(a=>a.status==="active")&&pf.noEdge){ LAB.done=true; LAB.bust=true; log(`Plan stopped: every account is gone and your last ${pf.edge.n} trades lose money on average (${pf.edge.ev.toFixed(2)}R). The edge check blocks new tests until your trading is positive again.`); }
     if(pf.done){ LAB.done=true; log(`Goal reached: ${fmt(pf.T1)} funded.`); }
     labTrack(st,pf);
   }
@@ -3071,6 +3177,29 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
   if(!reduce&&"IntersectionObserver" in window) new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) v.play().catch(()=>{}); else v.pause(); }),{threshold:.4}).observe(v);
   document.getElementById("journeySound").addEventListener("click",e=>{ v.controls=true; v.currentTime=0; v.play().catch(()=>{}); e.currentTarget.remove(); }); })();
 </script>
+
+<div class="pwa-bar" id="pwaBar" hidden><span class="pwa-ic" aria-hidden="true"></span><div><b>Get the TierStack app</b><small id="pwaTxt">Opens like an app from your home screen. Works offline.</small></div><button type="button" class="btn gold sm" id="pwaGo">Install</button><button type="button" class="pwa-x" id="pwaX" aria-label="Close">×</button></div>
+<style>
+.pwa-bar{position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;max-width:460px;margin-inline:auto;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--card2);border:1px solid var(--line2);box-shadow:0 18px 50px rgba(0,0,0,.35);animation:pwaIn .5s cubic-bezier(.2,.8,.2,1)}
+.pwa-bar[hidden]{display:none}.pwa-bar>div{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px}.pwa-bar small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.pwa-ic{width:40px;height:40px;border-radius:10px;flex:none;background:url(icons/icon-192.png) center/cover}
+.pwa-x{background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px}
+@keyframes pwaIn{from{transform:translateY(30px);opacity:0}}
+@media (min-width:900px){.pwa-bar{bottom:24px}}
+</style>
+<script>(function(){
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")) navigator.serviceWorker.register("sw.js").catch(function(){});
+var bar=document.getElementById("pwaBar"),go=document.getElementById("pwaGo"),txt=document.getElementById("pwaTxt"),ev=null;
+var standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+function seen(){try{return localStorage.getItem("ts-pwa-x")==="1"}catch(e){return false}}
+function hide(){bar.hidden=true;try{localStorage.setItem("ts-pwa-x","1")}catch(e){}}
+document.getElementById("pwaX").onclick=hide;
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();ev=e;if(!standalone&&!seen())setTimeout(function(){bar.hidden=false},4000);});
+go.onclick=function(){if(ev){ev.prompt();ev.userChoice.then(function(){bar.hidden=true;ev=null;});}else hide();};
+var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+if(ios&&!standalone&&!seen()){txt.textContent="Tap Share, then \u201cAdd to Home Screen\u201d.";go.textContent="Got it";setTimeout(function(){bar.hidden=false},4000);}
+window.addEventListener("appinstalled",function(){bar.hidden=true;});
+})();</script>
 
 </body>
 </html>

@@ -1,5 +1,13 @@
 <form class="controls" id="f" autocomplete="off">
       <p class="formhead">Type your own numbers. Results update as you type.</p>
+      <details class="box imp" id="impBox"><summary><span><b>Use my real trades</b><small id="impNote">Paste or upload your trade history. We read your win rate, reward and trades a day.</small></span><span class="imp-plus" aria-hidden="true">+</span></summary>
+        <div class="imp-in">
+          <label class="btn ghost sm imp-file">Choose CSV file<input type="file" id="impFile" accept=".csv,.txt,.tsv,text/csv,text/plain" hidden></label>
+          <textarea id="impText" rows="5" placeholder="Paste from your journal or platform export. One trade per line with a Profit, P&amp;L or R column, for example:&#10;Date,Profit&#10;2026-10-01,250&#10;2026-10-02,-100"></textarea>
+          <button type="button" class="btn sm" id="impRead">Read my trades</button>
+          <p class="help">Works with MT4/MT5, cTrader, TradingView and most journal CSV exports. Nothing leaves your device.</p>
+          <div id="impOut"></div>
+        </div></details>
       <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
         <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
         <p class="help">Size of the test you buy first.</p></div>

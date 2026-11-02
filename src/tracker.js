@@ -103,7 +103,9 @@ function portfolio(st){
   const tgtB=base1+growS, needT3=T1>0?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   const stocked=T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1;
   const rate=reinvRate(p,T1,stocked);
-  return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
+  /* edge check: once 30+ trades are logged, stop buying new tests while the average trade loses money */
+  const edge=edgeOf(st.trades.map(w=>w?p.rr:-1)), noEdge=p.edgeGate!==false&&edge.state==="none";
+  return {T1,T2,T3,lvl,buySize,fee,need:noEdge?0:Math.max(needT3,needPipe),needRaw:Math.max(needT3,needPipe),noEdge,edge,stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
 
 /* ---------- daily reminder: calendar alarm + WhatsApp share (no account needed) ---------- */
@@ -175,6 +177,7 @@ function tkRenderInner(){
   let next;
   if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to Reinvestment until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
   else if(!st.accounts.some(a=>a.status==="active")&&st.pool<Math.min(...p.ladder.map(r=>r.fee))) next={t:"Every test failed and Reinvestment is empty",s:"The guide says no new personal money after the first tests. Stop, review your trades, and only start again with a fresh plan."};
+  else if(pf.noEdge&&pf.needRaw>0){ next={t:"Stop buying tests: no edge right now",s:edgeLine(pf.edge)+" Keep trading your current accounts with the same small risk.",btn:false}; }
   else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
