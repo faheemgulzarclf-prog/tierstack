@@ -122,6 +122,8 @@ function labReport(st){
   const own=p.n0*L[0].fee, feesR=LAB.outPool||0;
   const bySize={}; st.accounts.forEach(a=>{ bySize[a.size]=(bySize[a.size]||0)+1; });
   const cuts=[1,2,3].map(ph=>st.cuts.filter(c=>c.phase===ph).length);
+  const failed=st.accounts.filter(a=>a.status==="failed"), feeOf=sz=>(L.find(r=>r.size===sz)||{fee:guessFee(sz)}).fee, lostFees=failed.reduce((s,a)=>s+feeOf(a.size),0);
+  const tierN=ph=>ph===3?"Tier 1 (funded)":ph===2?"Tier 2 (Phase 2)":"Tier 3 (Phase 1)";
   const groups={}; pays.forEach(x=>{ const k=Math.round(x.rate*100); const g=groups[k]||(groups[k]={n:0,amt:0,re:0}); g.n++; g.amt+=x.amt; g.re+=x.amt*x.rate; });
   const unst=groups[100]?groups[100].n:0;
   const tb=Object.values(LAB.checks).reduce((s,c)=>s+c.bad,0), tok=Object.values(LAB.checks).reduce((s,c)=>s+c.ok,0);
@@ -137,7 +139,9 @@ function labReport(st){
     <div><b>${fmtFull(re)}</b><span>went back in (Reinvestment)</span></div>
     <div class="hl"><b>${fmtFull(home)}</b><span>taken home</span></div>
     <div><b>${fmtFull(feesR)}</b><span>test fees paid from Reinvestment</span></div>
-    <div><b>${fmtFull(st.pool)}</b><span>Reinvestment left</span></div></div>
+    <div><b>${fmtFull(st.pool)}</b><span>Reinvestment left</span></div>
+    <div class="${failed.length?"bd":""}"><b>${failed.length} of ${st.accounts.length}</b><span>accounts failed (cut)</span></div>
+    <div><b>${fmtFull(lostFees)}</b><span>fees lost on failed tests</span></div></div>
   <div class="lr-g">
     <section><h4>Where each payout went</h4><table class="lr-t"><thead><tr><th>Stage</th><th>Payouts</th><th>Total</th><th>Back in</th><th>You kept</th></tr></thead><tbody>
       ${Object.keys(groups).map(Number).sort((a,b)=>b-a).map(k=>{ const g=groups[k]; return `<tr><td><b>${k}% back in</b><span>${esc(stageName(k))}</span></td><td>${g.n}</td><td>${fmtFull(g.amt)}</td><td>${fmtFull(g.re)}</td><td>${fmtFull(g.amt-g.re)}</td></tr>`; }).join("")||`<tr><td colspan="5">No payouts yet.</td></tr>`}</tbody></table>
@@ -152,6 +156,8 @@ function labReport(st){
       <li><span>Now: Tier 1 / Tier 2 / Tier 3</span><b>${fmt(pf.T1)} / ${fmt(pf.T2)} / ${fmt(pf.T3)}</b></li>
       <li><span>Guide checks</span><b class="${tb?"bad":"ok"}">${tok+tb} checks, ${tb} error${tb===1?"":"s"}</b></li></ul></section>
   </div>
+  <section><h4>Failed accounts: ${failed.length}</h4>${failed.length?`<p class="ls-help" style="margin-bottom:8px">Tier 1: ${cuts[2]} · Tier 2: ${cuts[1]} · Tier 3: ${cuts[0]}. Each one hit its cut level and the one recovery try did not work, so the guide closed it.</p>
+    <table class="lr-t"><thead><tr><th>Account</th><th>Tier when it failed</th><th>Day</th><th>Down</th><th>Fee lost</th></tr></thead><tbody>${failed.map(a=>{ const c=st.cuts.find(x=>x.id===a.id)||{}; return `<tr><td><b>${esc(a.name)}</b></td><td>${tierN(a.phase)}</td><td>${c.d?dnum(c.d)-dnum(st.start)+1:"—"}</td><td>${c.pct!=null?c.pct+"%":"—"}</td><td>${fmtFull(feeOf(a.size))}</td></tr>`; }).join("")}</tbody></table>`:`<p class="ls-help">No account failed in this test.${LAB.instant?" Instant pass never loses. Switch to Real trading to see failures.":""}</p>`}</section>
   <section><h4>Timeline</h4><ol class="lr-tl">${(LAB.ms||[]).map(m=>`<li><span>Day ${m.d}</span>${esc(m.t)}</li>`).join("")||"<li>Nothing yet.</li>"}</ol></section>
 </div>`;
 }
@@ -187,6 +193,7 @@ function labBoard(){
       <div class="lab-feed"><h4>What happened</h4><ul class="tk-log">${st.log.slice(0,14).map(l=>`<li><span>${fmtDate(l.d)}</span>${esc(l.t)}</li>`).join("")}</ul></div></div>
   </div>`;
 }
+window.__lab={LAB,labCanPromote,labExpRate,labCheck,labBuyCheck,labReset};
 function labRenderBoard(){ const b=$("labBoard"); if(b) b.outerHTML=labBoard(); }
 document.addEventListener("click",e=>{ const b=e.target.closest("[data-lab]"); if(!b||!TK.test||!TK.state) return; const k=b.dataset.lab;
   if(k==="instant"||k==="real"){ const want=k==="instant"; if(LAB.instant!==want){ LAB.instant=want; labPlay(false); labReset(); TK.testDay=null; TK.state.testDay=null; labNewFromCfg(); labReset(); } tkRender(); return; }

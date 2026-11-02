@@ -120,7 +120,7 @@ function portfolioSim(P,wr,runs,seed,lg){
   const stageRate=t1=>t1<0.2*tgt?0.8:t1<0.6*tgt?0.65:t1<tgt?0.5:0.3;
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
-    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0;
+    let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
     const snap=()=>({T1:accts.reduce((s,a)=>s+(a.ph===3?a.size:0),0),T2:accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0),T3:accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0)});
     const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
     const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
@@ -151,7 +151,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         a.d++;
         for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){
           const win=P.corr?shared[t]:rng()<wr;
-          a.b+= win? risk*P.rr : -risk;
+          a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift();
           if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
           if(a.b<=-P.maxdd){a.dead=true;a.why="maxdd";break;}
           if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
@@ -173,8 +173,8 @@ function portfolioSim(P,wr,runs,seed,lg){
       // or to grow Tier 1 only when 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% / Tier 3 = 40% of the NEW Tier 1 stay stocked.
       for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
         const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
-        const ok=nT1<=Math.max(P.n0*P.s0,peak)||(consec>=3&&d-lastCut>10&&T2b>=0.6*nT1-1&&T3b>=0.4*nT1-1);
-        if(ok){ a.ph=3; a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1}); } }
+        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T3b>=0.4*nT1-1);
+        if(ok){ const T1b=T1, pk=peak; a.ph=3; a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
@@ -186,8 +186,10 @@ function portfolioSim(P,wr,runs,seed,lg){
       }
       // upgrade ladder
       // guide scale-up checklist: 3+ payouts in a row and no funded cut in the last 14 days (10 trading days)
-      const growOk=consec>=3 && d-lastCut>10;
-      while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut}); }
+      // guide: all five must be true (3 payouts in a row, no cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1)
+      const uT2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), uT3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
+      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1 && uT3>=0.4*T1-1;
+      while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut,wr:wr20(),T2:uT2,T3:uT3}); }
       // buy evals (restock T3 first; T2 only refills by passing T3)
       let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
@@ -201,7 +203,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         const fee=L[li].fee; if(cash<fee) break;
         const why=T1>0&&t3cap<t3Target-1?"t3":"pipe";
         cash-=fee; fees+=fee; evals++;
-        const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
+        const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
       }
       // milestones
       for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }

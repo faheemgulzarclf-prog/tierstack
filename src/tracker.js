@@ -205,7 +205,7 @@ function tkRenderInner(){
         <input type="number" inputmode="decimal" aria-label="New balance for ${esc(a.name)}" placeholder="New balance" class="tk-in" data-bal="${a.id}">
         <button class="btn gold sm" data-tk="log" data-id="${a.id}">Log balance</button>
         ${v.act==="pass"?`<button class="btn ghost sm" data-tk="pass" data-id="${a.id}">Mark passed</button>`:""}
-        ${v.act==="payout"?`<button class="btn ghost sm" data-tk="payout" data-id="${a.id}" data-pay="${Math.round(v.pay)}">Log payout</button>`:""}
+        ${v.act==="payout"?`<button class="btn ghost sm" data-tk="payout" data-id="${a.id}" data-pay="${Math.round(v.pay*100)/100}">Log payout</button>`:""}
         ${v.act==="cut"?`<button class="btn ghost sm" data-tk="cut" data-id="${a.id}">Close account</button>`:""}
         <button class="linkbtn tk-more" data-tk="close" data-id="${a.id}">Account failed</button>
       </div>
@@ -249,7 +249,7 @@ function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3)
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
   log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to Reinvestment, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
-function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
+function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase,id:a.id,size:a.size,pct:Math.round((a.bal-a.size)/a.size*1000)/10}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
 function doBuy(size,fee){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
   log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
 function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
@@ -270,7 +270,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-tk]"); if(!b||!TK.state&&b.dataset.tk!=="start") return;
   const k=b.dataset.tk, st=TK.state;
   if(k==="log"){ const a=acct(b.dataset.id); const inp=document.querySelector(`[data-bal="${a.id}"]`); const v=parseFloat(inp.value); if(!(v>0)){ inp.focus(); inp.classList.add("bad"); return; } doLog(a,v); if(a.status==="active") autoPass(a); }
-  else if(k==="pass"){ passAcct(acct(b.dataset.id)); }
+  else if(k==="pass"){ const a=acct(b.dataset.id); if(a.phase===2){ a.ready=true; if(!promoteOne(a)) log(`${a.name} passed Phase 2. It waits on the Tier 2 bench until a funded account is cut or Tier 1 can grow.`); } else passAcct(a); }
   else if(k==="payout"){ doPayout(acct(b.dataset.id),parseFloat(b.dataset.pay)||0); }
   else if(k==="cut"||k==="close"){ const a=acct(b.dataset.id); if(k==="close"&&!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to confirm"; return; } doCut(a); }
   else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; } doBuy(size,fee); }
