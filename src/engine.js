@@ -2,6 +2,13 @@ const $=id=>document.getElementById(id);
 const STD=[5000,10000,25000,50000,100000,150000,200000,300000,400000];
 const DEFAULT_FEE={5000:60,10000:100,25000:180,50000:300,100000:520,150000:750,200000:1000,300000:1400,400000:1800};
 const feeMemo={};
+/* reinvest ladder (guide default 80/65/50/30 at 20%/60%/100% of the goal), editable */
+function defaultReinv(t){ return [{upto:0.2*t,rate:0.8,name:"Seed"},{upto:0.6*t,rate:0.65,name:"Build"},{upto:t,rate:0.5,name:"Scale"},{upto:null,rate:0.3,name:"Sustain"}]; }
+function reinvRate(P,T1,stocked){ if(!stocked) return 1; const R=P.reinv&&P.reinv.length?P.reinv:defaultReinv(P.target); for(const r of R) if(r.upto==null||T1<r.upto) return r.rate; return R[R.length-1].rate; }
+/* payout window: fixed at +lock%, or anywhere from +lock% to +lockMax% per cycle */
+function lockPick(P,rnd){ const lo=P.lock, hi=Math.max(lo,P.lockMax||lo); return hi>lo?Math.round((lo+rnd*(hi-lo))*100)/100:lo; }
+function lockTxt(P){ const hi=Math.max(P.lock,P.lockMax||P.lock); return hi>P.lock?`+${P.lock}–${hi}%`:`+${P.lock}%`; }
+function lockMid(P){ return (P.lock+Math.max(P.lock,P.lockMax||P.lock))/2; }
 function guessFee(s){ if(DEFAULT_FEE[s]) return DEFAULT_FEE[s]; return Math.round(Math.max(40, s*0.0055)/10)*10; }
 const fmt=(v,d)=>{ if(!isFinite(v)) return "—"; const a=Math.abs(v), sg=v<0?"−":"";
   if(a>=1e6) return sg+"$"+(a/1e6).toFixed(a>=1e7?1:2).replace(/\.0+$/,"")+"M";
@@ -66,13 +73,17 @@ function readParams(){
     wr:num("wr")/100, rr:num("rr"), riskE:num("riskE"), riskF:num("riskF"), tpd:Math.max(1,Math.round(num("tpd"))),
     split:num("split")/100, approve:num("approve")/100, reserve:num("reserve"), topup:num("topup"),
     p1t:num("p1t"), p2t:num("p2t"), maxdd:num("maxdd"), mindays:Math.round(num("mindays")),
-    lock:num("lock"), horizon:num("horizon"), c1:num("c1"), c2:num("c2"), c3:num("c3"),
+    lock:num("lock"), lockMax:num("lockMax"), horizon:num("horizon"), c1:num("c1"), c2:num("c2"), c3:num("c3"),
     k1:Math.round(num("k1")), k2:Math.round(num("k2")), k3:Math.round(num("k3")), corr:$("corr").checked, daily:num("daily")||5, risklvl:$("risklvl").value};
   // hard guard: never let risk break the firm's limits, whatever was typed
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   P.capped=P.riskE>capE||P.riskF>capF; P.riskE=Math.min(P.riskE,capE); P.riskF=Math.min(P.riskF,capF);
   P.ladder=buildLadder().map(r=>({...r, fee:feeMemo[r.size]??r.fee}));
   if(P.target<P.s0*P.n0) P.target=P.s0*P.n0;
+  P.lockMax=Math.max(P.lock,P.lockMax||P.lock);
+  { const d=defaultReinv(P.target), rv=i=>{ const v=parseFloat(($("ri_r"+i)||{}).value); return isFinite(v)?Math.max(0,Math.min(100,v))/100:d[i-1].rate; }, up=i=>{ const v=parseFloat(($("ri_u"+i)||{}).value); return isFinite(v)&&v>0?v:d[i-1].upto; };
+    const u1=up(1), u2=Math.max(u1,up(2)), u3=Math.max(u2,up(3));
+    P.reinv=[{upto:u1,rate:rv(1),name:"Seed"},{upto:u2,rate:rv(2),name:"Build"},{upto:u3,rate:rv(3),name:"Scale"},{upto:null,rate:rv(4),name:"Sustain"}]; }
   return P;
 }
 
@@ -96,11 +107,11 @@ function unitEcon(P,wr){
   // funded lifetime: count payouts until cut
   let totPay=0, cyc=0, cycOk=0, totPctPaid=0;
   const M=4000;
-  for(let i=0;i<M;i++){ let pays=0; for(let j=0;j<300;j++){ cyc++; const r=phaseSim(rng,wr,P.rr,P.riskF,P.lock,P.c1,P.k1,P.maxdd,500);
+  for(let i=0;i<M;i++){ let pays=0; for(let j=0;j<300;j++){ cyc++; const r=phaseSim(rng,wr,P.rr,P.riskF,lockMid(P),P.c1,P.k1,P.maxdd,500);
       if(r.ok && rng()<P.approve){ pays++; cycOk++; } else break; } totPay+=pays; }
   const pCycle=cycOk/cyc, ePays=totPay/M;
   const fee=P.ladder[0].fee, size=P.s0;
-  const payout=size*P.lock/100*P.split;
+  const payout=size*lockMid(P)/100*P.split;
   const feePerFunded=pFund>0?fee/pFund:Infinity;
   const netPerFunded=ePays*payout-feePerFunded;
   const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0);
@@ -117,7 +128,6 @@ function portfolioSim(P,wr,runs,seed,lg){
   const minFee=Math.min(...L.map(r=>r.fee));
   const out={weekly:[],reach:milestones.map(()=>[]),feesAt:milestones.map(()=>[]),fees:[],personal:[],capIn:[],net:[],bust:0,reached:0,
     pays:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
-  const stageRate=t1=>t1<0.2*tgt?0.8:t1<0.6*tgt?0.65:t1<tgt?0.5:0.3;
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
     let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
@@ -144,7 +154,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         if(a.offW===w) continue; // offline week after a losing 4-week cycle
         if(funded && ((w+a.off)%3)!==0) continue; // OFF weeks
         if(!funded && a.lane!==evalLane) continue; // other eval's turn
-        const tg=a.ph===1?P.p1t:a.ph===2?P.p2t:P.lock;
+        const tg=a.ph===1?P.p1t:a.ph===2?P.p2t:(a.pt||P.lock);
         const cut=a.ph===1?P.c3:a.ph===2?P.c2:P.c1;
         const K=a.ph===1?P.k3:a.ph===2?P.k2:P.k1;
         const risk=funded?P.riskF:P.riskE;
@@ -161,7 +171,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         if(a.b>=tg && a.d>=P.mindays){
           if(a.ph===1){ if(lg) lg({e:"pass1",d,w,id:a.id,size:a.size,b:a.b,days:a.d}); a.ph=2; a.b=0;a.d=0;a.rec=-1;a.used=false;a.cs=w;a.cb=0; }
           else if(a.ph===2){ if(lg) lg({e:"pass2",d,w,id:a.id,size:a.size,b:a.b,days:a.d}); a.ph=4; a.b=0;a.d=0;a.rec=-1;a.used=false; promote.push(a); }
-          else { if(rng()<P.approve){ const amt=a.size*a.b/100*P.split; if(lg) lg({e:"payout",d,w,id:a.id,size:a.size,b:a.b,amt}); dayPay+=amt; pays++; consec++; a.b=0;a.d=0;a.rec=-1;a.cs=w;a.cb=0; /* recovery stays used: once per funded account */ } else { a.dead=true; a.why="refused"; } }
+          else { if(rng()<P.approve){ const amt=a.size*a.b/100*P.split; if(lg) lg({e:"payout",d,w,id:a.id,size:a.size,b:a.b,amt,pt:a.pt||P.lock}); a.pt=lockPick(P,rng()); dayPay+=amt; pays++; consec++; a.b=0;a.d=0;a.rec=-1;a.cs=w;a.cb=0; /* recovery stays used: once per funded account */ } else { a.dead=true; a.why="refused"; } }
         }
       }
       // remove dead
@@ -174,13 +184,13 @@ function portfolioSim(P,wr,runs,seed,lg){
       for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
         const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
         const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T3b>=0.4*nT1-1);
-        if(ok){ const T1b=T1, pk=peak; a.ph=3; a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
+        if(ok){ const T1b=T1, pk=peak; a.ph=3; a.pt=lockPick(P,rng()); a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
         const T2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), T3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
         const stocked=T1>0 && T2>=0.6*T1-1 && T3>=0.4*T1-1;
-        const rate=stocked?stageRate(T1):1;
+        const rate=reinvRate(P,T1,stocked);
         cash+=dayPay*rate; personal+=dayPay*(1-rate); persWeek[w]+=dayPay*(1-rate);
         if(lg) lg({e:"alloc",d,w,amt:dayPay,rate,stocked,T1,T2,T3,toPool:dayPay*rate,personal:dayPay*(1-rate),cash});
       }

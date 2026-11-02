@@ -54,7 +54,7 @@ function render(P,S){
     [`Buy ${P.n0} × ${fmt(P.s0)} evaluations`,`Cost ${fmtFull(P.n0*L[0].fee)}. No rebuy money: every new test after these is paid from payouts (guide rule). Risk ${P.riskE}% per trade (${fmtFull(P.s0*P.riskE/100)}), never more after a loss.`],
     [`Pass Phase 1 (+${P.p1t}%) and Phase 2 (+${P.p2t}%)`,`About ${pct(S[0].ue.pFund)} of evaluations make it to funded at your numbers. ${P.n0>1?"Evaluations take turns by week, never the same trade on two at once. ":""}Stop and rebuy if one falls ${P.c3}% and does not recover in ${P.k3} trades.`],
     [`Start cycling your funded accounts`,`Each account trades one week, then rests two. Start dates are staggered so a bad week only touches a third of them. Any account that loses over 4 weeks rests 1 week.`],
-    [`Take payouts at +${P.lock}%`,`On ${fmt(P.s0)} that is ${fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
+    [`Take payouts at ${lockTxt(P)}`,`On ${fmt(P.s0)} that is ${P.lockMax>P.lock?fmtFull(P.s0*P.lock/100*P.split)+"–"+fmtFull(P.s0*P.lockMax/100*P.split):fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
     [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and pipeline 40% of funded. Spend in this order: pipeline, backup, funded, then yourself.`],
   ];
   for(let i=1;i<L.length;i++) stepsArr.push([`Move up to ${fmt(L[i].size)} accounts`,`When funded reaches ${fmt(L[i].unlockT1)} with ${L[i].unlockPay}+ payouts, 3 in a row and no funded cut in 14 days. Pass one ${fmt(L[i].size)} account first, then buy more.`]);
@@ -97,7 +97,7 @@ function render(P,S){
       <div class="rule"><span class="big">${fmtFull(P.s0*P.riskE/100)}</span><p>Risk per trade on a ${fmt(P.s0)} test${RISK_LV[P.risklvl]?" ("+RISK_LV[P.risklvl].name+")":""}. Same size after a loss.${P.capped?" Lowered to stay inside the firm\u2019s limits.":""}</p></div>
       <div class="rule"><span class="big">1 : ${P.rr}</span><p>Every trade aims for at least ${P.rr}× what it risks.</p></div>
       ${P.n0>1?`<div class="rule"><span class="big">Take turns</span><p>Your tests trade in different weeks, never the same trade on two.</p></div>`:""}
-      <div class="rule"><span class="big">+${P.lock}%</span><p>Ask for the payout the moment a funded account is up ${P.lock}%.</p></div>
+      <div class="rule"><span class="big">${lockTxt(P)}</span><p>Ask for the payout the moment a funded account is up ${P.lockMax>P.lock?`${P.lock}% (latest ${P.lockMax}%)`:P.lock+"%"}.</p></div>
       <div class="rule"><span class="big">−${P.c1}% · −${P.c3}%</span><p>Cut a funded account at −${P.c1}%, a test at −${P.c3}%, if ${P.k3} recovery trades fail.</p></div>
       <div class="rule"><span class="big">1 on · 2 off</span><p>Each funded account trades one week, then rests two.</p></div>
     </div>
@@ -149,12 +149,13 @@ function render(P,S){
 function countUp(ms){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   document.querySelectorAll("#out .kpi .v, #out .fl .v, #out .headline em, #out .stop .g, #out .tierkey b").forEach(el=>{
-    const txt=el.textContent; const m=txt.match(/[0-9][0-9,]*\.?[0-9]*/); if(!m) return;
+    if(el._cu&&el.dataset.final) el.textContent=el.dataset.final; /* never read a half-animated number */
+    const txt=el.textContent; el.dataset.final=txt; const tok=el._cu=(el._cu||0)+1; const m=txt.match(/[0-9][0-9,]*\.?[0-9]*/); if(!m) return;
     const raw=m[0], target=parseFloat(raw.replace(/,/g,"")), dec=(raw.split(".")[1]||"").length, comma=raw.includes(",");
     const t0=performance.now();
-    const step=now=>{ const k=Math.min(1,(now-t0)/ms), e=1-Math.pow(1-k,3); let v=(target*e).toFixed(dec);
+    const step=now=>{ if(el._cu!==tok) return; const k=Math.min(1,(now-t0)/ms), e=1-Math.pow(1-k,3); let v=(target*e).toFixed(dec);
       if(comma) v=Number(v).toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec});
-      el.textContent=txt.replace(raw,v); if(k<1) requestAnimationFrame(step); else el.textContent=txt; };
+      el.textContent=txt.replace(raw,v); if(k<1) requestAnimationFrame(step); else { el.textContent=txt; el._cu=0; } };
     requestAnimationFrame(step);
   });
 }

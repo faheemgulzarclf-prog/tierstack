@@ -9,7 +9,7 @@ function demoRun(){
 }
 function demoCheck(P,ev){
   const tgt=P.target, L=P.ladder;
-  const stageRate=t1=>t1<0.2*tgt?0.8:t1<0.6*tgt?0.65:t1<tgt?0.5:0.3;
+  const stageRate=t1=>reinvRate(P,t1,true);
   const C=[];
   const add=(id,guide,ok,bad,detail)=>C.push({id,guide,ok,bad,detail});
   const trades=ev.filter(x=>x.e==="trade");
@@ -31,8 +31,8 @@ function demoCheck(P,ev){
   const ft=trades.filter(t=>t.ph===3); bad=ft.filter(t=>((t.w+t.off)%3)!==0).length;
   add("Funded: 1 week on, 2 off","1 week ON / 2 weeks OFF cycle per account. Only trade accounts in their active ON window.",ft.length-bad,bad,`${ft.length} funded trades checked.`);
   // 6 payout at +3%
-  const po=ev.filter(x=>x.e==="payout"); bad=po.filter(x=>x.b<P.lock-1e-9).length;
-  add(`Payout at +${P.lock}%`,"Lock payout at exactly +3%. The moment an account hits 3% gain, request the payout.",po.length-bad,bad,`${po.length} payouts, each requested at +${P.lock}% or more.`);
+  const po=ev.filter(x=>x.e==="payout"); bad=po.filter(x=>x.b<P.lock-1e-9||x.b<x.pt-1e-9||x.pt>P.lockMax+1e-9).length;
+  add(`Payout at ${lockTxt(P)}`,"Lock payout at +3% (guide). You can set your own payout % or a window. The moment an account hits its target, request the payout.",po.length-bad,bad,`${po.length} payouts, each requested once the account reached its target inside ${lockTxt(P)}.`);
   // 7 cut rules
   const cuts=ev.filter(x=>x.e==="cut"&&x.why!=="refused");
   bad=cuts.filter(c=>{ const cut=c.ph===1?P.c3:c.ph===2?P.c2:P.c1; return !(c.b<=-cut+1e-9); }).length;
@@ -46,7 +46,7 @@ function demoCheck(P,ev){
   add("Losing 4 weeks → rest 1 week","4-week cycle ends in loss: put the account offline for 1 full week.",off.length-bad,bad,`${off.length} offline weeks, no trades on them.`);
   // 10 reinvest
   const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T3>=0.4*a.T1-1)); }).length;
-  add("Reinvest ladder","Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then 80% / 65% / 50% / 30% by stage.",al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
+  add("Reinvest ladder",`Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then ${P.reinv.map(r=>Math.round(r.rate*100)+"%").join(" / ")} by stage (guide: 80 / 65 / 50 / 30).`,al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
   // 11 spend priority
   const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||(b.T1>0&&b.t3cap<b.t3Target-1))).length;
   add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the T3 pipeline.`);

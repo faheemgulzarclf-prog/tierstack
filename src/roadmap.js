@@ -23,7 +23,7 @@ function roadTimeline(P){
   }
   const med=k=>W[k].length>=runs*0.3?Math.max(1,Math.round(quant(W[k],0.5))):null;
   const T={}; keys.forEach(k=>T[k]=med(k));
-  T.payAmt=amt.length?quant(amt,0.5):P.s0*P.lock/100*P.split;
+  T.payAmt=amt.length?quant(amt,0.5):P.s0*lockMid(P)/100*P.split;
   T.rate=rate.length?quant(rate,0.5):0.8;
   T.miles=Object.keys(ms).map(Number).sort((a,b)=>a-b).filter(v=>ms[v].length>=runs*0.3).map(v=>({v,w:Math.round(quant(ms[v],0.5))}));
   T.reach=W.goal.length/runs;
@@ -66,7 +66,7 @@ function roadRender(){
        next:`Stage 3 unlocks with your first payout, ${about(T.po1)}.`,
        steps:[
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
-        step("Every on-week",`Ask for a payout at +${P.lock}%`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)}), request the payout. Don't wait for more.`),
+        step("Every on-week",`Ask for a payout at ${lockTxt(P)}`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)})${P.lockMax>P.lock?`, and at the latest at +${P.lockMax}%`:""}, request the payout. Don't wait for more.`),
         T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
         step("Right after",`Refill the pipeline`,`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
@@ -84,7 +84,7 @@ function roadRender(){
        steps:[
         step(wk(T.goal),`Goal reached`,`${Math.round(T.reach*100)}% of simulated futures got here.`,"mile"),
         step("Every month",`Most payouts are now yours`,`As the team grows, more of each payout goes to you instead of Reinvestment.`),
-        step("Always",`Same rules`,`Fixed risk, 1 week on and 2 off, payout at +${P.lock}%.`)]}
+        step("Always",`Same rules`,`Fixed risk, 1 week on and 2 off, payout at ${lockTxt(P)}.`)]}
     ];
     o.innerHTML=`
     <div class="card road-sum"><div><span class="k">Your road</span><h2>${T.goal?`${fmt(P.target)} funded in about ${weeksTxt(T.goal)}`:`A long road to ${fmt(P.target)}`}</h2><p>${n0} × ${fmt(s0)} tests · ${Math.round(P.wr*100)}% win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name+" risk":P.riskE+"% risk"}. Weeks are the middle of 160 simulated futures, so yours can be faster or slower.</p></div>

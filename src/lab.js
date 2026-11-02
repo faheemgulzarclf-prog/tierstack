@@ -7,7 +7,7 @@ const LAB_RULES=[
   ["turns","Tests take turns by week","Never trade all evaluations in the same window."],
   ["cycle","Funded: 1 week on, 2 off","Only trade funded accounts in their ON week."],
   ["pass","Pass at target + min days","Phase 1 → Tier 2 at the Phase 1 target, Phase 2 → Tier 1 at the Phase 2 target."],
-  ["payout","Payout at +lock%","Request the payout the moment a funded account is up the lock %."],
+  ["payout","Payout at your target","Request the payout the moment a funded account reaches its target (fixed %, or a target inside your window)."],
   ["split","Reinvest ladder","100% to Reinvestment until T2 = 60% and T3 = 40% of T1, then 80 / 65 / 50 / 30%."],
   ["recovery","Recovery once, limited trades","2–3 trades on T1, 3–4 on T2, 2–3 on T3. Never twice."],
   ["cut","Cut levels","T1 −6%, T2 −4%, T3 −4% after recovery fails."],
@@ -44,7 +44,7 @@ function labStepDay(){
       if(a.status!=="active") return;
       const v=advise(a,st), r=rulesFor(a,p), pct=(a.bal-a.size)/a.size*100;
       if(v.kind==="payout"){
-        labCheck("payout",pct>=p.lock-1e-9&&a.days.length>=p.mindays,`${a.name} payout asked at ${pct.toFixed(2)}%`);
+        labCheck("payout",pct>=p.lock-1e-9&&pct>=(a.pt||p.lock)-1e-9&&(!a.pt||(a.pt>=p.lock-1e-9&&a.pt<=Math.max(p.lock,p.lockMax||p.lock)+1e-9))&&a.days.length>=p.mindays,`${a.name} payout asked at ${pct.toFixed(2)}% (target ${a.pt||p.lock}%)`);
         const split=p.split>1?p.split/100:p.split, exp=(a.bal-a.size)*split; labCheck("payout",Math.abs(v.pay-exp)<0.5,`${a.name} payout ${fmtFull(v.pay)} but profit × split = ${fmtFull(exp)}`);
         const pf=portfolio(st), expRate=labExpRate(st,p);
         LAB.inPool+=v.pay*expRate; LAB.home+=v.pay*(1-expRate);
@@ -127,7 +127,7 @@ function labReport(st){
   const groups={}; pays.forEach(x=>{ const k=Math.round(x.rate*100); const g=groups[k]||(groups[k]={n:0,amt:0,re:0}); g.n++; g.amt+=x.amt; g.re+=x.amt*x.rate; });
   const unst=groups[100]?groups[100].n:0;
   const tb=Object.values(LAB.checks).reduce((s,c)=>s+c.bad,0), tok=Object.values(LAB.checks).reduce((s,c)=>s+c.ok,0);
-  const split=p.split>1?p.split/100:p.split, cyc=pf.T1*p.lock/100*split*(52/12/3), keepR=(p.reinv&&p.reinv.length?p.reinv[p.reinv.length-1].rate:0.3);
+  const split=p.split>1?p.split/100:p.split, cyc=pf.T1*lockMid(p)/100*split*(52/12/3), keepR=(p.reinv&&p.reinv.length?p.reinv[p.reinv.length-1].rate:0.3);
   const stageName=k=>k===100?"Bench not full":labStageName(p,(pays.find(x=>Math.round(x.rate*100)===k)||{}).T1||0);
   return `<div class="lab-rep" id="labReport">
   <div class="lr-h"><div><span class="kicker">Test report</span><h3>${LAB.bust?`Plan ended on day ${d}`:LAB.done?`${fmt(pf.T1)} funded in ${d} days (week ${Math.ceil(d/7)})`:`Report so far · day ${d}`}</h3>
@@ -146,7 +146,7 @@ function labReport(st){
     <section><h4>Where each payout went</h4><table class="lr-t"><thead><tr><th>Stage</th><th>Payouts</th><th>Total</th><th>Back in</th><th>You kept</th></tr></thead><tbody>
       ${Object.keys(groups).map(Number).sort((a,b)=>b-a).map(k=>{ const g=groups[k]; return `<tr><td><b>${k}% back in</b><span>${esc(stageName(k))}</span></td><td>${g.n}</td><td>${fmtFull(g.amt)}</td><td>${fmtFull(g.re)}</td><td>${fmtFull(g.amt-g.re)}</td></tr>`; }).join("")||`<tr><td colspan="5">No payouts yet.</td></tr>`}</tbody></table>
       <div class="lr-why"><b>Why the take-home is small</b><p>${pays.length?`${unst} of ${pays.length} payouts (${Math.round(unst/pays.length*100)}%) came while Tier 2 or Tier 3 was not full, so the guide sends 100% back in. The rest kept only ${Object.keys(groups).filter(k=>k<100).map(k=>100-k+"%").join(" / ")||"0%"}. `:""}This is the building phase: payouts buy the team first. The 70% take-home (Sustain stage) only starts after the goal, and the test stops at the goal.</p>
-      ${pf.T1>0?`<p><b>After the goal</b>, best case if every funded account pays its +${p.lock}% each cycle: about ${fmtFull(cyc)} a month, you keep ${Math.round((1-keepR)*100)}% = <b>${fmtFull(cyc*(1-keepR))}</b>. Real months will be lower.</p>`:""}</div></section>
+      ${pf.T1>0?`<p><b>After the goal</b>, best case if every funded account pays ${lockTxt(p)} each cycle: about ${fmtFull(cyc)} a month, you keep ${Math.round((1-keepR)*100)}% = <b>${fmtFull(cyc*(1-keepR))}</b>. Real months will be lower.</p>`:""}</div></section>
     <section><h4>Accounts</h4><ul class="lr-l">
       <li><span>Tests bought</span><b>${st.accounts.length} (${Object.keys(bySize).map(Number).sort((a,b)=>a-b).map(s=>`${bySize[s]} × ${fmt(s)}`).join(", ")})</b></li>
       <li><span>Passed Phase 1 → Tier 2</span><b>${LAB.cnt?LAB.cnt.p1:0}</b></li>
@@ -213,10 +213,10 @@ function labCfgDefault(){
   P=P||{s0:25000,n0:2,target:500000,wr:0.4,rr:3,riskE:1,riskF:1,tpd:1,split:0.8,reserve:500,p1t:8,p2t:5,maxdd:10,daily:5,lock:3,c1:6,c2:4,c3:4,k1:3,k2:4,k3:3,ladder:[]};
   const L=P.ladder||[];
   return {s0:P.s0,n0:P.n0,target:P.target,wr:Math.round(P.wr*100),rr:P.rr,riskE:P.riskE,riskF:P.riskF,tpd:P.tpd,split:Math.round((P.split>1?P.split/100:P.split)*100),reserve:P.reserve,
-    p1t:P.p1t,p2t:P.p2t,maxdd:P.maxdd,daily:P.daily,lock:P.lock,c1:P.c1,c2:P.c2,c3:P.c3,k1:P.k1,k2:P.k2,k3:P.k3,scale:"guide",buy:"auto",
+    p1t:P.p1t,p2t:P.p2t,maxdd:P.maxdd,daily:P.daily,lock:P.lock,lockMax:Math.max(P.lock,P.lockMax||P.lock),c1:P.c1,c2:P.c2,c3:P.c3,k1:P.k1,k2:P.k2,k3:P.k3,scale:"guide",buy:"auto",
     ladder:LAB_SIZES.map((size,i)=>{ const r=L.find(x=>x.size===size); return {size,on:!!r||size===P.s0,fee:r?r.fee:(typeof feeMemo!=="undefined"&&feeMemo[size])||guessFee(size),
       unlockT1:r?r.unlockT1:Math.round(P.target*(LAB_GUIDE_UNLOCK[size]||[0,0])[0]/1000)*1000,unlockPay:r?r.unlockPay:(LAB_GUIDE_UNLOCK[size]||[0,0])[1]}; }),
-    reinv:LAB_GUIDE_REINV.map(([f,rate,name])=>({upto:f==null?null:Math.round(P.target*f/1000)*1000,rate,name}))};
+    reinv:P.reinv&&P.reinv.length?P.reinv.map(r=>({upto:r.upto==null?null:Math.round(r.upto/1000)*1000,rate:Math.round(r.rate*100),name:r.name})):LAB_GUIDE_REINV.map(([f,rate,name])=>({upto:f==null?null:Math.round(P.target*f/1000)*1000,rate,name}))};
 }
 function labCfg(){ if(LAB.cfg) return LAB.cfg; try{ const t=localStorage.getItem(LAB_CFG_KEY); if(t){ const c=JSON.parse(t); if(c&&c.ladder){ LAB.cfg=c; return c; } } }catch(e){} LAB.cfg=labCfgDefault(); return LAB.cfg; }
 function labCfgSave(){ try{ localStorage.setItem(LAB_CFG_KEY,JSON.stringify(LAB.cfg)); }catch(e){} }
@@ -239,7 +239,7 @@ function labCfgToP(c){
   const RV=c.reinv||[]; for(let i=1;i<RV.length-1;i++) if(!(+RV[i].upto>+RV[i-1].upto)) err.push("Reinvest stages: each Tier 1 limit must be bigger than the one before.");
   if(err.length) return {err};
   const P={s0:+c.s0,n0:Math.round(c.n0),target:+c.target,wr:c.wr/100,rr:+c.rr,riskE:+c.riskE,riskF:+c.riskF,tpd:Math.max(1,Math.round(c.tpd)),split:c.split/100,reserve:0,
-    reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
+    reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   const warn=[]; if(P.riskE>capE){ warn.push(`Test risk lowered to ${capE}% so it stays inside the firm's limits.`); P.riskE=capE; } if(P.riskF>capF){ warn.push(`Funded risk lowered to ${capF}% so it stays inside the firm's limits.`); P.riskF=capF; }
   return {P,warn};
@@ -254,7 +254,7 @@ function labSetupHtml(){
     <label class="ls-f"><span>Start size</span><div class="field"><select data-lc="s0">${LAB_SIZES.map(s=>`<option value="${s}"${s===+c.s0?" selected":""}>${fmt(s)}</option>`).join("")}</select></div></label>
     ${f("n0","Tests to start")}${f("target","Goal (funded)","",50000,"$")}<div class="ls-f"><span>Rebuy budget</span><div class="ls-auto"><b>$0</b> auto, from the guide: after the first tests, every new test is paid from payouts.</div></div></div></div>
   <div class="ls-g"><h4>Trading</h4><div class="ls-row">${f("wr","Win rate","%")}${f("rr","Reward per $1","",0.5)}${f("riskE","Risk on tests","%",0.1)}${f("riskF","Risk on funded","%",0.1)}${f("tpd","Trades a day")}${f("split","Your profit share","%",5)}</div></div>
-  <div class="ls-g"><h4>Firm rules</h4><div class="ls-row">${f("p1t","Phase 1 target","%",0.5)}${f("p2t","Phase 2 target","%",0.5)}${f("maxdd","Max loss","%",0.5)}${f("daily","Daily loss","%",0.5)}${f("lock","Payout at","+%",0.5)}</div></div>
+  <div class="ls-g"><h4>Firm rules</h4><div class="ls-row">${f("p1t","Phase 1 target","%",0.5)}${f("p2t","Phase 2 target","%",0.5)}${f("maxdd","Max loss","%",0.5)}${f("daily","Daily loss","%",0.5)}${f("lock","Payout from","+%",0.5)}${f("lockMax","Payout up to","+%",0.5)}</div></div>
   <div class="ls-g"><h4>Cuts and recovery</h4><div class="ls-row">${f("c1","Funded cut","−%",0.5)}${f("c2","Phase 2 cut","−%",0.5)}${f("c3","Phase 1 cut","−%",0.5)}${f("k1","Funded retries")}${f("k2","Phase 2 retries")}${f("k3","Phase 1 retries")}</div></div>
   <div class="ls-g"><h4>Account sizes</h4><p class="ls-help">Turn on the sizes you want. A bigger size unlocks when Tier 1 and payouts reach these numbers.</p>
     <table class="ls-lad"><thead><tr><th>Use</th><th>Size</th><th>Fee</th><th>Tier 1 at least</th><th>Payouts at least</th></tr></thead><tbody>

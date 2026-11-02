@@ -25,7 +25,7 @@ function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK
 /* create from plan */
 function tkFromPlan(Pin){
   const P=Pin&&Pin.s0?Pin:readParams();
-  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv"];
+  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax"];
   const p={}; keep.forEach(k=>{ if(P[k]!==undefined) p[k]=P[k]; });
   p.ladder=P.ladder.map(r=>({size:r.size,fee:r.fee,unlockT1:r.unlockT1,unlockPay:r.unlockPay}));
   p.firm=typeof firmApplied!=="undefined"&&firmApplied?firmApplied:"";
@@ -48,7 +48,7 @@ const offline=a=>a.offUntil&&todayStr()<a.offUntil;
 
 /* rules per account */
 function rulesFor(a,p){ const ph=a.phase;
-  return {tgt:ph===1?p.p1t:ph===2?p.p2t:p.lock, cut:ph===1?p.c3:ph===2?p.c2:p.c1, K:ph===1?p.k3:ph===2?p.k2:p.k1, risk:ph===3?p.riskF:p.riskE}; }
+  return {tgt:ph===1?p.p1t:ph===2?p.p2t:(a.pt||p.lock), cut:ph===1?p.c3:ph===2?p.c2:p.c1, K:ph===1?p.k3:ph===2?p.k2:p.k1, risk:ph===3?p.riskF:p.riskE}; }
 function weekIdx(st){ return Math.floor((dnum(todayStr())-dnum(st.start))/7); }
 function evalLane(st){ const w=weekIdx(st);
   if(st.laneWeek&&st.laneWeek.w===w) return st.laneWeek.lane; // fixed for the whole week
@@ -71,7 +71,8 @@ function advise(a,st){
   }
   if(pct>=r.tgt){
     if(daysDone<needDays) return {...base,kind:"wait",pill:"HOLD",title:`Target hit. ${needDays-daysDone} more trading day${needDays-daysDone>1?"s":""} to pass`,text:`The firm needs ${needDays} trading days (you have ${daysDone}). Take one tiny trade a day and log the balance. It moves to ${a.phase===1?"Tier 2 (Phase 2)":"Tier 1 (funded)"} by itself on day ${needDays}.`};
-    if(a.phase===3){ const pay=(a.bal-a.size)*(p.split>1?p.split/100:p.split); return {...base,kind:"payout",pill:"PAYOUT",title:`Request your payout: about ${fmtFull(pay)}`,text:`It's up ${pct.toFixed(1)}%. Ask the firm for the payout now, then log it here.`,act:"payout",pay}; }
+    if(a.phase===3){ const pay=(a.bal-a.size)*(p.split>1?p.split/100:p.split), hi=Math.max(p.lock,p.lockMax||p.lock), win=hi>p.lock&&!a.pt&&pct<hi;
+      return {...base,kind:"payout",pill:"PAYOUT",title:`Request your payout: about ${fmtFull(pay)}`,text:win?`It's up ${pct.toFixed(1)}%, inside your +${p.lock}–${hi}% window. Ask now, or keep trading to at most +${hi}%. Log the payout here when you take it.`:`It's up ${pct.toFixed(1)}%. Ask the firm for the payout now, then log it here.`,act:"payout",pay}; }
     return {...base,kind:"pass",pill:"PASSED",title:a.phase===1?"Passed Phase 1":"Passed Phase 2, now funded",text:a.phase===1?"Mark it passed. It moves to Backup (Phase 2).":"Mark it passed. It joins your funded accounts.",act:"pass"};
   }
   if(!isOn(a,st)){ if(offline(a)) return {...base,kind:"rest",pill:"OFFLINE",title:"Offline week, don't trade",text:`Its last 4 weeks ended in a loss. Rule: rest it 1 full week. Back on ${fmtDate(a.offUntil)}.`};
@@ -101,7 +102,7 @@ function portfolio(st){
   const pipeTarget=Math.max(base1+2*growS,p.n0*p.s0);
   const needT3=T1>0?Math.max(0,0.4*(base1+growS)-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   const stocked=T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1;
-  const rate=!stocked?1:p.reinv&&p.reinv.length?(p.reinv.find(r=>r.upto==null||T1<r.upto)||p.reinv[p.reinv.length-1]).rate:T1<0.2*p.target?0.8:T1<0.6*p.target?0.65:T1<p.target?0.5:0.3;
+  const rate=reinvRate(p,T1,stocked);
   return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
 
@@ -243,11 +244,11 @@ function doLog(a,bal){
 /* guide: pass Phase 1 → Tier 2 (Phase 2); pass Phase 2 → Tier 1 (funded). Moves by itself once the target and the firm's minimum days are met. */
 function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3) return;
   a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
-  if(a.phase===3){ const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt));
+  if(a.phase===3){ a.pt=TK.test?lockPick(st.p,Math.random()):0; const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt));
     log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the pipeline.`); }
   else log(`${a.name} passed Phase 1. It moves to Tier 2 as a backup (Phase 2). Same risk, same turns.`); }
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
-  const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
+  const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;
   log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to Reinvestment, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
 function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase,id:a.id,size:a.size,pct:Math.round((a.bal-a.size)/a.size*1000)/10}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
 function doBuy(size,fee){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);

@@ -40,15 +40,26 @@
           </div>
           <h4>System rules</h4>
           <div class="grid3">
-            <label class="f" for="lock">Payout at +%<input type="number" id="lock" value="3" min="0.5" max="10" step="0.5"></label>
+            <label class="f" for="lock">Payout from +%<input type="number" id="lock" value="3" min="0.5" max="10" step="0.5"></label>
+            <label class="f" for="lockMax">Payout up to +%<input type="number" id="lockMax" value="3" min="0.5" max="15" step="0.5"></label>
             <label class="f" for="horizon">Months<input type="number" id="horizon" value="36" min="6" max="72" step="6"></label>
-            <span></span>
             <label class="f" for="c1">Funded cut −%<input type="number" id="c1" value="6" min="1" max="20" step="0.5"></label>
             <label class="f" for="c2">Backup cut −%<input type="number" id="c2" value="4" min="1" max="20" step="0.5"></label>
             <label class="f" for="c3">Pipeline cut −%<input type="number" id="c3" value="4" min="1" max="20" step="0.5"></label>
             <label class="f" for="k1">Funded retries<input type="number" id="k1" value="3" min="0" max="10" step="1"></label>
             <label class="f" for="k2">Backup retries<input type="number" id="k2" value="4" min="0" max="10" step="1"></label>
             <label class="f" for="k3">Pipeline retries<input type="number" id="k3" value="3" min="0" max="10" step="1"></label>
+          </div>
+          <h4>Reinvest ladder <span class="hint">(guide: 80 / 65 / 50 / 30%)</span></h4>
+          <p class="help" style="margin-top:-4px">Share of each payout that goes back in, once Tier 2 = 60% and Tier 3 = 40% of Tier 1. Before that it is always 100%. Leave the Tier 1 limits empty to use 20%, 60% and 100% of your goal.</p>
+          <div class="grid3 rvl">
+            <label class="f" for="ri_r1">Stage 1 %<input type="number" id="ri_r1" value="80" min="0" max="100" step="5"></label>
+            <label class="f" for="ri_u1">until Tier 1 $<input type="number" id="ri_u1" placeholder="auto" min="0" step="25000"></label><span></span>
+            <label class="f" for="ri_r2">Stage 2 %<input type="number" id="ri_r2" value="65" min="0" max="100" step="5"></label>
+            <label class="f" for="ri_u2">until Tier 1 $<input type="number" id="ri_u2" placeholder="auto" min="0" step="25000"></label><span></span>
+            <label class="f" for="ri_r3">Stage 3 %<input type="number" id="ri_r3" value="50" min="0" max="100" step="5"></label>
+            <label class="f" for="ri_u3">until Tier 1 $<input type="number" id="ri_u3" placeholder="auto" min="0" step="25000"></label><span></span>
+            <label class="f" for="ri_r4">After that %<input type="number" id="ri_r4" value="30" min="0" max="100" step="5"></label>
           </div>
           <label class="chk" for="corr"><input type="checkbox" id="corr" checked> Same trade on all accounts</label>
         </div>
