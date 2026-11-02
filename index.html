@@ -4,43 +4,43 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="TierStack: a prop firm funding plan and daily coach. Build your plan in 2 minutes, then see which account to trade and how much to risk every day.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#0B132B">
 <meta property="og:title" content="TierStack · Prop firm plan + daily coach">
 <meta property="og:description" content="Two tests today. A funded portfolio tomorrow. Plan, firm rules and a daily coach.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Crect x='9' y='7' width='14' height='4' rx='2' fill='%23cfeefe'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%230b7fc0'/%3E%3Crect x='5' y='21' width='22' height='4' rx='2' fill='%2338bdf8'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B132B'/%3E%3Crect x='9' y='7' width='14' height='4' rx='2' fill='%23D97706'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%235BC0DE'/%3E%3Crect x='5' y='21' width='22' height='4' rx='2' fill='%23F4D6B0'/%3E%3C/svg%3E">
 <title>TierStack · Prop firm plan + daily coach</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: multi-view product site (Home, Firm rules, Build). Brand: black + sky blue. Dark-first black ground, sky accent; tiers are three steps of the same blue family. Content in a 1160px column. */
+/* Layout: multi-view product site. Brand (Faheem, 2 Nov): deep navy #0B132B / #1C2541, slate #3A506B, sky #5BC0DE, cream #F4D6B0, amber #D97706. Navy ground, amber = action + money (funded), sky = backup + data, cream = pipeline. Content in a 1160px column. */
 :root{
-  --bg:#000000; --bg2:#06090d; --card:#0a0f15; --card2:#0f161f; --line:rgba(125,211,252,.10); --line2:rgba(125,211,252,.18);
-  --ink:#f2f8fc; --muted:#8fa3b3; --dim:#5b6b78;
-  --gold:#38bdf8; --gold-ink:#00121c; --glow:rgba(56,189,248,.30);
-  --t1:#38bdf8; --t2:#0b7fc0; --t3:#cfeefe; --t1-ink:#00121c; --t2-ink:#ffffff; --t3-ink:#00121c;
-  --good:#2fd795; --bad:#ff5c7a; --warn:#ffb020;
-  --good-bg:rgba(47,215,149,.12); --bad-bg:rgba(255,92,122,.12); --warn-bg:rgba(255,176,32,.12); --sky-bg:rgba(56,189,248,.12);
-  --nav:rgba(0,0,0,.72); --shadow:0 30px 80px -30px rgba(56,189,248,.18),0 30px 80px -30px rgba(0,0,0,.9);
-  --grid:rgba(56,189,248,.05);
+  --bg:#0B132B; --bg2:#0E1733; --card:#121C3A; --card2:#1C2541; --line:rgba(91,192,222,.12); --line2:rgba(91,192,222,.22);
+  --ink:#F5F1EA; --muted:#A3B1C6; --dim:#6F819C;
+  --gold:#D97706; --gold-ink:#FFF8EE; --glow:rgba(217,119,6,.28);
+  --t1:#D97706; --t2:#5BC0DE; --t3:#F4D6B0; --t1-ink:#FFF8EE; --t2-ink:#0B132B; --t3-ink:#0B132B;
+  --good:#3DD6A0; --bad:#FF6B81; --warn:#FACC15;
+  --good-bg:rgba(61,214,160,.12); --bad-bg:rgba(255,107,129,.12); --warn-bg:rgba(250,204,21,.12); --sky-bg:rgba(91,192,222,.13);
+  --nav:rgba(11,19,43,.78); --shadow:0 30px 80px -30px rgba(217,119,6,.16),0 30px 80px -30px rgba(3,7,20,.9);
+  --grid:rgba(91,192,222,.05);
   --f-d:"Inter Tight","Inter","Segoe UI",system-ui,sans-serif;
   --f-b:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
   --f-m:"Inter","Segoe UI",system-ui,sans-serif; --f-code:"JetBrains Mono",ui-monospace,Menlo,monospace;
   color-scheme:dark;
 }
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
-  --bg:#ffffff; --bg2:#f2f8fc; --card:#ffffff; --card2:#f4f9fd; --line:rgba(0,40,70,.09); --line2:rgba(0,40,70,.16);
-  --ink:#05080b; --muted:#4f6070; --dim:#8494a3; --gold:#0ea5e9; --gold-ink:#00121c; --glow:rgba(14,165,233,.20);
-  --t1:#0284c7; --t2:#38bdf8; --t3:#05080b; --t1-ink:#ffffff; --t2-ink:#00121c; --t3-ink:#ffffff;
-  --good:#0f9d63; --bad:#e0365a; --warn:#c77d00;
-  --good-bg:#e4f6ee; --bad-bg:#fde8ed; --warn-bg:#fdf1dc; --sky-bg:#e0f2fe; --nav:rgba(255,255,255,.82); --shadow:0 30px 70px -35px rgba(2,132,199,.35); --grid:rgba(2,132,199,.05); color-scheme:light}}
+  --bg:#FBF8F3; --bg2:#F3ECE1; --card:#FFFFFF; --card2:#FCF9F4; --line:rgba(11,19,43,.09); --line2:rgba(11,19,43,.16);
+  --ink:#0B132B; --muted:#3A506B; --dim:#7A8AA0; --gold:#B45309; --gold-ink:#FFFFFF; --glow:rgba(217,119,6,.18);
+  --t1:#B45309; --t2:#2B8CB0; --t3:#3A506B; --t1-ink:#FFFFFF; --t2-ink:#FFFFFF; --t3-ink:#FFFFFF;
+  --good:#0F9D63; --bad:#D6304F; --warn:#A16207;
+  --good-bg:#E4F6EE; --bad-bg:#FDE8EC; --warn-bg:#FDF4D6; --sky-bg:#E3F3F9; --nav:rgba(251,248,243,.85); --shadow:0 30px 70px -35px rgba(11,19,43,.30); --grid:rgba(11,19,43,.04); color-scheme:light}}
 :root[data-theme="light"]{
-  --bg:#ffffff; --bg2:#f2f8fc; --card:#ffffff; --card2:#f4f9fd; --line:rgba(0,40,70,.09); --line2:rgba(0,40,70,.16);
-  --ink:#05080b; --muted:#4f6070; --dim:#8494a3; --gold:#0ea5e9; --gold-ink:#00121c; --glow:rgba(14,165,233,.20);
-  --t1:#0284c7; --t2:#38bdf8; --t3:#05080b; --t1-ink:#ffffff; --t2-ink:#00121c; --t3-ink:#ffffff;
-  --good:#0f9d63; --bad:#e0365a; --warn:#c77d00;
-  --good-bg:#e4f6ee; --bad-bg:#fde8ed; --warn-bg:#fdf1dc; --sky-bg:#e0f2fe; --nav:rgba(255,255,255,.82); --shadow:0 30px 70px -35px rgba(2,132,199,.35); --grid:rgba(2,132,199,.05); color-scheme:light}
+  --bg:#FBF8F3; --bg2:#F3ECE1; --card:#FFFFFF; --card2:#FCF9F4; --line:rgba(11,19,43,.09); --line2:rgba(11,19,43,.16);
+  --ink:#0B132B; --muted:#3A506B; --dim:#7A8AA0; --gold:#B45309; --gold-ink:#FFFFFF; --glow:rgba(217,119,6,.18);
+  --t1:#B45309; --t2:#2B8CB0; --t3:#3A506B; --t1-ink:#FFFFFF; --t2-ink:#FFFFFF; --t3-ink:#FFFFFF;
+  --good:#0F9D63; --bad:#D6304F; --warn:#A16207;
+  --good-bg:#E4F6EE; --bad-bg:#FDE8EC; --warn-bg:#FDF4D6; --sky-bg:#E3F3F9; --nav:rgba(251,248,243,.85); --shadow:0 30px 70px -35px rgba(11,19,43,.30); --grid:rgba(11,19,43,.04); color-scheme:light}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01";font-variant-numeric:tabular-nums}
