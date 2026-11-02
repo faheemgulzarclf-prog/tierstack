@@ -78,7 +78,7 @@ function render(P,S){
       <div class="kpi"><span class="v" style="color:${bust>0.25?"var(--bad)":"inherit"}">${pct(bust)}</span><span class="k">chance of losing it all</span></div>
   </div>
     ${vc!=="good"?`<div class="verdict ${vc}"><span class="ic">!</span><div><b>${vt}</b><p>${vp}</p></div></div>`:""}
-    <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
+    <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#road" data-nav="road">Week-by-week roadmap</a><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
   </div>
 
   <div class="prem-zone">

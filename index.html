@@ -695,6 +695,36 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 .ad-empty,.ad-load{color:var(--muted);padding:40px;text-align:center;border:1px dashed var(--line2);border-radius:16px}
 @media (max-width:640px){.ad-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ad-row{grid-template-columns:40px minmax(0,1fr)}.ad-act{grid-column:1/-1;justify-content:flex-start}}
 .au-st.ok{color:var(--good)}.au-st.pending{color:var(--warn)}.au-st.rejected{color:var(--bad)}
+/* roadmap */
+.roadmap{display:flex;flex-direction:column;gap:18px;padding-bottom:60px}
+.road-sum h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;margin:6px 0 8px}.road-sum p{color:var(--muted);margin:0;font-size:14.5px}.road-sum .k{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.road-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.road-bar span{display:flex;flex-direction:column;gap:8px;font-size:12.5px;font-weight:700;color:var(--dim)}
+.road-bar i{display:block;height:6px;border-radius:6px;background:var(--line2)}
+.road-bar .done{color:var(--good)}.road-bar .done i{background:var(--good)}
+.road-bar .now{color:var(--gold)}.road-bar .now i{background:linear-gradient(90deg,var(--gold),var(--gmid));box-shadow:0 0 14px var(--glow)}
+.stage{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px 24px 20px}
+.stage.now{border-color:var(--gold);box-shadow:0 24px 70px -36px var(--glow)}
+.sg-h{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px;align-items:start}
+.sg-n{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 20px "Inter Tight",Inter,sans-serif;background:var(--card2);border:1px solid var(--line2);color:var(--muted)}
+.stage.now .sg-n{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}.stage.done .sg-n{background:var(--good-bg);color:var(--good);border-color:transparent}
+.sg-t{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}.stage.locked .sg-t{color:var(--dim)}
+.stage h3{font-size:22px;letter-spacing:-.015em;margin:4px 0 2px}.sg-w{font-size:13px;color:var(--muted)}
+.sg-st{font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:99px;background:var(--card2);border:1px solid var(--line2);color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.stage.now .sg-st{background:var(--sky-bg);color:var(--gold);border-color:transparent}.stage.done .sg-st{background:var(--good-bg);color:var(--good);border-color:transparent}
+.sg-st .lk{display:inline-block;width:11px;height:11px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z'/%3E%3C/svg%3E") center/contain no-repeat}
+.sg-steps{list-style:none;margin:18px 0 0;padding:0 0 0 23px;border-left:2px solid var(--line2);margin-left:23px;display:flex;flex-direction:column;gap:14px}
+.stage.now .sg-steps{border-left-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.rs{position:relative;display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;padding-left:16px}
+.rs::before{content:"";position:absolute;left:-30px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--card);border:2px solid var(--line2)}
+.rs.mile::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 4px var(--sky-bg)}.rs.warn::before{border-color:var(--warn)}
+.rw{font-size:12.5px;font-weight:700;color:var(--muted);padding-top:2px}.rs.mile .rw{color:var(--gold)}
+.rs b{font-size:15px}.rs p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.sg-next{margin-top:18px;padding:12px 14px;border-radius:12px;background:var(--card2);border:1px dashed var(--line2);font-size:13.5px;color:var(--muted)}
+.stage.locked .sg-steps{filter:blur(4px);opacity:.45;pointer-events:none;user-select:none;max-height:150px;overflow:hidden}
+.stage.done{opacity:.8}
+.road-fine{color:var(--dim);font-size:12.5px;text-align:center}
+@media (max-width:640px){.sg-h{grid-template-columns:40px minmax(0,1fr)}.sg-n{width:40px;height:40px}.sg-st{grid-column:1/-1;justify-self:start}.rs{grid-template-columns:1fr;gap:2px}.sg-steps{margin-left:12px;padding-left:16px}.rs::before{left:-23px}.stage{padding:20px 16px}}
 </style><script src="vendor/supabase.js"></script>
 <script>/* TierStack accounts (site only): Supabase email signup + cloud save of the daily coach.
    The anon key is public by design; Row Level Security keeps each trader's rows private. */
@@ -816,7 +846,7 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 
 <nav class="top"><div class="in">
   <a class="logo" href="#home" aria-label="TierStack home"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="17" width="22" height="7" rx="2.5" fill="var(--t3)"/><rect x="6" y="9.5" width="16" height="6" rx="2.2" fill="var(--t2)"/><rect x="9" y="3" width="10" height="5" rx="2" fill="var(--gold)"/></svg>TierStack</a>
-  <div class="links"><a href="#home" data-nav="home">Home</a><a href="#build" data-nav="build">Plan</a><a href="#track" data-nav="track">Daily coach<i class="lk" aria-hidden="true"></i></a><a href="#rules" data-nav="rules">Firm rules</a><a href="#home" data-jump="faq">FAQ</a></div>
+  <div class="links"><a href="#home" data-nav="home">Home</a><a href="#build" data-nav="build">Plan</a><a href="#road" data-nav="road">Roadmap<i class="lk" aria-hidden="true"></i></a><a href="#track" data-nav="track">Daily coach<i class="lk" aria-hidden="true"></i></a><a href="#rules" data-nav="rules">Firm rules</a><a href="#home" data-jump="faq">FAQ</a></div>
   <div class="navr">
     <button type="button" class="acct" id="acctBtn" hidden>Sign in</button>
     <button type="button" class="theme" id="themeBtn" aria-label="Switch light or dark mode"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/><g class="sun" fill="currentColor"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g></svg></button>
@@ -974,6 +1004,13 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 </main>
 
 <!-- ================= BUILD ================= -->
+<main data-view="road" hidden>
+  <div class="bhead"><div class="in">
+    <div><div class="crumbs"><a href="#build" data-nav="build">Plan</a> / Roadmap</div><h1>Your roadmap</h1><p>Your plan, stage by stage and week by week. Each stage unlocks when the one before it is done.</p></div>
+    <span class="prem-chip">Premium</span>
+  </div></div>
+  <div class="in rwrap"><div id="roadOut" class="roadmap"></div></div>
+</main>
 <main data-view="check" hidden>
   <div class="bhead"><div class="in">
     <div><div class="crumbs"><a href="#build" data-nav="build">Plan</a> / Rule check</div><h1>Check it against the guide</h1><p>One future of your plan, played week by week to the goal. Every step shows the guide rule and a ✓ or ✗.</p></div>
@@ -1363,7 +1400,7 @@ function render(P,S){
       <div class="kpi"><span class="v" style="color:${bust>0.25?"var(--bad)":"inherit"}">${pct(bust)}</span><span class="k">chance of losing it all</span></div>
   </div>
     ${vc!=="good"?`<div class="verdict ${vc}"><span class="ic">!</span><div><b>${vt}</b><p>${vp}</p></div></div>`:""}
-    <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
+    <div class="fx-cta"><button type="button" class="btn gold" id="startTrack">Start tracking this plan <span class="arr">→</span></button><a class="btn ghost" href="#road" data-nav="road">Week-by-week roadmap</a><a class="btn ghost" href="#check" data-nav="check">Check it against the guide</a><span class="hint">Your daily coach: which account to trade, how much to risk, what to do next.</span></div>
   </div>
 
   <div class="prem-zone">
@@ -2090,6 +2127,105 @@ function demoRender(){
   $("demoAgain").addEventListener("click",()=>{ demoSeed=(demoSeed*48271)%2147483647; demoRender(); });
 }
 
+/* ---------- Premium roadmap: your plan as 4 stages, week by week, each unlocks when the last is done ---------- */
+function roadParams(){
+  const P=readParams();
+  try{ if(typeof TK!=="undefined"&&TK.state&&TK.state.p){ const p=TK.state.p; Object.keys(p).forEach(k=>{ if(p[k]!=null&&k!=="firm") P[k]=p[k]; }); } }catch(e){}
+  return P;
+}
+function roadTimeline(P){
+  const runs=160, keys=["p1","p2","f1","po1","f2","up1","goal"], W={}, amt=[], rate=[];
+  keys.forEach(k=>W[k]=[]);
+  const ms={};
+  for(let i=0;i<runs;i++){
+    const seen={}; let funded=0;
+    const hit=(k,w)=>{ if(seen[k]==null){ seen[k]=w; W[k].push(w+1); } };
+    portfolioSim(P,P.wr,1,1000+i*7,x=>{
+      if(x.e==="pass1") hit("p1",x.w);
+      else if(x.e==="pass2") hit("p2",x.w);
+      else if(x.e==="funded"){ funded++; hit("f1",x.w); if(funded>=2) hit("f2",x.w); }
+      else if(x.e==="payout"){ if(seen.po1==null) amt.push(x.amt); hit("po1",x.w); }
+      else if(x.e==="alloc"){ if(rate.length<runs) rate.push(x.rate); }
+      else if(x.e==="upgrade") hit("up1",x.w);
+      else if(x.e==="milestone"){ if(x.goal) hit("goal",x.w); else { (ms[x.v]=ms[x.v]||[]).push(x.w+1); } }
+    });
+  }
+  const med=k=>W[k].length>=runs*0.3?Math.max(1,Math.round(quant(W[k],0.5))):null;
+  const T={}; keys.forEach(k=>T[k]=med(k));
+  T.payAmt=amt.length?quant(amt,0.5):P.s0*P.lock/100*P.split/100;
+  T.rate=rate.length?quant(rate,0.5):0.8;
+  T.miles=Object.keys(ms).map(Number).sort((a,b)=>a-b).filter(v=>ms[v].length>=runs*0.3).map(v=>({v,w:Math.round(quant(ms[v],0.5))}));
+  T.reach=W.goal.length/runs;
+  return T;
+}
+function roadProgress(){
+  try{ const st=typeof TK!=="undefined"&&TK.state; if(!st) return 0;
+    const fundedNow=st.accounts.filter(a=>a.ph===3);
+    const total=fundedNow.reduce((s,a)=>s+a.size,0);
+    if(total>=st.p.target) return 3;
+    if(st.payouts&&st.payouts.length) return 2;
+    if(fundedNow.length||st.accounts.some(a=>a.ph>=3)) return 1;
+    return 0; }catch(e){ return 0; }
+}
+function roadRender(){
+  const o=$("roadOut"); if(!o) return;
+  let P; try{ P=roadParams(); }catch(e){ o.innerHTML=`<div class="card"><p>Build your plan first.</p></div>`; return; }
+  o.innerHTML=`<div class="card"><p class="muted">Working out your weeks…</p></div>`;
+  setTimeout(()=>{
+    let T; try{ T=roadTimeline(P); }catch(e){ o.innerHTML=`<div class="card"><p>Could not build the roadmap: ${esc(e.message)}</p></div>`; return; }
+    const cur=roadProgress(), L=P.ladder, s0=P.s0, n0=P.n0;
+    const rE=s0*P.riskE/100, rF=s0*P.riskF/100, day=s0*P.daily/100;
+    const wk=w=>w?`Week ${w}`:"Later";
+    const about=w=>w?`about week ${w}`:"later in the plan";
+    const yours=Math.round((1-T.rate)*100);
+    const step=(w,t,p,kind)=>`<li class="rs ${kind||""}"><span class="rw">${w}</span><div><b>${t}</b>${p?`<p>${p}</p>`:""}</div></li>`;
+    const S=[
+      {tier:"Tier 3",name:"Pipeline",title:"Pass your first tests",from:1,to:T.f1,
+       unlock:"Starts today",
+       next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
+       steps:[
+        step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(Math.min(day,rE*P.tpd))}.`),
+        n0>1?step("Week 2",`Test #1 rests. Trade test #2`,`Tests take turns by week, so one bad week can't hit both.`):"",
+        step("Every week",`Keep the same rhythm`,`Same ${fmtFull(rE)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
+        T.p1?step(wk(T.p1),`First Phase 1 pass (+${P.p1t}%)`,`That account moves to Phase 2. Same risk, same turns.`,"mile"):"",
+        T.p2?step(wk(T.p2),`First Phase 2 pass (+${P.p2t}%)`,`It becomes a funded account.`,"mile"):"",
+        step("Any week",`If a test falls to −${P.c3}%`,`Take up to ${P.k3} recovery trades. If they fail, close it and start a new one from the pool.`,"warn")]},
+      {tier:"Tier 1",name:"Funded",title:"First funded account and payout",from:T.f1,to:T.po1,
+       unlock:`Unlocks ${about(T.f1)}`,
+       next:`Stage 3 unlocks with your first payout, ${about(T.po1)}.`,
+       steps:[
+        step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
+        step("Every on-week",`Ask for a payout at +${P.lock}%`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)}), request the payout. Don't wait for more.`),
+        T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to the reinvest pool, ${yours}% is yours.`,"mile"):"",
+        step("Right after",`Refill the pipeline`,`The pool buys the next tests, so a new account is always on the way.`),
+        step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
+      {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
+       unlock:`Unlocks ${about(T.po1)}`,
+       next:`Stage 4 unlocks when you reach ${fmt(P.target)} funded, ${about(T.goal)}.`,
+       steps:[
+        step("Always",`Keep a backup ready`,`For every funded account, keep one test passed or close behind it. Like a football bench.`),
+        T.f2?step(wk(T.f2),`Second funded account`,`Funded accounts take turns: each one trades 1 week in 3.`,"mile"):"",
+        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} tests`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
+        ...T.miles.slice(0,4).map(m=>step(wk(m.w),`${fmt(m.v)} funded`,`Next account size unlocks.`,"mile"))]},
+      {tier:"Goal",name:"Funded team",title:`${fmt(P.target)} funded`,from:T.goal,to:null,
+       unlock:T.goal?`Unlocks ${about(T.goal)}`:`Not reached in most futures. Try lower risk or a smaller goal.`,
+       next:"",
+       steps:[
+        step(wk(T.goal),`Goal reached`,`${Math.round(T.reach*100)}% of simulated futures got here.`,"mile"),
+        step("Every month",`Most payouts are now yours`,`As the team grows, more of each payout goes to you instead of the pool.`),
+        step("Always",`Same rules`,`Fixed risk, 1 week on and 2 off, payout at +${P.lock}%.`)]}
+    ];
+    o.innerHTML=`
+    <div class="card road-sum"><div><span class="k">Your road</span><h2>${T.goal?`${fmt(P.target)} funded in about ${weeksTxt(T.goal)}`:`A long road to ${fmt(P.target)}`}</h2><p>${n0} × ${fmt(s0)} tests · ${Math.round(P.wr*100)}% win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name+" risk":P.riskE+"% risk"}. Weeks are the middle of 160 simulated futures, so yours can be faster or slower.</p></div>
+      <div class="road-bar">${S.map((s,i)=>`<span class="${i<cur?"done":i===cur?"now":""}"><i></i>${s.tier}</span>`).join("")}</div></div>
+    ${S.map((s,i)=>{ const st=i<cur?"done":i===cur?"now":"locked";
+      return `<section class="stage ${st}"><div class="sg-h"><span class="sg-n">${i+1}</span><div><span class="sg-t">Stage ${i+1} · ${s.tier} · ${s.name}</span><h3>${s.title}</h3><span class="sg-w">${s.from?`Week ${s.from}`:""}${s.to?` → ${s.to}`:s.from?" →":""}</span></div><span class="sg-st">${st==="done"?"Done":st==="now"?"You are here":`<i class="lk"></i>${esc(s.unlock)}`}</span></div>
+        <ol class="sg-steps">${s.steps.join("")}</ol>
+        ${s.next?`<div class="sg-next">${s.next}</div>`:""}</section>`; }).join("")}
+    <p class="road-fine">Estimates from simulated trades with your numbers. Real markets differ. The coach moves you to the next stage when it really happens.</p>`;
+  },30);
+}
+
 
 /* ---------- home example ---------- */
 window.fillHome=function(P,S){
@@ -2104,11 +2240,12 @@ window.fillHome=function(P,S){
 
 /* ---------- router ---------- */
 function show(){
-  let v=["build","rules","track","check","admin"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
+  let v=["build","rules","track","check","admin","road"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
   const A=window.TSAuth;
   if(v==="admin"){ if(A&&A.sb&&!A.ready){ A.after=show; return; } if(!(A&&A.admin)){ v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); } else setTimeout(()=>A.renderAdmin(),0); }
   if(v!=="home"&&v!=="build"&&v!=="rules"&&v!=="admin"&&A&&A.sb&&!A.ok){ if(!A.ready){ A.after=show; return; } A.wanted=v; v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); setTimeout(()=>A.open&&A.open("up",true),60); }
   if(v==="check") setTimeout(demoRender,30);
+  if(v==="road") setTimeout(roadRender,30);
   document.querySelectorAll("[data-view]").forEach(m=>{ const on=m.dataset.view===v; m.hidden=!on; if(on){ m.classList.remove("view-in"); void m.offsetWidth; m.classList.add("view-in"); } });
   document.querySelectorAll("[data-nav]").forEach(a=>a.toggleAttribute("aria-current",a.dataset.nav===v));
   document.querySelectorAll('.links a[data-nav="home"]').forEach(a=>a.setAttribute("aria-current",v==="home"?"page":"false"));
