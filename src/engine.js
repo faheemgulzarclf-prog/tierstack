@@ -183,13 +183,13 @@ function portfolioSim(P,wr,runs,seed,lg){
       // or to grow Tier 1 only when 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% / Tier 3 = 40% of the NEW Tier 1 stay stocked.
       for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
         const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
-        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T3b>=0.4*nT1-1);
+        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T2b+T3b>=nT1-1);
         if(ok){ const T1b=T1, pk=peak; a.ph=3; a.pt=lockPick(P,rng()); a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
         const T2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), T3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-        const stocked=T1>0 && T2>=0.6*T1-1 && T3>=0.4*T1-1;
+        const stocked=T1>0 && T2>=0.6*T1-1&&T2+T3>=T1-1;
         const rate=reinvRate(P,T1,stocked);
         cash+=dayPay*rate; personal+=dayPay*(1-rate); persWeek[w]+=dayPay*(1-rate);
         if(lg) lg({e:"alloc",d,w,amt:dayPay,rate,stocked,T1,T2,T3,toPool:dayPay*rate,personal:dayPay*(1-rate),cash});
@@ -198,14 +198,14 @@ function portfolioSim(P,wr,runs,seed,lg){
       // guide scale-up checklist: 3+ payouts in a row and no funded cut in the last 14 days (10 trading days)
       // guide: all five must be true (3 payouts in a row, no cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1)
       const uT2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), uT3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1 && uT3>=0.4*T1-1;
+      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1&&uT2+uT3>=T1-1;
       while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut,wr:wr20(),T2:uT2,T3:uT3}); }
       // buy evals (restock T3 first; T2 only refills by passing T3)
       let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
-      const pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=0.4*(base1+growS);
+      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the pipeline */
       let guard=0;
       while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;

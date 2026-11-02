@@ -45,19 +45,19 @@ function demoCheck(P,ev){
   const off=ev.filter(x=>x.e==="offline"); bad=off.filter(o=>trades.some(t=>t.id===o.id&&t.w===o.w)).length;
   add("Losing 4 weeks → rest 1 week","4-week cycle ends in loss: put the account offline for 1 full week.",off.length-bad,bad,`${off.length} offline weeks, no trades on them.`);
   // 10 reinvest
-  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T3>=0.4*a.T1-1)); }).length;
+  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T2+a.T3>=a.T1-1)); }).length;
   add("Reinvest ladder",`Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then ${P.reinv.map(r=>Math.round(r.rate*100)+"%").join(" / ")} by stage (guide: 80 / 65 / 50 / 30).`,al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
   // 11 spend priority
   const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||(b.T1>0&&b.t3cap<b.t3Target-1))).length;
   add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the T3 pipeline.`);
   // 12 ladder
-  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T3>=0.4*u.T1-1)).length;
+  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T2+u.T3>=u.T1-1)).length;
   add("Upgrade ladder",`Bigger accounts only after enough funded money and payouts, and all 5 checks: 3 payouts in a row, no funded cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1.`,up.length-bad,bad,up.length?up.map(u=>`${fmt(u.size)} at ${fmt(u.T1)} funded, ${u.pays} payouts`).join(" · "):"No upgrade in this run.");
   // 13 one new size first
   bad=by.filter((b,i)=>b.newSize&&!b.heldBack&&by.slice(0,i).some(x=>x.size===b.size&&!ev.some(f=>f.e==="funded"&&f.id===x.id&&f.d<=b.d)&&!ev.some(c=>c.e==="cut"&&c.id===x.id&&c.d<=b.d))).length;
   add("One new size first","Pass one account of a new size before buying multiples.",by.filter(b=>b.newSize).length-bad,bad,`${by.filter(b=>b.newSize&&!b.heldBack).length} first buys at a new size.`);
   // 15 Tier 2 bench
-  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&f.T3b>=0.4*f.nT1-1)))).length;
+  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&f.T2b+f.T3b>=f.nT1-1)))).length;
   add("Tier 2 bench","A passed Phase 2 account waits on the bench. It goes live to refill Tier 1, or to grow it only when the checklist passes and T2 / T3 stay at 60% / 40% of the new T1.",fu.length-bad,bad,`${fu.length} accounts went live, ${fu.filter(f=>f.refill).length} as refills. ${ev.filter(x=>x.e==="pass2").length-fu.length>0?(ev.filter(x=>x.e==="pass2").length-fu.length)+" still waiting on the bench.":""}`);
   // 16 payout amount
   bad=po.filter(x=>Math.abs(x.amt-x.size*x.b/100*P.split)>0.01).length;

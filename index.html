@@ -1436,13 +1436,13 @@ function portfolioSim(P,wr,runs,seed,lg){
       // or to grow Tier 1 only when 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% / Tier 3 = 40% of the NEW Tier 1 stay stocked.
       for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
         const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
-        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T3b>=0.4*nT1-1);
+        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T2b+T3b>=nT1-1);
         if(ok){ const T1b=T1, pk=peak; a.ph=3; a.pt=lockPick(P,rng()); a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
         const T2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), T3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-        const stocked=T1>0 && T2>=0.6*T1-1 && T3>=0.4*T1-1;
+        const stocked=T1>0 && T2>=0.6*T1-1&&T2+T3>=T1-1;
         const rate=reinvRate(P,T1,stocked);
         cash+=dayPay*rate; personal+=dayPay*(1-rate); persWeek[w]+=dayPay*(1-rate);
         if(lg) lg({e:"alloc",d,w,amt:dayPay,rate,stocked,T1,T2,T3,toPool:dayPay*rate,personal:dayPay*(1-rate),cash});
@@ -1451,14 +1451,14 @@ function portfolioSim(P,wr,runs,seed,lg){
       // guide scale-up checklist: 3+ payouts in a row and no funded cut in the last 14 days (10 trading days)
       // guide: all five must be true (3 payouts in a row, no cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1)
       const uT2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), uT3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1 && uT3>=0.4*T1-1;
+      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1&&uT2+uT3>=T1-1;
       while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut,wr:wr20(),T2:uT2,T3:uT3}); }
       // buy evals (restock T3 first; T2 only refills by passing T3)
       let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
-      const pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=0.4*(base1+growS);
+      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the pipeline */
       let guard=0;
       while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
@@ -2034,7 +2034,7 @@ function portfolio(st){
   const p=st.p, L=p.ladder, pays=st.payouts.length;
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
-  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T3>=0.4*T1-1,"Pipeline = 40% of funded"]];
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Pipeline = 40% of funded (extra Phase 2 counts)"]];
   if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
@@ -2046,8 +2046,8 @@ function portfolio(st){
   /* guide: Tier 2 = 60% and Tier 3 = 40% of Tier 1 before Tier 1 grows, so while growing stock the bench for one more account */
   const growS=T1>0&&T1<p.target?buySize:0, base1=Math.min(T1,p.target);
   const pipeTarget=Math.max(base1+2*growS,p.n0*p.s0);
-  const needT3=T1>0?Math.max(0,0.4*(base1+growS)-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
-  const stocked=T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1;
+  const tgtB=base1+growS, needT3=T1>0?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
+  const stocked=T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1;
   const rate=reinvRate(p,T1,stocked);
   return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
@@ -2209,7 +2209,7 @@ function canPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="a
   const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; if(T1>=p.target) return false;
   if(nT1<=Math.max(p.n0*p.s0,st.peak||0)) return true;
   const g=portfolio(st).grow, gate=g[0][0]&&g[1][0]&&(p.scale==="simple"||g[2][0]);
-  return gate&&T2>=0.6*nT1-1&&T3>=0.4*nT1-1; }
+  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
 function promoteOne(a){ const st=TK.state; if(!a.ready||a.status!=="active"||a.phase!==2||!canPromote(st,a)) return false;
   a.ready=false; passAcct(a); st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0)); return true; }
 function promoteReady(st){ let ch=false; st.accounts.filter(x=>x.ready&&x.status==="active"&&x.phase===2).forEach(x=>{ if(promoteOne(x)) ch=true; }); return ch; }
@@ -2263,7 +2263,7 @@ const LAB_RULES=[
 function labCheck(k,ok,msg){ const c=LAB.checks[k]||(LAB.checks[k]={ok:0,bad:0}); if(ok) c.ok++; else { c.bad++; if(LAB.errors.length<40) LAB.errors.push({d:todayStr(),k,msg}); } }
 /* the guide's reinvest ladder, worked out on its own from the accounts (not from portfolio()) */
 function labExpRate(st,p){ const act=st.accounts.filter(a=>a.status==="active"), sum=ph=>act.filter(a=>a.phase===ph).reduce((s,a)=>s+a.size,0);
-  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1)) return 1;
+  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1)) return 1;
   const R=p.reinv&&p.reinv.length?p.reinv:[{upto:0.2*p.target,rate:0.8},{upto:0.6*p.target,rate:0.65},{upto:p.target,rate:0.5},{upto:null,rate:0.3}];
   for(const r of R) if(r.upto==null||T1<r.upto) return r.rate; return R[R.length-1].rate; }
 /* independent bench rule from the guide */
@@ -2273,7 +2273,7 @@ function labCanPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
   if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4; }
-  return gate&&T2>=0.6*nT1-1&&T3>=0.4*nT1-1; }
+  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
 function labBenchTry(st,a){ const allowed=labCanPromote(st,a); const was=a.phase; promoteOne(a); const live=a.phase===3&&was===2;
   labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} stayed on the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); }
 function labStageName(p,T1){ const R=p.reinv&&p.reinv.length?p.reinv:null; if(!R) return T1<0.2*p.target?"Seed":T1<0.6*p.target?"Build":T1<p.target?"Scale":"Sustain"; const r=R.find(x=>x.upto==null||T1<x.upto)||R[R.length-1]; return r.name||""; }
@@ -2340,7 +2340,7 @@ function labBuyCheck(st,pf){
   if(p.buy&&p.buy!=="auto"){ labCheck("scale",pf.buySize===+p.buy,`Bought ${fmt(pf.buySize)} but you chose ${fmt(+p.buy)}`); return; }
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
-  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&pf.T3>=0.4*pf.T1-1; }
+  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&pf.T2+pf.T3>=pf.T1-1; }
   let lv=0; while(gate&&lv<L.length-1&&pf.T1>=L[lv+1].unlockT1&&pf.pays>=L[lv+1].unlockPay) lv++;
   const proven=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
   const waiting=lv>proven&&st.accounts.some(a=>a.status==="active"&&a.size===L[lv].size&&a.phase!==3);
@@ -2426,7 +2426,7 @@ function labBoard(){
       <label class="lab-rb"><b>Payouts buy</b><select id="labBuy" aria-label="Payouts reinvest into">${["auto",...p.ladder.map(r=>r.size)].map(v=>`<option value="${v}"${String(p.buy||"auto")===String(v)?" selected":""}>${v==="auto"?"Auto (size table)":fmt(v)+" · "+fmtFull(p.ladder.find(r=>r.size===v).fee)}</option>`).join("")}</select></label></div>
     <div class="lab-mode" role="radiogroup" aria-label="Pass mode"><button type="button" role="radio" aria-checked="${LAB.instant}" data-lab="instant" class="${LAB.instant?"on":""}"><b>Instant pass</b><span>No passing limits. See the whole structure fast.</span></button><button type="button" role="radio" aria-checked="${!LAB.instant}" data-lab="real" class="${LAB.instant?"":"on"}"><b>Real trading</b><span>Wins and losses at your win rate, with cuts and recovery.</span></button></div>
     <div class="road-bar lab-stages">${names.map((n,i)=>`<span class="${i<stg?"done":i===stg?"now":""}"><i></i>${n}</span>`).join("")}</div>
-    <div class="lab-stats"><div><b>${fmt(pf.T1)}</b><span>Tier 1 live of ${fmt(p.target)}</span></div><div><b>${fmt(pf.T2)}</b><span>Tier 2 (need ${fmt(0.6*pf.T1)})</span></div><div><b>${fmt(pf.T3)}</b><span>Tier 3 (need ${fmt(0.4*pf.T1)})</span></div><div><b>${fmtFull(st.pool)}</b><span>Reinvestment left (unspent)</span></div><div><b>${fmtFull(st.personal)}</b><span>taken home</span></div><div><b>${st.payouts.length}</b><span>payouts</span></div><div class="lab-tot"><b>${fmtFull(st.payouts.reduce((s,x)=>s+x.amt,0))}</b><span>total payouts = ${fmtFull(st.payouts.reduce((s,x)=>s+x.amt*x.rate,0))} reinvested + ${fmtFull(st.personal)} taken home</span></div></div>
+    <div class="lab-stats"><div><b>${fmt(pf.T1)}</b><span>Tier 1 live of ${fmt(p.target)}</span></div><div><b>${fmt(pf.T2)}</b><span>Tier 2 (need ${fmt(0.6*pf.T1)})</span></div><div><b>${fmt(pf.T3)}</b><span>Tier 3 (need ${fmt(Math.max(0,pf.T1-Math.max(pf.T2,0.6*pf.T1)))})</span></div><div><b>${fmtFull(st.pool)}</b><span>Reinvestment left (unspent)</span></div><div><b>${fmtFull(st.personal)}</b><span>taken home</span></div><div><b>${st.payouts.length}</b><span>payouts</span></div><div class="lab-tot"><b>${fmtFull(st.payouts.reduce((s,x)=>s+x.amt,0))}</b><span>total payouts = ${fmtFull(st.payouts.reduce((s,x)=>s+x.amt*x.rate,0))} reinvested + ${fmtFull(st.personal)} taken home</span></div></div>
     ${LAB.done||LAB.showRep?labReport(st):""}
     <div class="lab-next"><b>Next to buy:</b> ${next}</div>
     <div class="lab-plan"><span><b>Reinvest now</b> ${Math.round(pf.rate*100)}% ${pf.stocked?`(${esc(labStageName(p,pf.T1))})`:"(Tier 2 / Tier 3 not full yet, so 100%)"}</span><span><b>Bigger size</b> ${pf.grow.map(g=>`<i class="${g[0]?"ok":"no"}" title="${esc(g[1])}">${g[0]?"✓":"✗"} ${esc(g[1])}</i>`).join(" ")}</span></div>
@@ -2584,19 +2584,19 @@ function demoCheck(P,ev){
   const off=ev.filter(x=>x.e==="offline"); bad=off.filter(o=>trades.some(t=>t.id===o.id&&t.w===o.w)).length;
   add("Losing 4 weeks → rest 1 week","4-week cycle ends in loss: put the account offline for 1 full week.",off.length-bad,bad,`${off.length} offline weeks, no trades on them.`);
   // 10 reinvest
-  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T3>=0.4*a.T1-1)); }).length;
+  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T2+a.T3>=a.T1-1)); }).length;
   add("Reinvest ladder",`Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then ${P.reinv.map(r=>Math.round(r.rate*100)+"%").join(" / ")} by stage (guide: 80 / 65 / 50 / 30).`,al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
   // 11 spend priority
   const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||(b.T1>0&&b.t3cap<b.t3Target-1))).length;
   add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the T3 pipeline.`);
   // 12 ladder
-  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T3>=0.4*u.T1-1)).length;
+  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T2+u.T3>=u.T1-1)).length;
   add("Upgrade ladder",`Bigger accounts only after enough funded money and payouts, and all 5 checks: 3 payouts in a row, no funded cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1.`,up.length-bad,bad,up.length?up.map(u=>`${fmt(u.size)} at ${fmt(u.T1)} funded, ${u.pays} payouts`).join(" · "):"No upgrade in this run.");
   // 13 one new size first
   bad=by.filter((b,i)=>b.newSize&&!b.heldBack&&by.slice(0,i).some(x=>x.size===b.size&&!ev.some(f=>f.e==="funded"&&f.id===x.id&&f.d<=b.d)&&!ev.some(c=>c.e==="cut"&&c.id===x.id&&c.d<=b.d))).length;
   add("One new size first","Pass one account of a new size before buying multiples.",by.filter(b=>b.newSize).length-bad,bad,`${by.filter(b=>b.newSize&&!b.heldBack).length} first buys at a new size.`);
   // 15 Tier 2 bench
-  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&f.T3b>=0.4*f.nT1-1)))).length;
+  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&f.T2b+f.T3b>=f.nT1-1)))).length;
   add("Tier 2 bench","A passed Phase 2 account waits on the bench. It goes live to refill Tier 1, or to grow it only when the checklist passes and T2 / T3 stay at 60% / 40% of the new T1.",fu.length-bad,bad,`${fu.length} accounts went live, ${fu.filter(f=>f.refill).length} as refills. ${ev.filter(x=>x.e==="pass2").length-fu.length>0?(ev.filter(x=>x.e==="pass2").length-fu.length)+" still waiting on the bench.":""}`);
   // 16 payout amount
   bad=po.filter(x=>Math.abs(x.amt-x.size*x.b/100*P.split)>0.01).length;

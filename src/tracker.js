@@ -88,7 +88,7 @@ function portfolio(st){
   const p=st.p, L=p.ladder, pays=st.payouts.length;
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
-  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T3>=0.4*T1-1,"Pipeline = 40% of funded"]];
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Pipeline = 40% of funded (extra Phase 2 counts)"]];
   if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
@@ -100,8 +100,8 @@ function portfolio(st){
   /* guide: Tier 2 = 60% and Tier 3 = 40% of Tier 1 before Tier 1 grows, so while growing stock the bench for one more account */
   const growS=T1>0&&T1<p.target?buySize:0, base1=Math.min(T1,p.target);
   const pipeTarget=Math.max(base1+2*growS,p.n0*p.s0);
-  const needT3=T1>0?Math.max(0,0.4*(base1+growS)-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
-  const stocked=T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1;
+  const tgtB=base1+growS, needT3=T1>0?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
+  const stocked=T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1;
   const rate=reinvRate(p,T1,stocked);
   return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
@@ -263,7 +263,7 @@ function canPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="a
   const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; if(T1>=p.target) return false;
   if(nT1<=Math.max(p.n0*p.s0,st.peak||0)) return true;
   const g=portfolio(st).grow, gate=g[0][0]&&g[1][0]&&(p.scale==="simple"||g[2][0]);
-  return gate&&T2>=0.6*nT1-1&&T3>=0.4*nT1-1; }
+  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
 function promoteOne(a){ const st=TK.state; if(!a.ready||a.status!=="active"||a.phase!==2||!canPromote(st,a)) return false;
   a.ready=false; passAcct(a); st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0)); return true; }
 function promoteReady(st){ let ch=false; st.accounts.filter(x=>x.ready&&x.status==="active"&&x.phase===2).forEach(x=>{ if(promoteOne(x)) ch=true; }); return ch; }

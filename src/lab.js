@@ -19,7 +19,7 @@ const LAB_RULES=[
 function labCheck(k,ok,msg){ const c=LAB.checks[k]||(LAB.checks[k]={ok:0,bad:0}); if(ok) c.ok++; else { c.bad++; if(LAB.errors.length<40) LAB.errors.push({d:todayStr(),k,msg}); } }
 /* the guide's reinvest ladder, worked out on its own from the accounts (not from portfolio()) */
 function labExpRate(st,p){ const act=st.accounts.filter(a=>a.status==="active"), sum=ph=>act.filter(a=>a.phase===ph).reduce((s,a)=>s+a.size,0);
-  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1)) return 1;
+  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1)) return 1;
   const R=p.reinv&&p.reinv.length?p.reinv:[{upto:0.2*p.target,rate:0.8},{upto:0.6*p.target,rate:0.65},{upto:p.target,rate:0.5},{upto:null,rate:0.3}];
   for(const r of R) if(r.upto==null||T1<r.upto) return r.rate; return R[R.length-1].rate; }
 /* independent bench rule from the guide */
@@ -29,7 +29,7 @@ function labCanPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
   if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4; }
-  return gate&&T2>=0.6*nT1-1&&T3>=0.4*nT1-1; }
+  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
 function labBenchTry(st,a){ const allowed=labCanPromote(st,a); const was=a.phase; promoteOne(a); const live=a.phase===3&&was===2;
   labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} stayed on the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); }
 function labStageName(p,T1){ const R=p.reinv&&p.reinv.length?p.reinv:null; if(!R) return T1<0.2*p.target?"Seed":T1<0.6*p.target?"Build":T1<p.target?"Scale":"Sustain"; const r=R.find(x=>x.upto==null||T1<x.upto)||R[R.length-1]; return r.name||""; }
@@ -96,7 +96,7 @@ function labBuyCheck(st,pf){
   if(p.buy&&p.buy!=="auto"){ labCheck("scale",pf.buySize===+p.buy,`Bought ${fmt(pf.buySize)} but you chose ${fmt(+p.buy)}`); return; }
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
-  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&pf.T3>=0.4*pf.T1-1; }
+  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&pf.T2+pf.T3>=pf.T1-1; }
   let lv=0; while(gate&&lv<L.length-1&&pf.T1>=L[lv+1].unlockT1&&pf.pays>=L[lv+1].unlockPay) lv++;
   const proven=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
   const waiting=lv>proven&&st.accounts.some(a=>a.status==="active"&&a.size===L[lv].size&&a.phase!==3);
@@ -182,7 +182,7 @@ function labBoard(){
       <label class="lab-rb"><b>Payouts buy</b><select id="labBuy" aria-label="Payouts reinvest into">${["auto",...p.ladder.map(r=>r.size)].map(v=>`<option value="${v}"${String(p.buy||"auto")===String(v)?" selected":""}>${v==="auto"?"Auto (size table)":fmt(v)+" · "+fmtFull(p.ladder.find(r=>r.size===v).fee)}</option>`).join("")}</select></label></div>
     <div class="lab-mode" role="radiogroup" aria-label="Pass mode"><button type="button" role="radio" aria-checked="${LAB.instant}" data-lab="instant" class="${LAB.instant?"on":""}"><b>Instant pass</b><span>No passing limits. See the whole structure fast.</span></button><button type="button" role="radio" aria-checked="${!LAB.instant}" data-lab="real" class="${LAB.instant?"":"on"}"><b>Real trading</b><span>Wins and losses at your win rate, with cuts and recovery.</span></button></div>
     <div class="road-bar lab-stages">${names.map((n,i)=>`<span class="${i<stg?"done":i===stg?"now":""}"><i></i>${n}</span>`).join("")}</div>
-    <div class="lab-stats"><div><b>${fmt(pf.T1)}</b><span>Tier 1 live of ${fmt(p.target)}</span></div><div><b>${fmt(pf.T2)}</b><span>Tier 2 (need ${fmt(0.6*pf.T1)})</span></div><div><b>${fmt(pf.T3)}</b><span>Tier 3 (need ${fmt(0.4*pf.T1)})</span></div><div><b>${fmtFull(st.pool)}</b><span>Reinvestment left (unspent)</span></div><div><b>${fmtFull(st.personal)}</b><span>taken home</span></div><div><b>${st.payouts.length}</b><span>payouts</span></div><div class="lab-tot"><b>${fmtFull(st.payouts.reduce((s,x)=>s+x.amt,0))}</b><span>total payouts = ${fmtFull(st.payouts.reduce((s,x)=>s+x.amt*x.rate,0))} reinvested + ${fmtFull(st.personal)} taken home</span></div></div>
+    <div class="lab-stats"><div><b>${fmt(pf.T1)}</b><span>Tier 1 live of ${fmt(p.target)}</span></div><div><b>${fmt(pf.T2)}</b><span>Tier 2 (need ${fmt(0.6*pf.T1)})</span></div><div><b>${fmt(pf.T3)}</b><span>Tier 3 (need ${fmt(Math.max(0,pf.T1-Math.max(pf.T2,0.6*pf.T1)))})</span></div><div><b>${fmtFull(st.pool)}</b><span>Reinvestment left (unspent)</span></div><div><b>${fmtFull(st.personal)}</b><span>taken home</span></div><div><b>${st.payouts.length}</b><span>payouts</span></div><div class="lab-tot"><b>${fmtFull(st.payouts.reduce((s,x)=>s+x.amt,0))}</b><span>total payouts = ${fmtFull(st.payouts.reduce((s,x)=>s+x.amt*x.rate,0))} reinvested + ${fmtFull(st.personal)} taken home</span></div></div>
     ${LAB.done||LAB.showRep?labReport(st):""}
     <div class="lab-next"><b>Next to buy:</b> ${next}</div>
     <div class="lab-plan"><span><b>Reinvest now</b> ${Math.round(pf.rate*100)}% ${pf.stocked?`(${esc(labStageName(p,pf.T1))})`:"(Tier 2 / Tier 3 not full yet, so 100%)"}</span><span><b>Bigger size</b> ${pf.grow.map(g=>`<i class="${g[0]?"ok":"no"}" title="${esc(g[1])}">${g[0]?"✓":"✗"} ${esc(g[1])}</i>`).join(" ")}</span></div>
