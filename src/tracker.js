@@ -5,7 +5,7 @@ const todayStr=()=>{ const d=TK.testDay?new Date(TK.testDay+"T12:00:00"):new Dat
 const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
 const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 const uid=()=>Math.random().toString(36).slice(2,9);
-const PH={1:"Pipeline · Phase 1",2:"Backup · Phase 2",3:"Funded"};
+const PH={1:"Evaluation · Phase 1",2:"Backup · Phase 2",3:"Funded"};
 const PHC={1:"t3",2:"t2",3:"t1"};
 
 /* storage: private per-trader doc in db, else this browser */
@@ -88,7 +88,7 @@ function portfolio(st){
   const p=st.p, L=p.ladder, pays=st.payouts.length;
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
-  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Pipeline = 40% of funded (extra Phase 2 counts)"]];
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Evaluation = 40% of funded (extra Phase 2 counts)"]];
   if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
@@ -178,7 +178,7 @@ function tkRenderInner(){
   else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
-  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
+  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Evaluation",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
     <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&!TK.test&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
@@ -214,7 +214,7 @@ function tkRenderInner(){
 
   <div class="g2f">
     <div class="card"><h3 class="ct">Tier balance</h3>${tiers.map(t=>{ const w=t[2]>0?Math.min(100,t[1]/t[2]*100):0; return `<div class="tk-tb"><div class="tk-gtop"><span><i class="dotl" style="background:var(--${t[3]})"></i>${t[0]}</span><span>${fmt(t[1])} / ${fmt(t[2])}</span></div><div class="tk-bar sm"><i style="width:${w}%;background:var(--${t[3]})"></i></div></div>`; }).join("")}
-      <p class="hint">Backup must reach 60% and Pipeline 40% of Funded before you take money home.</p>
+      <p class="hint">Backup must reach 60% and Evaluation 40% of Funded before you take money home.</p>
       ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
       <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
     <div class="card tk-remind"><h3 class="ct">Daily reminder</h3><p class="hint" style="margin-top:-6px">Get an alarm every morning that opens this coach. No account needed.</p>
@@ -245,7 +245,7 @@ function doLog(a,bal){
 function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3) return;
   a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
   if(a.phase===3){ a.pt=TK.test?lockPick(st.p,Math.random()):0; const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt));
-    log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the pipeline.`); }
+    log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the Evaluation tier.`); }
   else log(`${a.name} passed Phase 1. It moves to Tier 2 as a backup (Phase 2). Same risk, same turns.`); }
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;

@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: multi-view product site. Brand (Faheem, 2 Nov): deep navy #0B132B / #1C2541, slate #3A506B, sky #5BC0DE, cream #F4D6B0, no orange (Faheem asked to drop amber). Navy ground, sky = action + funded, cream = backup, slate = pipeline. Content in a 1160px column. */
+/* Layout: multi-view product site. Brand (Faheem, 2 Nov): deep navy #0B132B / #1C2541, slate #3A506B, sky #5BC0DE, cream #F4D6B0, no orange (Faheem asked to drop amber). Navy ground, sky = action + funded, cream = backup, slate = evaluation. Content in a 1160px column. */
 :root{
   --bg:#0B132B; --bg2:#0E1733; --card:#121C3A; --card2:#1C2541; --line:rgba(91,192,222,.12); --line2:rgba(91,192,222,.22);
   --ink:#F5F1EA; --muted:#A3B1C6; --dim:#6F819C;
@@ -334,6 +334,7 @@ details.full[open]>summary{margin-bottom:18px}
 table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px;font-family:var(--f-m)}
 table.data th{font-family:var(--f-b);font-size:12px;color:var(--muted);font-weight:600;text-align:right;padding:8px;border-bottom:1px solid var(--line2);white-space:nowrap}
 table.data td{padding:8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.trn .kpis{margin:14px 0 16px}.trn .flow{margin-bottom:14px}.trn table.data{min-width:460px}.trn table.data tr.me td{color:var(--gold);font-weight:700;background:color-mix(in srgb,var(--gold) 8%,transparent)}
 table.data th:first-child,table.data td:first-child{text-align:left;font-family:var(--f-b)}
 
 /* ---------- RULES view ---------- */
@@ -1012,7 +1013,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     <i class="lk lk1"></i><i class="lk lk2"></i><i class="lk lk3"></i>
     <div class="tsx-stage" id="tsxStage">
       <div class="pl pl0"><span class="pt">Start</span><span class="pn">2 × $25K tests</span><span class="pv">$360</span></div>
-      <div class="pl pl3" data-tier="3"><span class="pt">Tier 3</span><span class="pn">Pipeline · Phase 1</span><span class="pv"><b data-v="200000">$200K</b><em>20%</em></span></div>
+      <div class="pl pl3" data-tier="3"><span class="pt">Tier 3</span><span class="pn">Evaluation · Phase 1</span><span class="pv"><b data-v="200000">$200K</b><em>20%</em></span></div>
       <div class="pl pl2" data-tier="2"><span class="pt">Tier 2</span><span class="pn">Backup · Phase 2</span><span class="pv"><b data-v="300000">$300K</b><em>30%</em></span></div>
       <div class="pl pl1" data-tier="1"><span class="pt">Tier 1</span><span class="pn">Funded · earning</span><span class="pv"><b data-v="500000">$500K</b><em>50%</em></span></div>
       <span class="tok" id="tsxTok">$25K</span>
@@ -1042,8 +1043,8 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
 </div></section>
 
 <div class="ticker" aria-hidden="true"><div class="track">
-  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · pipeline</span><span class="sep">◆</span>
-  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · pipeline</span><span class="sep">◆</span>
+  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · evaluation</span><span class="sep">◆</span>
+  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · evaluation</span><span class="sep">◆</span>
 </div></div>
 
 <section class="s" id="journey"><div class="in">
@@ -1079,7 +1080,7 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
   <div class="stack3">
     <div class="layer reveal" style="--c:var(--t1);--k:var(--t1-ink);--w:100%"><span class="tag">TIER 1</span><div><h4>Funded · on the field</h4><p>Earns the payouts</p></div><span class="pc">50%</span></div>
     <div class="layer reveal" style="--c:var(--t2);--k:var(--t2-ink);--w:60%"><span class="tag">TIER 2</span><div><h4>Backup · on the bench</h4><p>Phase 2, one step from funded</p></div><span class="pc">30%</span></div>
-    <div class="layer reveal" style="--c:var(--t3);--k:var(--t3-ink);--w:40%"><span class="tag">TIER 3</span><div><h4>Pipeline · in the academy</h4><p>Phase 1 tests in progress</p></div><span class="pc">20%</span></div>
+    <div class="layer reveal" style="--c:var(--t3);--k:var(--t3-ink);--w:40%"><span class="tag">TIER 3</span><div><h4>Evaluation · in the academy</h4><p>Phase 1 tests in progress</p></div><span class="pc">20%</span></div>
   </div>
 </div></section>
 
@@ -1213,10 +1214,10 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
             <label class="f" for="horizon">Months<input type="number" id="horizon" value="36" min="6" max="72" step="6"></label>
             <label class="f" for="c1">Funded cut −%<input type="number" id="c1" value="6" min="1" max="20" step="0.5"></label>
             <label class="f" for="c2">Backup cut −%<input type="number" id="c2" value="4" min="1" max="20" step="0.5"></label>
-            <label class="f" for="c3">Pipeline cut −%<input type="number" id="c3" value="4" min="1" max="20" step="0.5"></label>
+            <label class="f" for="c3">Evaluation cut −%<input type="number" id="c3" value="4" min="1" max="20" step="0.5"></label>
             <label class="f" for="k1">Funded retries<input type="number" id="k1" value="3" min="0" max="10" step="1"></label>
             <label class="f" for="k2">Backup retries<input type="number" id="k2" value="4" min="0" max="10" step="1"></label>
-            <label class="f" for="k3">Pipeline retries<input type="number" id="k3" value="3" min="0" max="10" step="1"></label>
+            <label class="f" for="k3">Evaluation retries<input type="number" id="k3" value="3" min="0" max="10" step="1"></label>
           </div>
           <h4>Reinvest ladder <span class="hint">(guide: 80 / 65 / 50 / 30%)</span></h4>
           <p class="help" style="margin-top:-4px">Share of each payout that goes back in, once Tier 2 = 60% and Tier 3 = 40% of Tier 1. Before that it is always 100%. Leave the Tier 1 limits empty to use 20%, 60% and 100% of your goal.</p>
@@ -1275,7 +1276,7 @@ function quant(arr,q){ if(!arr.length) return NaN; const a=[...arr].sort((x,y)=>
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
 
 /* ---------- risk styles (all stay inside prop rules) ---------- */
-// k = recovery trades [funded, backup, pipeline]; High uses the low end of the guide's ranges so bigger risk can't break the firm limit
+// k = recovery trades [funded, backup, evaluation]; High uses the low end of the guide's ranges so bigger risk can't break the firm limit
 const RISK_LV={low:{name:"Low",base:0.5,k:[3,4,3],line:"Slow and steady. Survives long losing streaks."},
   med:{name:"Medium",base:1,k:[3,4,3],line:"The guide's pace. Balanced speed and safety."},
   high:{name:"High",base:2,k:[2,3,2],line:"Faster passes, more failed tests. Fewer recovery trades, so you never break the limit."}};
@@ -1358,17 +1359,17 @@ function unitEcon(P,wr){
     const b=phaseSim(rng,wr,P.rr,P.riskE,P.p2t,P.c2,P.k2,P.maxdd,400); if(b.ok){p2++;t2n+=b.n;}}}
   const pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N;
   // funded lifetime: count payouts until cut
-  let totPay=0, cyc=0, cycOk=0, totPctPaid=0;
+  let totPay=0, cyc=0, cycOk=0, totPctPaid=0, payN=0;
   const M=4000;
   for(let i=0;i<M;i++){ let pays=0; for(let j=0;j<300;j++){ cyc++; const r=phaseSim(rng,wr,P.rr,P.riskF,lockMid(P),P.c1,P.k1,P.maxdd,500);
-      if(r.ok && rng()<P.approve){ pays++; cycOk++; } else break; } totPay+=pays; }
+      if(r.ok && rng()<P.approve){ pays++; cycOk++; payN+=r.n; } else break; } totPay+=pays; }
   const pCycle=cycOk/cyc, ePays=totPay/M;
   const fee=P.ladder[0].fee, size=P.s0;
   const payout=size*lockMid(P)/100*P.split;
   const feePerFunded=pFund>0?fee/pFund:Infinity;
   const netPerFunded=ePays*payout-feePerFunded;
-  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0);
-  return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,
+  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0), tP1=p1?t1n/p1:0, tP2=p2?t2n/p2:0, tradesPay=cycOk?payN/cycOk:0;
+  return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,tP1,tP2,tradesPay,
     ev:wr*P.rr-(1-wr)};
 }
 
@@ -1380,7 +1381,7 @@ function portfolioSim(P,wr,runs,seed,lg){
   const milestones=[...L.slice(1).map(r=>r.unlockT1), tgt];
   const minFee=Math.min(...L.map(r=>r.fee));
   const out={weekly:[],reach:milestones.map(()=>[]),feesAt:milestones.map(()=>[]),fees:[],personal:[],capIn:[],net:[],bust:0,reached:0,
-    pays:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
+    pays:[],setupsGoal:[],ordersGoal:[],setupsAll:[],ordersAll:[],daysAll:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
     let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
@@ -1390,13 +1391,13 @@ function portfolioSim(P,wr,runs,seed,lg){
     const persWeek=new Float32Array(weeks+1);
     for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
     if(lg) lg({e:"start",d:0,w:0,n:P.n0,size:L[0].size,fee:L[0].fee,cash});
-    let T1=0, evalLane=0;
+    let T1=0, evalLane=0, setups=0, orders=0, sGoal=null, oGoal=null, dRun=0;
     for(let d=0; d<days; d++){
       const w=Math.floor(d/5);
       if(P.topup>0 && d>0 && d%21===0){ cash+=P.topup; capIn+=P.topup; }
       // shared trade outcomes for the day
       const shared=[]; for(let t=0;t<P.tpd;t++) shared.push(rng()<wr);
-      let dayPay=0; const promote=[];
+      let dayPay=0; const promote=[]; let dMax=0, dSum=0;
       // guide: any account whose 4-week cycle ends in a loss goes offline for 1 week
       if(d%5===0) for(const a of accts){ if(w-a.cs>=4){ if(a.b<a.cb){ a.offW=w; if(lg) lg({e:"offline",d,w,id:a.id,ph:a.ph,b:a.b,cb:a.cb}); } a.cs=w; a.cb=a.b; } }
       // stagger evaluations: two lanes take turns by week, so two evals never trade the same window
@@ -1411,8 +1412,8 @@ function portfolioSim(P,wr,runs,seed,lg){
         const cut=a.ph===1?P.c3:a.ph===2?P.c2:P.c1;
         const K=a.ph===1?P.k3:a.ph===2?P.k2:P.k1;
         const risk=funded?P.riskF:P.riskE;
-        a.d++;
-        for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){
+        a.d++; let nT=0;
+        for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){ nT++;
           const win=P.corr?shared[t]:rng()<wr;
           a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift();
           if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
@@ -1420,6 +1421,7 @@ function portfolioSim(P,wr,runs,seed,lg){
           if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
           else if(a.b<=-cut){ if(a.used||K===0){a.dead=true;a.why="again";break;} a.rec=K; if(lg) lg({e:"recStart",d,w,id:a.id,ph:a.ph,b:a.b,K,cut}); }
         }
+        dSum+=nT; if(nT>dMax) dMax=nT;
         if(a.dead) continue;
         if(a.b>=tg && a.d>=P.mindays){
           if(a.ph===1){ if(lg) lg({e:"pass1",d,w,id:a.id,size:a.size,b:a.b,days:a.d}); a.ph=2; a.b=0;a.d=0;a.rec=-1;a.used=false;a.cs=w;a.cb=0; }
@@ -1427,6 +1429,7 @@ function portfolioSim(P,wr,runs,seed,lg){
           else { if(rng()<P.approve){ const amt=a.size*a.b/100*P.split; if(lg) lg({e:"payout",d,w,id:a.id,size:a.size,b:a.b,amt,pt:a.pt||P.lock}); a.pt=lockPick(P,rng()); dayPay+=amt; pays++; consec++; a.b=0;a.d=0;a.rec=-1;a.cs=w;a.cb=0; /* recovery stays used: once per funded account */ } else { a.dead=true; a.why="refused"; } }
         }
       }
+      setups+=P.corr?dMax:dSum; orders+=dSum; dRun=d+1;
       // remove dead
       for(const a of accts) if(a.dead){ if(lg) lg({e:"cut",d,w,id:a.id,ph:a.ph,size:a.size,b:a.b,why:a.why}); if(a.ph===3){ cuts++; lastCut=d; consec=0; } }
       accts=accts.filter(a=>!a.dead);
@@ -1458,7 +1461,7 @@ function portfolioSim(P,wr,runs,seed,lg){
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
-      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the pipeline */
+      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
       let guard=0;
       while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
@@ -1469,7 +1472,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
       }
       // milestones
-      for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }
+      for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(m===milestones.length-1){ sGoal=setups; oGoal=orders; } if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }
       if(lg&&(d+1)%5===0) lg({e:"week",d,w,...snap(),cash,personal,fees,pays,lvl});
       if(lg&&reach[reach.length-1]!=null) break;
       if((d+1)%5===0) weekly[w+1]=T1;
@@ -1477,7 +1480,8 @@ function portfolioSim(P,wr,runs,seed,lg){
     }
     out.weekly.push(weekly);
     reach.forEach((v,m)=>{ if(v!=null){ out.reach[m].push(v); out.feesAt[m].push(feesAt[m]); } });
-    if(reach[reach.length-1]!=null) out.reached++;
+    if(reach[reach.length-1]!=null){ out.reached++; out.setupsGoal.push(sGoal); out.ordersGoal.push(oGoal); }
+    out.setupsAll.push(setups); out.ordersAll.push(orders); out.daysAll.push(dRun);
     if(busted) out.bust++; out.bustFlags.push(busted);
     out.fees.push(fees); out.personal.push(personal); out.capIn.push(capIn);
     out.net.push(personal+cash-capIn); out.pays.push(pays); out.cutsT1.push(cuts); out.evals.push(evals); out.grossPaid.push(gross);
@@ -1491,6 +1495,25 @@ function portfolioSim(P,wr,runs,seed,lg){
   return out;
 }
 
+
+/* ---------- trades needed: same plan, 1..5 trades a day (risk re-capped to the firm limits for each) ---------- */
+function tradesNeeded(P,wr,runs){
+  const rows=[]; const top=Math.min(5,Math.max(P.tpd,3));
+  for(let t=1;t<=top;t++){
+    const Q={...P,tpd:t};
+    const capE=Math.min(riskCap(Q.maxdd,Q.daily,t,Q.c3,Q.k3,Q.rr),riskCap(Q.maxdd,Q.daily,t,Q.c2,Q.k2,Q.rr)), capF=riskCap(Q.maxdd,Q.daily,t,Q.c1,Q.k1,Q.rr);
+    Q.riskE=Math.min(Q.riskE,capE); Q.riskF=Math.min(Q.riskF,capF);
+    const m=portfolioSim(Q,wr,runs||70,4242+t*13);
+    rows.push(tradeRow(Q,m,t));
+  }
+  return rows;
+}
+function tradeRow(Q,m,t){
+  const r=m.reach[m.reach.length-1], ok=r.length>m.runs*0.5, wk=ok?quant(r,0.5):null, mo=ok?wk/4.33:null;
+  const setG=ok?quant(m.setupsGoal,0.5):null, ordG=ok?quant(m.ordersGoal,0.5):null;
+  const perMo=ok?setG/mo:quant(m.setupsAll.map((v,i)=>v/Math.max(1,m.daysAll[i]/21.65)),0.5);
+  return {tpd:t,riskE:Q.riskE,riskF:Q.riskF,ok,wk,mo,setG,ordG,perMo,ordMo:ok?ordG/mo:null,reach:m.reached/m.runs,bust:m.bust/m.runs};
+}
 
 /* ---------- front end ---------- */
 const SIZES=[5000,10000,25000,50000,100000];
@@ -1530,6 +1553,23 @@ function render(P,S){
   const bust=sim.bust/sim.runs;
   const ev=S[0].ue.ev, be=1/(1+P.rr);
   const long=w=>w.replace(" mo"," months").replace(" wk"," weeks");
+  const u0t=S[0].ue, TN=S.tn||[], me=TN.find(r=>r.tpd===P.tpd)||tradeRow(P,best,P.tpd), need=TN.find(r=>r.ok&&r.mo<=P.horizon);
+  const n0f=x=>x==null||!isFinite(x)?"—":Math.round(x).toLocaleString("en-US");
+  const tradesCard=`<div class="card trn"><h3 class="ct">Trades you need</h3>
+    <p class="sub2">From your win rate (${pct(P.wr)}), reward (1 : ${P.rr}), risk and targets. ${P.corr?"One trade copied to all your accounts counts once.":"Each account takes its own trades."}</p>
+    <div class="kpis">
+      <div class="kpi"><span class="v">${me.ok?"~"+n0f(me.perMo):"—"}</span><span class="k">trades a month</span></div>
+      <div class="kpi"><span class="v">${me.ok?long(weeksTxt(me.wk)):"Not reached"}</span><span class="k">to reach ${fmt(tgt)}</span></div>
+      <div class="kpi"><span class="v">${me.ok?"~"+n0f(me.setG):"—"}</span><span class="k">trades in total</span></div>
+    </div>
+    <div class="flow">
+      <div class="fl"><span class="k">Pass Phase 1</span><span class="v">~${n0f(u0t.tP1)}</span><p>trades on average to make +${P.p1t}%.</p></div>
+      <div class="fl"><span class="k">Pass Phase 2</span><span class="v">~${n0f(u0t.tP2)}</span><p>trades on average to make +${P.p2t}%.</p></div>
+      <div class="fl"><span class="k">One payout</span><span class="v">~${n0f(u0t.tradesPay)}</span><p>trades to reach ${lockTxt(P)} on a funded account.</p></div>
+    </div>
+    <div class="tbl"><table class="data"><thead><tr><th>Trades a day</th><th>Trades a month</th><th>Time to goal</th><th>Reach goal</th><th>Risk on tests</th></tr></thead><tbody>${TN.map(r=>`<tr${r.tpd===P.tpd?' class="me"':""}><td>${r.tpd}${r.tpd===P.tpd?" (you)":""}</td><td>~${n0f(r.perMo)}</td><td>${r.ok?weeksTxt(r.wk):"Not in "+P.horizon+" mo"}</td><td>${pct(r.reach)}</td><td>${r.riskE}%</td></tr>`).join("")}</tbody></table></div>
+    <p class="hint">${need?(need.tpd<=P.tpd?`At ${P.tpd} a day you reach the goal inside ${P.horizon} months.`:`To reach the goal inside ${P.horizon} months you need about <b>${need.tpd} trades a day</b> (~${n0f(need.perMo)} a month).`):`No trade count up to ${TN.length?TN[TN.length-1].tpd:5} a day reaches the goal inside ${P.horizon} months at these numbers.`} If more trades a day would break the ${P.daily}% daily limit, risk per trade is lowered, so the goal does not always get faster. Funded accounts trade 1 week in 3, so many trades go to tests.${P.corr?` Orders placed across all accounts: about ${n0f(me.ordMo)} a month.`:""} Middle result of ${best.runs} simulated runs.</p>
+  </div>`;
 
   let head;
   if(bestT) head=`<h3>${fmt(tgt)} funded in about <em>${long(bestT)}</em>.</h3><p class="sub">${realT?`If your real win rate is a little lower, plan for about ${long(realT)}.`:`If your real win rate is a little lower, it may take longer than ${P.horizon} months.`}</p>`;
@@ -1549,10 +1589,10 @@ function render(P,S){
     [`Pass Phase 1 (+${P.p1t}%) and Phase 2 (+${P.p2t}%)`,`About ${pct(S[0].ue.pFund)} of evaluations make it to funded at your numbers. ${P.n0>1?"Evaluations take turns by week, never the same trade on two at once. ":""}Stop and rebuy if one falls ${P.c3}% and does not recover in ${P.k3} trades.`],
     [`Start cycling your funded accounts`,`Each account trades one week, then rests two. Start dates are staggered so a bad week only touches a third of them. Any account that loses over 4 weeks rests 1 week.`],
     [`Take payouts at ${lockTxt(P)}`,`On ${fmt(P.s0)} that is ${P.lockMax>P.lock?fmtFull(P.s0*P.lock/100*P.split)+"–"+fmtFull(P.s0*P.lockMax/100*P.split):fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
-    [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and pipeline 40% of funded. Spend in this order: pipeline, backup, funded, then yourself.`],
+    [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and evaluation 40% of funded. Spend in this order: evaluation, backup, funded, then yourself.`],
   ];
   for(let i=1;i<L.length;i++) stepsArr.push([`Move up to ${fmt(L[i].size)} accounts`,`When funded reaches ${fmt(L[i].unlockT1)} with ${L[i].unlockPay}+ payouts, 3 in a row and no funded cut in 14 days. Pass one ${fmt(L[i].size)} account first, then buy more.`]);
-  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup, ${n3} pipeline accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
+  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup, ${n3} evaluation accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
 
   const sc=(s,label)=>{ const m=s.sim, r=last(m.reach); return `<div class="sc"><span class="n">${label}</span><span class="v">${r.length>m.runs*0.5?weeksTxt(quant(r,0.5)):"Not reached"}</span><span class="s">${pct(s.wr)} win rate · ${pct(m.bust/m.runs)} lose it all</span></div>`; };
   const row=s=>{ const u=s.ue,m=s.sim; return `<tr><td>${s.name}</td><td>${pct(s.wr)}</td><td>${u.ev>=0?"+":""}${u.ev.toFixed(2)}R</td><td>${pct(u.pFund)}</td><td>${fmt(u.feePerFunded)}</td><td>${pct(u.pCycle)}</td><td>${u.ePays.toFixed(1)}</td><td>${pct(m.reached/m.runs)}</td><td>${pct(m.bust/m.runs)}</td><td>${fmt(quant(m.fees,0.5))}</td><td>${fmt(quant(m.net,0.5))}</td></tr>`; };
@@ -1597,13 +1637,15 @@ function render(P,S){
     </div>
   </div>
 
+  ${tradesCard}
+
   <details class="full card"><summary>See the math, odds and full plan</summary>
   <div class="sub-card"><h3 class="ct">Your portfolio at the goal</h3>
     <div class="tierbar"><i style="flex:5;background:var(--t1)"></i><i style="flex:3;background:var(--t2)"></i><i style="flex:2;background:var(--t3)"></i></div>
     <div class="tierkey">
       <div><span><i class="dotl" style="background:var(--t1)"></i>Funded</span><b>${fmt(tgt)}</b><span>${n1} × ${fmt(top.size)}</span></div>
       <div><span><i class="dotl" style="background:var(--t2)"></i>Backup</span><b>${fmt(tgt*.6)}</b><span>${n2} × ${fmt(top.size)}</span></div>
-      <div><span><i class="dotl" style="background:var(--t3)"></i>Pipeline</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>
+      <div><span><i class="dotl" style="background:var(--t3)"></i>Evaluation</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>
     </div>
   </div>
 
@@ -1662,7 +1704,7 @@ function run(){
       const P=readParams(); const be=1/(1+P.rr);
       const S=[{name:"Your numbers",wr:P.wr},{name:"Win rate 20% lower",wr:P.wr*0.8},{name:"Losing trader",wr:Math.max(0.01,be-0.03)}];
       const runs=P.horizon>48?150:220;
-      S.forEach((s,i)=>{ s.ue=unitEcon(P,s.wr); s.sim=portfolioSim(P,s.wr,runs,9001+i*7); });
+      S.forEach((s,i)=>{ s.ue=unitEcon(P,s.wr); s.sim=portfolioSim(P,s.wr,runs,9001+i*7); }); S.tn=tradesNeeded(P,P.wr,70).map(r=>r.tpd===P.tpd?tradeRow(P,S[0].sim,P.tpd):r);
       const first=!$("out").dataset.done; render(P,S); $("out").dataset.done="1"; if(first&&window.fillHome) window.fillHome(P,S); if(typeof firmApplied!=="undefined"&&firmApplied){ const k=$("out").querySelector(".headline>.k"); if(k) k.insertAdjacentHTML("afterend",`<span class="fbadge" style="width:max-content">Using ${esc(firmApplied)} rules</span>`); }
       const o=$("out"); o.classList.remove("anim"); void o.offsetWidth; o.classList.add("anim"); countUp(first?1100:500);
     }catch(e){ $("out").innerHTML=`<div class="card"><p>These settings could not be calculated: ${esc(e.message)}</p></div>`; console.error(e); }
@@ -1951,7 +1993,7 @@ const todayStr=()=>{ const d=TK.testDay?new Date(TK.testDay+"T12:00:00"):new Dat
 const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
 const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 const uid=()=>Math.random().toString(36).slice(2,9);
-const PH={1:"Pipeline · Phase 1",2:"Backup · Phase 2",3:"Funded"};
+const PH={1:"Evaluation · Phase 1",2:"Backup · Phase 2",3:"Funded"};
 const PHC={1:"t3",2:"t2",3:"t1"};
 
 /* storage: private per-trader doc in db, else this browser */
@@ -2034,7 +2076,7 @@ function portfolio(st){
   const p=st.p, L=p.ladder, pays=st.payouts.length;
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
-  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Pipeline = 40% of funded (extra Phase 2 counts)"]];
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Evaluation = 40% of funded (extra Phase 2 counts)"]];
   if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
@@ -2124,7 +2166,7 @@ function tkRenderInner(){
   else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
-  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
+  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Evaluation",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
     <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&!TK.test&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
@@ -2160,7 +2202,7 @@ function tkRenderInner(){
 
   <div class="g2f">
     <div class="card"><h3 class="ct">Tier balance</h3>${tiers.map(t=>{ const w=t[2]>0?Math.min(100,t[1]/t[2]*100):0; return `<div class="tk-tb"><div class="tk-gtop"><span><i class="dotl" style="background:var(--${t[3]})"></i>${t[0]}</span><span>${fmt(t[1])} / ${fmt(t[2])}</span></div><div class="tk-bar sm"><i style="width:${w}%;background:var(--${t[3]})"></i></div></div>`; }).join("")}
-      <p class="hint">Backup must reach 60% and Pipeline 40% of Funded before you take money home.</p>
+      <p class="hint">Backup must reach 60% and Evaluation 40% of Funded before you take money home.</p>
       ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
       <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
     <div class="card tk-remind"><h3 class="ct">Daily reminder</h3><p class="hint" style="margin-top:-6px">Get an alarm every morning that opens this coach. No account needed.</p>
@@ -2191,7 +2233,7 @@ function doLog(a,bal){
 function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3) return;
   a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
   if(a.phase===3){ a.pt=TK.test?lockPick(st.p,Math.random()):0; const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt));
-    log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the pipeline.`); }
+    log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the Evaluation tier.`); }
   else log(`${a.name} passed Phase 1. It moves to Tier 2 as a backup (Phase 2). Same risk, same turns.`); }
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;
@@ -2245,7 +2287,7 @@ window.__tk={TK,promoteOne,canPromote,promoteReady,doLog,autoPass,advise,portfol
 /* ---------- Test Lab auto-play: trades every day by itself with the coach's own rules, and checks each move against the guide ---------- */
 const LAB={instant:true,timer:null,seed:1,rng:null,speed:200,checks:{},errors:[],lanes:{},recCount:{},done:false};
 function labRng(seed){ let a=seed>>>0; return ()=>{ a=(a+0x6D2B79F5)>>>0; let t=a; t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61); return ((t^(t>>>14))>>>0)/4294967296; }; }
-function labReset(){ LAB.ms=[]; LAB.phSeen={}; LAB.cnt={p1:0,p2:0,bench:0}; LAB.lastRate=null; LAB.showRep=false; LAB.bust=false; LAB.peak=0; LAB.inPool=0; LAB.outPool=0; LAB.home=0; LAB.checks={}; LAB.errors=[]; LAB.lanes={}; LAB.recCount={}; LAB.done=false; LAB.rng=labRng(LAB.seed); }
+function labReset(){ LAB.ms=[]; LAB.phSeen={}; LAB.cnt={p1:0,p2:0,bench:0}; LAB.lastRate=null; LAB.showRep=false; LAB.bust=false; LAB.peak=0; LAB.inPool=0; LAB.outPool=0; LAB.home=0; LAB.orders=0; LAB.setups=0; LAB.tdays=0; LAB.checks={}; LAB.errors=[]; LAB.lanes={}; LAB.recCount={}; LAB.done=false; LAB.rng=labRng(LAB.seed); }
 const LAB_RULES=[
   ["risk","Fixed risk per trade","Same % risk every trade: tests "+"and funded use your risk style."],
   ["turns","Tests take turns by week","Never trade all evaluations in the same window."],
@@ -2255,7 +2297,7 @@ const LAB_RULES=[
   ["split","Reinvest ladder","100% to Reinvestment until T2 = 60% and T3 = 40% of T1, then 80 / 65 / 50 / 30%."],
   ["recovery","Recovery once, limited trades","2–3 trades on T1, 3–4 on T2, 2–3 on T3. Never twice."],
   ["cut","Cut levels","T1 −6%, T2 −4%, T3 −4% after recovery fails."],
-  ["buy","Buy order","No buying before the first funded account; then refill the pipeline (T2 + T3 = T1)."],
+  ["buy","Buy order","No buying before the first funded account; then refill the Evaluation tier (T2 + T3 = T1)."],
   ["maxdd","Inside the firm's max loss","No account ever breaks the firm's max drawdown."],
   ["bench","Tier 2 bench","A passed Phase 2 account waits on the bench. It goes live to refill Tier 1, or to grow it only when the checklist passes and Tier 2 / Tier 3 stay at 60% / 40%."],
   ["money","Reinvestment and take-home math","Reinvestment = payout × reinvest % − test fees (no rebuy money, per the guide). Taken home = payout × (100 − reinvest %)."],
@@ -2283,7 +2325,7 @@ function labStepDay(){
   if(!LAB.rng) labReset();
   const p=st.p, t=todayStr(), dow=new Date(t+"T12:00:00").getDay();
   if(dow!==0&&dow!==6){
-    const w=weekIdx(st);
+    const w=weekIdx(st); let dMax=0;
     st.accounts.filter(a=>a.status==="active").forEach(a=>{
       if(a.status!=="active") return;
       const v=advise(a,st), r=rulesFor(a,p), pct=(a.bal-a.size)/a.size*100;
@@ -2304,7 +2346,7 @@ function labStepDay(){
         if(a.phase===3&&v.kind==="trade") labCheck("cycle",(w%3)===a.off,`${a.name} traded in week ${w+1} but its ON week is ${a.off}`);
         const expRisk=a.size*(a.phase===3?p.riskF:p.riskE)/100; labCheck("risk",Math.abs(v.riskUsd-expRisk)<0.5,`${a.name} risk ${fmtFull(v.riskUsd)} vs ${fmtFull(expRisk)}`);
         let bal=a.bal; const n=v.kind==="recover"?1:(p.tpd||1);
-        if(LAB.instant) bal=Math.max(bal,v.tgtUsd); else for(let i=0;i<n;i++){ const win=LAB.rng()<p.wr; bal+=win?v.riskUsd*p.rr:-v.riskUsd; if(bal<=v.dailyStop||bal>=v.tgtUsd) break; }
+        if(LAB.instant) bal=Math.max(bal,v.tgtUsd); else for(let i=0;i<n;i++){ LAB.orders++; if(i+1>dMax) dMax=i+1; const win=LAB.rng()<p.wr; bal+=win?v.riskUsd*p.rr:-v.riskUsd; if(bal<=v.dailyStop||bal>=v.tgtUsd) break; }
         if(v.kind==="recover"){ LAB.recCount[a.id]=(LAB.recCount[a.id]||0)+1; labCheck("recovery",LAB.recCount[a.id]<=r.K,`${a.name} took ${LAB.recCount[a.id]} recovery trades (max ${r.K})`); }
         const wasUsed=a.recUsed, ph=a.phase, pct2=(Math.round(bal)-a.size)/a.size*100;
         doLog(a,Math.round(bal));
@@ -2317,6 +2359,7 @@ function labStepDay(){
         labCheck("maxdd",(a.bal-a.size)/a.size*100>-p.maxdd,`${a.name} broke the firm's max loss`);
       }
     });
+    if(dMax>0) LAB.tdays++;
     // bench: after cuts and payouts, a waiting account may go live
     st.accounts.filter(a=>a.status==="active"&&a.ready&&a.phase===2).forEach(a=>labBenchTry(st,a));
     // buying: follow the coach's next step
@@ -2385,7 +2428,9 @@ function labReport(st){
     <div><b>${fmtFull(feesR)}</b><span>test fees paid from Reinvestment</span></div>
     <div><b>${fmtFull(st.pool)}</b><span>Reinvestment left</span></div>
     <div class="${failed.length?"bd":""}"><b>${failed.length} of ${st.accounts.length}</b><span>accounts failed (cut)</span></div>
-    <div><b>${fmtFull(lostFees)}</b><span>fees lost on failed tests</span></div></div>
+    <div><b>${fmtFull(lostFees)}</b><span>fees lost on failed tests</span></div>
+    <div><b>${LAB.instant?"—":(LAB.orders||0).toLocaleString("en-US")}</b><span>${LAB.instant?"trades (not counted in instant pass)":"trades placed on all accounts"}</span></div>
+    <div><b>${LAB.instant?"—":"~"+Math.round((LAB.orders||0)/Math.max(1,d/30.44))}</b><span>${LAB.instant?"trades a month":`trades a month, on ${LAB.tdays||0} trading days`}</span></div></div>
   <div class="lr-g">
     <section><h4>Where each payout went</h4><table class="lr-t"><thead><tr><th>Stage</th><th>Payouts</th><th>Total</th><th>Back in</th><th>You kept</th></tr></thead><tbody>
       ${Object.keys(groups).map(Number).sort((a,b)=>b-a).map(k=>{ const g=groups[k]; return `<tr><td><b>${k}% back in</b><span>${esc(stageName(k))}</span></td><td>${g.n}</td><td>${fmtFull(g.amt)}</td><td>${fmtFull(g.re)}</td><td>${fmtFull(g.amt-g.re)}</td></tr>`; }).join("")||`<tr><td colspan="5">No payouts yet.</td></tr>`}</tbody></table>
@@ -2417,7 +2462,7 @@ function labBoard(){
   const closed=st.accounts.filter(a=>a.status!=="active");
   let next; if(pf.done) next=pf.stocked?"Goal reached. Income mode: keep 70%.":"Goal reached. Payouts still go to Reinvestment until Tier 2 = 60% and Tier 3 = 40% of Tier 1."; else if(pf.need>0) next=`Buy 1 × ${fmt(pf.buySize)} test (${fmtFull(pf.fee)}). Reinvestment ${fmtFull(st.pool)}.`; else if(pf.T1===0) next="Pass the starting tests. No buying yet."; else next="Tiers full. Keep trading.";
   const tb=Object.values(LAB.checks).reduce((s,c)=>s+c.bad,0), tok=Object.values(LAB.checks).reduce((s,c)=>s+c.ok,0);
-  const names=["Tier 3 · Pipeline","Tier 1 · First funded","Tier 2 · Bench & scale","Goal"];
+  const names=["Tier 3 · Evaluation","Tier 1 · First funded","Tier 2 · Bench & scale","Goal"];
   return `<div class="lab" id="labBoard">
     <div class="lab-top"><div><span class="kicker">Auto-play</span><h3>${LAB.bust?`Plan ended on day ${d}: all tests failed`:LAB.done?`Goal reached on day ${d}`:`Day ${d} · Week ${Math.floor((d-1)/7)+1}`}</h3><span class="lab-sub">${LAB.instant?"Instant pass: every account hits its target on its first trading day":`Future #${LAB.seed} · ${Math.round(p.wr*100)}% win rate · 1 : ${p.rr}`} · trades Mon–Fri</span></div>
       <div class="lab-ctl"><button type="button" class="btn ${playing?"ghost":"gold"} sm" data-lab="${playing?"pause":"play"}">${playing?"Pause":"▶ Play"}</button><button type="button" class="btn ghost sm" data-lab="day">+1 day</button><button type="button" class="btn ghost sm" data-lab="week">+1 week</button>
@@ -2430,7 +2475,7 @@ function labBoard(){
     ${LAB.done||LAB.showRep?labReport(st):""}
     <div class="lab-next"><b>Next to buy:</b> ${next}</div>
     <div class="lab-plan"><span><b>Reinvest now</b> ${Math.round(pf.rate*100)}% ${pf.stocked?`(${esc(labStageName(p,pf.T1))})`:"(Tier 2 / Tier 3 not full yet, so 100%)"}</span><span><b>Bigger size</b> ${pf.grow.map(g=>`<i class="${g[0]?"ok":"no"}" title="${esc(g[1])}">${g[0]?"✓":"✗"} ${esc(g[1])}</i>`).join(" ")}</span></div>
-    <div class="lab-cols">${col(1,"Tier 3 · Pipeline","Phase 1","t3")}${col(2,"Tier 2 · Backup",`Phase 2 · ${act.filter(a=>a.ready).length} on bench`,"t2")}${col(3,"Tier 1 · Live","Funded","t1")}</div>
+    <div class="lab-cols">${col(1,"Tier 3 · Evaluation","Phase 1","t3")}${col(2,"Tier 2 · Backup",`Phase 2 · ${act.filter(a=>a.ready).length} on bench`,"t2")}${col(3,"Tier 1 · Live","Funded","t1")}</div>
     ${closed.length?`<div class="lab-closed"><b>Closed (${closed.length}):</b> ${closed.slice(-12).map(a=>`${esc(a.name)} (${a.phase===3?"T1":a.phase===2?"T2":"T3"})`).join(", ")}</div>`:""}
     <div class="lab-g2"><div class="lab-checks"><h4>Guide check ${tb?`<span class="bad">${tb} error${tb>1?"s":""}</span>`:`<span class="ok">${tok} checks, 0 errors</span>`}</h4>${LAB_RULES.map(([k,n,g])=>{ const c=LAB.checks[k]||{ok:0,bad:0}; return `<div class="lab-ck ${c.bad?"bad":c.ok?"ok":""}"><span>${c.bad?"✗":c.ok?"✓":"·"}</span><div><b>${n}</b><p>${g}</p></div><em>${c.ok+c.bad}</em></div>`; }).join("")}
       ${LAB.errors.length?`<ul class="lab-err">${LAB.errors.slice(0,10).map(e=>`<li><span>${fmtDate(e.d)}</span>${esc(e.msg)}</li>`).join("")}</ul>`:""}</div>
@@ -2588,7 +2633,7 @@ function demoCheck(P,ev){
   add("Reinvest ladder",`Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then ${P.reinv.map(r=>Math.round(r.rate*100)+"%").join(" / ")} by stage (guide: 80 / 65 / 50 / 30).`,al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
   // 11 spend priority
   const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||(b.T1>0&&b.t3cap<b.t3Target-1))).length;
-  add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the T3 pipeline.`);
+  add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the Evaluation tier.`);
   // 12 ladder
   const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T2+u.T3>=u.T1-1)).length;
   add("Upgrade ladder",`Bigger accounts only after enough funded money and payouts, and all 5 checks: 3 payouts in a row, no funded cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1.`,up.length-bad,bad,up.length?up.map(u=>`${fmt(u.size)} at ${fmt(u.T1)} funded, ${u.pays} payouts`).join(" · "):"No upgrade in this run.");
@@ -2606,7 +2651,7 @@ function demoCheck(P,ev){
   add("Reinvestment math","Every rebuy is paid from payouts. Reinvestment = payouts × reinvest % − test fees.",al.length+by.length-lb,lb,`Recounted ${al.length} payout splits and ${by.length} buys from zero. ${P.topup>0?"Monthly add is on, so its deposits are left out of this check.":""}`);
   // 14 ratio at goal
   const g=ev.find(x=>x.e==="milestone"&&x.goal);
-  if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Pipeline ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the pipeline keeps refilling after the goal.`); }
+  if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Evaluation ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the Evaluation tier keeps refilling after the goal.`); }
   return C;
 }
 function evText(x,P){
@@ -2618,13 +2663,13 @@ function evText(x,P){
     case "funded": return [`${nm(x.id)} is FUNDED. Funded total ${fmt(x.T1)}. Trades in week group ${x.off+1} of 3.`,"Begin staggered cycling. Offset start dates."];
     case "payout": return [`${nm(x.id)} payout at +${x.b.toFixed(2)}%: ${fmtFull(x.amt)} to you from the firm.`,"Lock payout at +3%."];
     case "alloc": return [`${fmtFull(x.amt)} split: ${fmtFull(x.toPool)} back in (${Math.round(x.rate*100)}%), ${fmtFull(x.personal)} to you. Tiers ${x.stocked?"full":"not full yet"} (T2 ${fmt(x.T2)}, T3 ${fmt(x.T3)} vs funded ${fmt(x.T1)}).`,x.stocked?"Reinvestment ladder by stage.":"Before T2 = 60% and T3 = 40%, every payout goes back in."];
-    case "buy": return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill pipeline":"refill backup + pipeline"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
+    case "buy": return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill evaluation":"refill backup + evaluation"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
     case "recStart": return [`${nm(x.id)} ${PH_NAME[x.ph]} down ${x.b.toFixed(2)}% → recovery: max ${x.K} trades, same risk.`,"Controlled recovery over 2–4 trades. Once."];
     case "recovered": return [`${nm(x.id)} recovered to ${x.b.toFixed(2)}%.`,"Recovery worked, keep normal rules."];
     case "cut": return [`${nm(x.id)} ${PH_NAME[x.ph]} closed at ${x.b.toFixed(2)}%${x.why==="recfail"?" (recovery failed)":x.why==="again"?" (hit the cut again)":x.why==="refused"?" (payout refused by firm)":x.why==="maxdd"?" (firm limit!)":""}.`,x.ph===3?"Cut T1 at −6%. A T2 replaces it when it passes.":"Cut tests at −4%. Rebuy from payouts."];
     case "offline": return [`${nm(x.id)} lost over its 4-week cycle → offline this week.`,"4-week cycle ends in loss: offline 1 week."];
     case "upgrade": return [`Unlocked ${fmt(x.size)} accounts (funded ${fmt(x.T1)}, ${x.pays} payouts, ${x.consec} in a row).`,"Upgrade ladder + scale-up checklist."];
-    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}, pipeline ${fmt(x.T3)}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
+    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}, evaluation ${fmt(x.T3)}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
   }
   return null;
 }
@@ -2714,7 +2759,7 @@ function roadRender(){
     const yours=Math.round((1-T.rate)*100);
     const step=(w,t,p,kind)=>`<li class="rs ${kind||""}"><span class="rw">${w}</span><div><b>${t}</b>${p?`<p>${p}</p>`:""}</div></li>`;
     const S=[
-      {tier:"Tier 3",name:"Pipeline",title:"Pass your first tests",from:1,to:T.f1,
+      {tier:"Tier 3",name:"Evaluation",title:"Pass your first tests",from:1,to:T.f1,
        unlock:"Starts today",
        next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
        steps:[
@@ -2731,7 +2776,7 @@ function roadRender(){
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
         step("Every on-week",`Ask for a payout at ${lockTxt(P)}`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)})${P.lockMax>P.lock?`, and at the latest at +${P.lockMax}%`:""}, request the payout. Don't wait for more.`),
         T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
-        step("Right after",`Refill the pipeline`,`Reinvestment buys the next tests, so a new account is always on the way.`),
+        step("Right after",`Refill the Evaluation tier`,`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
       {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
        unlock:`Unlocks ${about(T.po1)}`,
@@ -2861,7 +2906,7 @@ html:`<div class="mx-grid"></div><div class="mx-glow"></div>
   <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">Funded · $100K</b><span data-k="br" class="mx-chip" style="background:var(--bad,#ff5c7a);color:#fff">BREACHED −6%</span></div>
   <svg viewBox="0 0 448 110" width="448" height="110" style="margin-top:10px;overflow:visible"><path data-k="dl" pathLength="1" d="M0,30 L40,24 L80,34 L120,22 L160,30 L200,44 L240,40 L280,62 L320,58 L360,80 L400,92 L448,104" fill="none" stroke="var(--bad,#ff5c7a)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
 <div data-k="lb" class="mx-h mx-c" ${P(0,290,"font-size:66px")}>Three tiers make it a <em>system.</em></div>
-${["Funded","Backup","Pipeline"].map((n,i)=>`<div data-k="r${i}" class="mx-card mx-row" ${P(330,410+i*76,"width:620px;height:62px")}><b style="font-size:20px;width:110px">${n}</b><div class="mx-bar"><i data-k="f${i}" style="background:var(--t${i+1})"></i></div><span class="mx-num" style="font-size:24px;color:var(--t${i+1})">${[50,30,20][i]}%</span></div>`).join("")}`,
+${["Funded","Backup","Evaluation"].map((n,i)=>`<div data-k="r${i}" class="mx-card mx-row" ${P(330,410+i*76,"width:620px;height:62px")}><b style="font-size:20px;width:110px">${n}</b><div class="mx-bar"><i data-k="f${i}" style="background:var(--t${i+1})"></i></div><span class="mx-num" style="font-size:24px;color:var(--t${i+1})">${[50,30,20][i]}%</span></div>`).join("")}`,
 draw(e,t){
   const F=sceneFade(t,this.dur);
   S(e.lb3,{o:tw(t,.2,.7),y:L(-14,0,tw(t,.2,.8,"b"))}); S(e.lb2,{o:tw(t,.35,.85),y:L(-14,0,tw(t,.35,.95,"b"))}); S(e.lb1,{o:tw(t,.5,1),y:L(-14,0,tw(t,.5,1.1,"b"))});
@@ -2889,7 +2934,7 @@ ${[300,380,460].map((x,i)=>`<div data-k="B${i}" class="mx-dot" ${P(x-26,532-26,"
 ${[300,380].map((x,i)=>`<div data-k="A${i}" class="mx-dot" ${P(x-26,616-26,"background:var(--t3);color:var(--t3-ink,#00121c)")}>P</div>`).join("")}
 <div data-k="An" class="mx-dot" ${P(300-26,616-26,"background:var(--t3);color:var(--t3-ink,#00121c)")}>P</div>
 <div data-k="newc" class="mx-chip" ${P(420,598,"background:var(--sky-bg,rgba(56,189,248,.12));color:var(--gold,#38bdf8);border:1px dashed var(--gold,#38bdf8)")}>+ new test, paid by payouts</div>
-${[["Funded","On the field. Earns payouts.","50%"],["Backup","On the bench. One step away.","30%"],["Pipeline","In the academy. New tests.","20%"]].map((c,i)=>`<div data-k="C${i}" class="mx-card" ${P(820,172+i*124,"width:380px;height:108px;padding:20px 22px;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:16px;align-items:center")}><i style="width:18px;height:18px;border-radius:6px;background:var(--t${i+1})"></i><div><b style="font-size:22px;font-family:var(--f-d,sans-serif)">${c[0]}</b><div class="mx-mut" style="font-size:16px">${c[1]}</div></div><span class="mx-num" style="font-size:34px;color:var(--t${i+1})">${c[2]}</span></div>`).join("")}
+${[["Funded","On the field. Earns payouts.","50%"],["Backup","On the bench. One step away.","30%"],["Evaluation","In the academy. New tests.","20%"]].map((c,i)=>`<div data-k="C${i}" class="mx-card" ${P(820,172+i*124,"width:380px;height:108px;padding:20px 22px;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:16px;align-items:center")}><i style="width:18px;height:18px;border-radius:6px;background:var(--t${i+1})"></i><div><b style="font-size:22px;font-family:var(--f-d,sans-serif)">${c[0]}</b><div class="mx-mut" style="font-size:16px">${c[1]}</div></div><span class="mx-num" style="font-size:34px;color:var(--t${i+1})">${c[2]}</span></div>`).join("")}
 <div data-k="cap" class="mx-h" ${P(820,560,"font-size:30px;line-height:1.2;white-space:normal;width:400px")}>Lose one. <em>The team keeps playing.</em></div>`,
 draw(e,t){
   const F=sceneFade(t,this.dur);
@@ -2951,7 +2996,7 @@ html:`<div class="mx-glow" style="left:-360px;top:-300px"></div>
   <div class="mx-mut" style="font-size:19px;margin-top:14px">From a funded account at +3%</div>
   <div class="mx-bar" style="margin-top:22px;height:10px"><i data-k="left" style="background:var(--gold,#38bdf8);width:100%"></i></div></div>
 ${[0,1,2,3,4,5].map(i=>`<i data-k="coin${i}" ${P(0,0,"width:20px;height:20px;border-radius:50%;background:var(--gold,#38bdf8);box-shadow:0 0 16px var(--gold,#38bdf8);opacity:0")}></i>`).join("")}
-${[["Pipeline","New tests","var(--t3)"],["Backup","Bench accounts","var(--t2)"],["Funded","The playing team","var(--t1)"],["You","Your pocket","var(--good,#2fd795)"]].map((r,i)=>`<div data-k="R${i}" class="mx-card mx-row" ${P(640,190+i*80,"width:560px;height:66px;grid-template-columns:34px 170px minmax(0,1fr) 92px")}><span class="mx-num" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;border:1.5px solid var(--line2);color:var(--muted)">${i+1}</span><div><b style="font-size:20px">${r[0]}</b><div class="mx-mut" style="font-size:14px">${r[1]}</div></div><div class="mx-bar"><i data-k="RF${i}" style="background:${r[2]}"></i></div><span data-k="RV${i}" class="mx-num" style="font-size:21px;text-align:right">$0</span></div>`).join("")}
+${[["Evaluation","New tests","var(--t3)"],["Backup","Bench accounts","var(--t2)"],["Funded","The playing team","var(--t1)"],["You","Your pocket","var(--good,#2fd795)"]].map((r,i)=>`<div data-k="R${i}" class="mx-card mx-row" ${P(640,190+i*80,"width:560px;height:66px;grid-template-columns:34px 170px minmax(0,1fr) 92px")}><span class="mx-num" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;border:1.5px solid var(--line2);color:var(--muted)">${i+1}</span><div><b style="font-size:20px">${r[0]}</b><div class="mx-mut" style="font-size:14px">${r[1]}</div></div><div class="mx-bar"><i data-k="RF${i}" style="background:${r[2]}"></i></div><span data-k="RV${i}" class="mx-num" style="font-size:21px;text-align:right">$0</span></div>`).join("")}
 <div data-k="cap" class="mx-mut" ${P(640,532,"font-size:21px;width:560px;line-height:1.4")}>Once every tier is full: <b style="color:var(--ink)">70% is yours</b>, 30% replaces lost accounts.</div>
 <div data-k="ex" class="mx-mut" ${P(80,640,"font-size:14px;font-family:var(--f-m,monospace)")}>Example numbers</div>`,
 draw(e,t){

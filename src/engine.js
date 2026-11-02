@@ -22,7 +22,7 @@ function quant(arr,q){ if(!arr.length) return NaN; const a=[...arr].sort((x,y)=>
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
 
 /* ---------- risk styles (all stay inside prop rules) ---------- */
-// k = recovery trades [funded, backup, pipeline]; High uses the low end of the guide's ranges so bigger risk can't break the firm limit
+// k = recovery trades [funded, backup, evaluation]; High uses the low end of the guide's ranges so bigger risk can't break the firm limit
 const RISK_LV={low:{name:"Low",base:0.5,k:[3,4,3],line:"Slow and steady. Survives long losing streaks."},
   med:{name:"Medium",base:1,k:[3,4,3],line:"The guide's pace. Balanced speed and safety."},
   high:{name:"High",base:2,k:[2,3,2],line:"Faster passes, more failed tests. Fewer recovery trades, so you never break the limit."}};
@@ -105,17 +105,17 @@ function unitEcon(P,wr){
     const b=phaseSim(rng,wr,P.rr,P.riskE,P.p2t,P.c2,P.k2,P.maxdd,400); if(b.ok){p2++;t2n+=b.n;}}}
   const pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N;
   // funded lifetime: count payouts until cut
-  let totPay=0, cyc=0, cycOk=0, totPctPaid=0;
+  let totPay=0, cyc=0, cycOk=0, totPctPaid=0, payN=0;
   const M=4000;
   for(let i=0;i<M;i++){ let pays=0; for(let j=0;j<300;j++){ cyc++; const r=phaseSim(rng,wr,P.rr,P.riskF,lockMid(P),P.c1,P.k1,P.maxdd,500);
-      if(r.ok && rng()<P.approve){ pays++; cycOk++; } else break; } totPay+=pays; }
+      if(r.ok && rng()<P.approve){ pays++; cycOk++; payN+=r.n; } else break; } totPay+=pays; }
   const pCycle=cycOk/cyc, ePays=totPay/M;
   const fee=P.ladder[0].fee, size=P.s0;
   const payout=size*lockMid(P)/100*P.split;
   const feePerFunded=pFund>0?fee/pFund:Infinity;
   const netPerFunded=ePays*payout-feePerFunded;
-  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0);
-  return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,
+  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0), tP1=p1?t1n/p1:0, tP2=p2?t2n/p2:0, tradesPay=cycOk?payN/cycOk:0;
+  return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,tP1,tP2,tradesPay,
     ev:wr*P.rr-(1-wr)};
 }
 
@@ -127,7 +127,7 @@ function portfolioSim(P,wr,runs,seed,lg){
   const milestones=[...L.slice(1).map(r=>r.unlockT1), tgt];
   const minFee=Math.min(...L.map(r=>r.fee));
   const out={weekly:[],reach:milestones.map(()=>[]),feesAt:milestones.map(()=>[]),fees:[],personal:[],capIn:[],net:[],bust:0,reached:0,
-    pays:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
+    pays:[],setupsGoal:[],ordersGoal:[],setupsAll:[],ordersAll:[],daysAll:[],reachedFlags:[],bustFlags:[],cutsT1:[],evals:[],monthlyEnd:[],grossPaid:[],endT1:[],reachMonths:[],milestones};
   for(let r=0;r<runs;r++){
     let accts=[], cash=P.reserve, capIn=P.reserve+P.n0*L[0].fee, fees=P.n0*L[0].fee, personal=0, gross=0;
     let lvl=0, proven=0, pays=0, cuts=0, evals=P.n0, fundedCtr=0, busted=false, lastCut=-99, consec=0, idc=0, peak=0; const last20=[]; const wr20=()=>last20.length>=20&&last20.filter(Boolean).length/last20.length>=0.4;
@@ -137,13 +137,13 @@ function portfolioSim(P,wr,runs,seed,lg){
     const persWeek=new Float32Array(weeks+1);
     for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
     if(lg) lg({e:"start",d:0,w:0,n:P.n0,size:L[0].size,fee:L[0].fee,cash});
-    let T1=0, evalLane=0;
+    let T1=0, evalLane=0, setups=0, orders=0, sGoal=null, oGoal=null, dRun=0;
     for(let d=0; d<days; d++){
       const w=Math.floor(d/5);
       if(P.topup>0 && d>0 && d%21===0){ cash+=P.topup; capIn+=P.topup; }
       // shared trade outcomes for the day
       const shared=[]; for(let t=0;t<P.tpd;t++) shared.push(rng()<wr);
-      let dayPay=0; const promote=[];
+      let dayPay=0; const promote=[]; let dMax=0, dSum=0;
       // guide: any account whose 4-week cycle ends in a loss goes offline for 1 week
       if(d%5===0) for(const a of accts){ if(w-a.cs>=4){ if(a.b<a.cb){ a.offW=w; if(lg) lg({e:"offline",d,w,id:a.id,ph:a.ph,b:a.b,cb:a.cb}); } a.cs=w; a.cb=a.b; } }
       // stagger evaluations: two lanes take turns by week, so two evals never trade the same window
@@ -158,8 +158,8 @@ function portfolioSim(P,wr,runs,seed,lg){
         const cut=a.ph===1?P.c3:a.ph===2?P.c2:P.c1;
         const K=a.ph===1?P.k3:a.ph===2?P.k2:P.k1;
         const risk=funded?P.riskF:P.riskE;
-        a.d++;
-        for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){
+        a.d++; let nT=0;
+        for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){ nT++;
           const win=P.corr?shared[t]:rng()<wr;
           a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift();
           if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
@@ -167,6 +167,7 @@ function portfolioSim(P,wr,runs,seed,lg){
           if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
           else if(a.b<=-cut){ if(a.used||K===0){a.dead=true;a.why="again";break;} a.rec=K; if(lg) lg({e:"recStart",d,w,id:a.id,ph:a.ph,b:a.b,K,cut}); }
         }
+        dSum+=nT; if(nT>dMax) dMax=nT;
         if(a.dead) continue;
         if(a.b>=tg && a.d>=P.mindays){
           if(a.ph===1){ if(lg) lg({e:"pass1",d,w,id:a.id,size:a.size,b:a.b,days:a.d}); a.ph=2; a.b=0;a.d=0;a.rec=-1;a.used=false;a.cs=w;a.cb=0; }
@@ -174,6 +175,7 @@ function portfolioSim(P,wr,runs,seed,lg){
           else { if(rng()<P.approve){ const amt=a.size*a.b/100*P.split; if(lg) lg({e:"payout",d,w,id:a.id,size:a.size,b:a.b,amt,pt:a.pt||P.lock}); a.pt=lockPick(P,rng()); dayPay+=amt; pays++; consec++; a.b=0;a.d=0;a.rec=-1;a.cs=w;a.cb=0; /* recovery stays used: once per funded account */ } else { a.dead=true; a.why="refused"; } }
         }
       }
+      setups+=P.corr?dMax:dSum; orders+=dSum; dRun=d+1;
       // remove dead
       for(const a of accts) if(a.dead){ if(lg) lg({e:"cut",d,w,id:a.id,ph:a.ph,size:a.size,b:a.b,why:a.why}); if(a.ph===3){ cuts++; lastCut=d; consec=0; } }
       accts=accts.filter(a=>!a.dead);
@@ -205,7 +207,7 @@ function portfolioSim(P,wr,runs,seed,lg){
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
-      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the pipeline */
+      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
       let guard=0;
       while((pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
@@ -216,7 +218,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
       }
       // milestones
-      for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }
+      for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(m===milestones.length-1){ sGoal=setups; oGoal=orders; } if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }
       if(lg&&(d+1)%5===0) lg({e:"week",d,w,...snap(),cash,personal,fees,pays,lvl});
       if(lg&&reach[reach.length-1]!=null) break;
       if((d+1)%5===0) weekly[w+1]=T1;
@@ -224,7 +226,8 @@ function portfolioSim(P,wr,runs,seed,lg){
     }
     out.weekly.push(weekly);
     reach.forEach((v,m)=>{ if(v!=null){ out.reach[m].push(v); out.feesAt[m].push(feesAt[m]); } });
-    if(reach[reach.length-1]!=null) out.reached++;
+    if(reach[reach.length-1]!=null){ out.reached++; out.setupsGoal.push(sGoal); out.ordersGoal.push(oGoal); }
+    out.setupsAll.push(setups); out.ordersAll.push(orders); out.daysAll.push(dRun);
     if(busted) out.bust++; out.bustFlags.push(busted);
     out.fees.push(fees); out.personal.push(personal); out.capIn.push(capIn);
     out.net.push(personal+cash-capIn); out.pays.push(pays); out.cutsT1.push(cuts); out.evals.push(evals); out.grossPaid.push(gross);
@@ -238,3 +241,22 @@ function portfolioSim(P,wr,runs,seed,lg){
   return out;
 }
 
+
+/* ---------- trades needed: same plan, 1..5 trades a day (risk re-capped to the firm limits for each) ---------- */
+function tradesNeeded(P,wr,runs){
+  const rows=[]; const top=Math.min(5,Math.max(P.tpd,3));
+  for(let t=1;t<=top;t++){
+    const Q={...P,tpd:t};
+    const capE=Math.min(riskCap(Q.maxdd,Q.daily,t,Q.c3,Q.k3,Q.rr),riskCap(Q.maxdd,Q.daily,t,Q.c2,Q.k2,Q.rr)), capF=riskCap(Q.maxdd,Q.daily,t,Q.c1,Q.k1,Q.rr);
+    Q.riskE=Math.min(Q.riskE,capE); Q.riskF=Math.min(Q.riskF,capF);
+    const m=portfolioSim(Q,wr,runs||70,4242+t*13);
+    rows.push(tradeRow(Q,m,t));
+  }
+  return rows;
+}
+function tradeRow(Q,m,t){
+  const r=m.reach[m.reach.length-1], ok=r.length>m.runs*0.5, wk=ok?quant(r,0.5):null, mo=ok?wk/4.33:null;
+  const setG=ok?quant(m.setupsGoal,0.5):null, ordG=ok?quant(m.ordersGoal,0.5):null;
+  const perMo=ok?setG/mo:quant(m.setupsAll.map((v,i)=>v/Math.max(1,m.daysAll[i]/21.65)),0.5);
+  return {tpd:t,riskE:Q.riskE,riskF:Q.riskF,ok,wk,mo,setG,ordG,perMo,ordMo:ok?ordG/mo:null,reach:m.reached/m.runs,bust:m.bust/m.runs};
+}

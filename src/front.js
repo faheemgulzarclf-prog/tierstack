@@ -36,6 +36,23 @@ function render(P,S){
   const bust=sim.bust/sim.runs;
   const ev=S[0].ue.ev, be=1/(1+P.rr);
   const long=w=>w.replace(" mo"," months").replace(" wk"," weeks");
+  const u0t=S[0].ue, TN=S.tn||[], me=TN.find(r=>r.tpd===P.tpd)||tradeRow(P,best,P.tpd), need=TN.find(r=>r.ok&&r.mo<=P.horizon);
+  const n0f=x=>x==null||!isFinite(x)?"—":Math.round(x).toLocaleString("en-US");
+  const tradesCard=`<div class="card trn"><h3 class="ct">Trades you need</h3>
+    <p class="sub2">From your win rate (${pct(P.wr)}), reward (1 : ${P.rr}), risk and targets. ${P.corr?"One trade copied to all your accounts counts once.":"Each account takes its own trades."}</p>
+    <div class="kpis">
+      <div class="kpi"><span class="v">${me.ok?"~"+n0f(me.perMo):"—"}</span><span class="k">trades a month</span></div>
+      <div class="kpi"><span class="v">${me.ok?long(weeksTxt(me.wk)):"Not reached"}</span><span class="k">to reach ${fmt(tgt)}</span></div>
+      <div class="kpi"><span class="v">${me.ok?"~"+n0f(me.setG):"—"}</span><span class="k">trades in total</span></div>
+    </div>
+    <div class="flow">
+      <div class="fl"><span class="k">Pass Phase 1</span><span class="v">~${n0f(u0t.tP1)}</span><p>trades on average to make +${P.p1t}%.</p></div>
+      <div class="fl"><span class="k">Pass Phase 2</span><span class="v">~${n0f(u0t.tP2)}</span><p>trades on average to make +${P.p2t}%.</p></div>
+      <div class="fl"><span class="k">One payout</span><span class="v">~${n0f(u0t.tradesPay)}</span><p>trades to reach ${lockTxt(P)} on a funded account.</p></div>
+    </div>
+    <div class="tbl"><table class="data"><thead><tr><th>Trades a day</th><th>Trades a month</th><th>Time to goal</th><th>Reach goal</th><th>Risk on tests</th></tr></thead><tbody>${TN.map(r=>`<tr${r.tpd===P.tpd?' class="me"':""}><td>${r.tpd}${r.tpd===P.tpd?" (you)":""}</td><td>~${n0f(r.perMo)}</td><td>${r.ok?weeksTxt(r.wk):"Not in "+P.horizon+" mo"}</td><td>${pct(r.reach)}</td><td>${r.riskE}%</td></tr>`).join("")}</tbody></table></div>
+    <p class="hint">${need?(need.tpd<=P.tpd?`At ${P.tpd} a day you reach the goal inside ${P.horizon} months.`:`To reach the goal inside ${P.horizon} months you need about <b>${need.tpd} trades a day</b> (~${n0f(need.perMo)} a month).`):`No trade count up to ${TN.length?TN[TN.length-1].tpd:5} a day reaches the goal inside ${P.horizon} months at these numbers.`} If more trades a day would break the ${P.daily}% daily limit, risk per trade is lowered, so the goal does not always get faster. Funded accounts trade 1 week in 3, so many trades go to tests.${P.corr?` Orders placed across all accounts: about ${n0f(me.ordMo)} a month.`:""} Middle result of ${best.runs} simulated runs.</p>
+  </div>`;
 
   let head;
   if(bestT) head=`<h3>${fmt(tgt)} funded in about <em>${long(bestT)}</em>.</h3><p class="sub">${realT?`If your real win rate is a little lower, plan for about ${long(realT)}.`:`If your real win rate is a little lower, it may take longer than ${P.horizon} months.`}</p>`;
@@ -55,10 +72,10 @@ function render(P,S){
     [`Pass Phase 1 (+${P.p1t}%) and Phase 2 (+${P.p2t}%)`,`About ${pct(S[0].ue.pFund)} of evaluations make it to funded at your numbers. ${P.n0>1?"Evaluations take turns by week, never the same trade on two at once. ":""}Stop and rebuy if one falls ${P.c3}% and does not recover in ${P.k3} trades.`],
     [`Start cycling your funded accounts`,`Each account trades one week, then rests two. Start dates are staggered so a bad week only touches a third of them. Any account that loses over 4 weeks rests 1 week.`],
     [`Take payouts at ${lockTxt(P)}`,`On ${fmt(P.s0)} that is ${P.lockMax>P.lock?fmtFull(P.s0*P.lock/100*P.split)+"–"+fmtFull(P.s0*P.lockMax/100*P.split):fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
-    [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and pipeline 40% of funded. Spend in this order: pipeline, backup, funded, then yourself.`],
+    [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and evaluation 40% of funded. Spend in this order: evaluation, backup, funded, then yourself.`],
   ];
   for(let i=1;i<L.length;i++) stepsArr.push([`Move up to ${fmt(L[i].size)} accounts`,`When funded reaches ${fmt(L[i].unlockT1)} with ${L[i].unlockPay}+ payouts, 3 in a row and no funded cut in 14 days. Pass one ${fmt(L[i].size)} account first, then buy more.`]);
-  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup, ${n3} pipeline accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
+  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup, ${n3} evaluation accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
 
   const sc=(s,label)=>{ const m=s.sim, r=last(m.reach); return `<div class="sc"><span class="n">${label}</span><span class="v">${r.length>m.runs*0.5?weeksTxt(quant(r,0.5)):"Not reached"}</span><span class="s">${pct(s.wr)} win rate · ${pct(m.bust/m.runs)} lose it all</span></div>`; };
   const row=s=>{ const u=s.ue,m=s.sim; return `<tr><td>${s.name}</td><td>${pct(s.wr)}</td><td>${u.ev>=0?"+":""}${u.ev.toFixed(2)}R</td><td>${pct(u.pFund)}</td><td>${fmt(u.feePerFunded)}</td><td>${pct(u.pCycle)}</td><td>${u.ePays.toFixed(1)}</td><td>${pct(m.reached/m.runs)}</td><td>${pct(m.bust/m.runs)}</td><td>${fmt(quant(m.fees,0.5))}</td><td>${fmt(quant(m.net,0.5))}</td></tr>`; };
@@ -103,13 +120,15 @@ function render(P,S){
     </div>
   </div>
 
+  ${tradesCard}
+
   <details class="full card"><summary>See the math, odds and full plan</summary>
   <div class="sub-card"><h3 class="ct">Your portfolio at the goal</h3>
     <div class="tierbar"><i style="flex:5;background:var(--t1)"></i><i style="flex:3;background:var(--t2)"></i><i style="flex:2;background:var(--t3)"></i></div>
     <div class="tierkey">
       <div><span><i class="dotl" style="background:var(--t1)"></i>Funded</span><b>${fmt(tgt)}</b><span>${n1} × ${fmt(top.size)}</span></div>
       <div><span><i class="dotl" style="background:var(--t2)"></i>Backup</span><b>${fmt(tgt*.6)}</b><span>${n2} × ${fmt(top.size)}</span></div>
-      <div><span><i class="dotl" style="background:var(--t3)"></i>Pipeline</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>
+      <div><span><i class="dotl" style="background:var(--t3)"></i>Evaluation</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>
     </div>
   </div>
 
@@ -168,7 +187,7 @@ function run(){
       const P=readParams(); const be=1/(1+P.rr);
       const S=[{name:"Your numbers",wr:P.wr},{name:"Win rate 20% lower",wr:P.wr*0.8},{name:"Losing trader",wr:Math.max(0.01,be-0.03)}];
       const runs=P.horizon>48?150:220;
-      S.forEach((s,i)=>{ s.ue=unitEcon(P,s.wr); s.sim=portfolioSim(P,s.wr,runs,9001+i*7); });
+      S.forEach((s,i)=>{ s.ue=unitEcon(P,s.wr); s.sim=portfolioSim(P,s.wr,runs,9001+i*7); }); S.tn=tradesNeeded(P,P.wr,70).map(r=>r.tpd===P.tpd?tradeRow(P,S[0].sim,P.tpd):r);
       const first=!$("out").dataset.done; render(P,S); $("out").dataset.done="1"; if(first&&window.fillHome) window.fillHome(P,S); if(typeof firmApplied!=="undefined"&&firmApplied){ const k=$("out").querySelector(".headline>.k"); if(k) k.insertAdjacentHTML("afterend",`<span class="fbadge" style="width:max-content">Using ${esc(firmApplied)} rules</span>`); }
       const o=$("out"); o.classList.remove("anim"); void o.offsetWidth; o.classList.add("anim"); countUp(first?1100:500);
     }catch(e){ $("out").innerHTML=`<div class="card"><p>These settings could not be calculated: ${esc(e.message)}</p></div>`; console.error(e); }

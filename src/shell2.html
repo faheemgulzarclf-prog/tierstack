@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: multi-view product site. Brand (Faheem, 2 Nov): deep navy #0B132B / #1C2541, slate #3A506B, sky #5BC0DE, cream #F4D6B0, no orange (Faheem asked to drop amber). Navy ground, sky = action + funded, cream = backup, slate = pipeline. Content in a 1160px column. */
+/* Layout: multi-view product site. Brand (Faheem, 2 Nov): deep navy #0B132B / #1C2541, slate #3A506B, sky #5BC0DE, cream #F4D6B0, no orange (Faheem asked to drop amber). Navy ground, sky = action + funded, cream = backup, slate = evaluation. Content in a 1160px column. */
 :root{
   --bg:#0B132B; --bg2:#0E1733; --card:#121C3A; --card2:#1C2541; --line:rgba(91,192,222,.12); --line2:rgba(91,192,222,.22);
   --ink:#F5F1EA; --muted:#A3B1C6; --dim:#6F819C;
@@ -323,6 +323,7 @@ details.full[open]>summary{margin-bottom:18px}
 table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px;font-family:var(--f-m)}
 table.data th{font-family:var(--f-b);font-size:12px;color:var(--muted);font-weight:600;text-align:right;padding:8px;border-bottom:1px solid var(--line2);white-space:nowrap}
 table.data td{padding:8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.trn .kpis{margin:14px 0 16px}.trn .flow{margin-bottom:14px}.trn table.data{min-width:460px}.trn table.data tr.me td{color:var(--gold);font-weight:700;background:color-mix(in srgb,var(--gold) 8%,transparent)}
 table.data th:first-child,table.data td:first-child{text-align:left;font-family:var(--f-b)}
 
 /* ---------- RULES view ---------- */
@@ -884,7 +885,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     <i class="lk lk1"></i><i class="lk lk2"></i><i class="lk lk3"></i>
     <div class="tsx-stage" id="tsxStage">
       <div class="pl pl0"><span class="pt">Start</span><span class="pn">2 × $25K tests</span><span class="pv">$360</span></div>
-      <div class="pl pl3" data-tier="3"><span class="pt">Tier 3</span><span class="pn">Pipeline · Phase 1</span><span class="pv"><b data-v="200000">$200K</b><em>20%</em></span></div>
+      <div class="pl pl3" data-tier="3"><span class="pt">Tier 3</span><span class="pn">Evaluation · Phase 1</span><span class="pv"><b data-v="200000">$200K</b><em>20%</em></span></div>
       <div class="pl pl2" data-tier="2"><span class="pt">Tier 2</span><span class="pn">Backup · Phase 2</span><span class="pv"><b data-v="300000">$300K</b><em>30%</em></span></div>
       <div class="pl pl1" data-tier="1"><span class="pt">Tier 1</span><span class="pn">Funded · earning</span><span class="pv"><b data-v="500000">$500K</b><em>50%</em></span></div>
       <span class="tok" id="tsxTok">$25K</span>
@@ -914,8 +915,8 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
 </div></section>
 
 <div class="ticker" aria-hidden="true"><div class="track">
-  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · pipeline</span><span class="sep">◆</span>
-  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · pipeline</span><span class="sep">◆</span>
+  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · evaluation</span><span class="sep">◆</span>
+  <span><b>Low · Medium · High</b> risk, always inside firm limits</span><span class="sep">◆</span><span><b>Tests take turns</b> one bad week never hits both</span><span class="sep">◆</span><span><b>+3%</b> payout lock</span><span class="sep">◆</span><span><b>1 week on / 2 off</b> funded cycling</span><span class="sep">◆</span><span><b>5 : 3 : 2</b> funded · backup · evaluation</span><span class="sep">◆</span>
 </div></div>
 
 <section class="s" id="journey"><div class="in">
@@ -951,7 +952,7 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
   <div class="stack3">
     <div class="layer reveal" style="--c:var(--t1);--k:var(--t1-ink);--w:100%"><span class="tag">TIER 1</span><div><h4>Funded · on the field</h4><p>Earns the payouts</p></div><span class="pc">50%</span></div>
     <div class="layer reveal" style="--c:var(--t2);--k:var(--t2-ink);--w:60%"><span class="tag">TIER 2</span><div><h4>Backup · on the bench</h4><p>Phase 2, one step from funded</p></div><span class="pc">30%</span></div>
-    <div class="layer reveal" style="--c:var(--t3);--k:var(--t3-ink);--w:40%"><span class="tag">TIER 3</span><div><h4>Pipeline · in the academy</h4><p>Phase 1 tests in progress</p></div><span class="pc">20%</span></div>
+    <div class="layer reveal" style="--c:var(--t3);--k:var(--t3-ink);--w:40%"><span class="tag">TIER 3</span><div><h4>Evaluation · in the academy</h4><p>Phase 1 tests in progress</p></div><span class="pc">20%</span></div>
   </div>
 </div></section>
 

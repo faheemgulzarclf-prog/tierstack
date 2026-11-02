@@ -51,7 +51,7 @@ function roadRender(){
     const yours=Math.round((1-T.rate)*100);
     const step=(w,t,p,kind)=>`<li class="rs ${kind||""}"><span class="rw">${w}</span><div><b>${t}</b>${p?`<p>${p}</p>`:""}</div></li>`;
     const S=[
-      {tier:"Tier 3",name:"Pipeline",title:"Pass your first tests",from:1,to:T.f1,
+      {tier:"Tier 3",name:"Evaluation",title:"Pass your first tests",from:1,to:T.f1,
        unlock:"Starts today",
        next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
        steps:[
@@ -68,7 +68,7 @@ function roadRender(){
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
         step("Every on-week",`Ask for a payout at ${lockTxt(P)}`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)})${P.lockMax>P.lock?`, and at the latest at +${P.lockMax}%`:""}, request the payout. Don't wait for more.`),
         T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
-        step("Right after",`Refill the pipeline`,`Reinvestment buys the next tests, so a new account is always on the way.`),
+        step("Right after",`Refill the Evaluation tier`,`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
       {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
        unlock:`Unlocks ${about(T.po1)}`,
