@@ -714,6 +714,12 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 .stage.done{opacity:.8}
 .road-fine{color:var(--dim);font-size:12.5px;text-align:center}
 @media (max-width:640px){.sg-h{grid-template-columns:40px minmax(0,1fr)}.sg-n{width:40px;height:40px}.sg-st{grid-column:1/-1;justify-self:start}.rs{grid-template-columns:1fr;gap:2px}.sg-steps{margin-left:12px;padding-left:16px}.rs::before{left:-23px}.stage{padding:20px 16px}}
+/* test mode */
+.tk-test{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 18px;border-radius:18px;border:1.5px dashed var(--warn);background:var(--warn-bg)}
+.tt-l{display:flex;flex-direction:column;gap:2px}.tt-l b{font-size:16px}.tt-l span:last-child{font-size:13px;color:var(--muted)}
+.tt-chip{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0B132B;background:var(--warn);padding:3px 9px;border-radius:99px;margin-bottom:4px}
+.tt-r{display:flex;gap:8px;flex-wrap:wrap}
+.ad-tabs .ad-lab{margin-left:0;border:1px solid var(--warn);color:var(--warn);background:var(--card);font:600 14px Inter,sans-serif;padding:9px 14px;border-radius:99px;text-decoration:none}
 </style>
 
 <nav class="top"><div class="in">
@@ -936,12 +942,14 @@ window.fillHome=function(P,S){
 
 /* ---------- router ---------- */
 function show(){
-  let v=["build","rules","track","check","admin","road"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
+  let v=["build","rules","track","check","admin","road","lab"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
   const A=window.TSAuth;
+  if(v==="lab"&&A&&A.sb){ if(!A.ready){ A.after=show; return; } if(!A.admin){ v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); } }
   if(v==="admin"){ if(A&&A.sb&&!A.ready){ A.after=show; return; } if(!(A&&A.admin)){ v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); } else setTimeout(()=>A.renderAdmin(),0); }
   if(v!=="home"&&v!=="build"&&v!=="rules"&&v!=="admin"&&A&&A.sb&&!A.ok){ if(!A.ready){ A.after=show; return; } A.wanted=v; v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); setTimeout(()=>A.open&&A.open("up",true),60); }
   if(v==="check") setTimeout(demoRender,30);
   if(v==="road") setTimeout(roadRender,30);
+  if(v==="lab"){ v="track"; setTimeout(()=>tkTestEnter(),0); } else if(typeof TK!=="undefined"&&TK.test) tkTestExit();
   document.querySelectorAll("[data-view]").forEach(m=>{ const on=m.dataset.view===v; m.hidden=!on; if(on){ m.classList.remove("view-in"); void m.offsetWidth; m.classList.add("view-in"); } });
   document.querySelectorAll("[data-nav]").forEach(a=>a.toggleAttribute("aria-current",a.dataset.nav===v));
   document.querySelectorAll('.links a[data-nav="home"]').forEach(a=>a.setAttribute("aria-current",v==="home"?"page":"false"));

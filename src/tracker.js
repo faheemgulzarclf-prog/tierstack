@@ -1,7 +1,7 @@
 /* ---------- live tracker ---------- */
-const TK={state:null, store:null, ready:false};
+const TK={state:null, store:null, ready:false, test:false, testDay:null};
 const DAY=86400000;
-const todayStr=()=>{ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const todayStr=()=>{ const d=TK.testDay?new Date(TK.testDay+"T12:00:00"):new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
 const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 const uid=()=>Math.random().toString(36).slice(2,9);
@@ -19,7 +19,7 @@ async function tkStoreInit(){
 }
 let saveT=null;
 function tkSave(){ clearTimeout(saveT); saveT=setTimeout(async()=>{ try{ await TK.store.save(TK.state); tkSaved(true); }catch(e){ tkSaved(false); } },400); }
-function tkSaved(ok){ const el=$("tkSave"); if(el) el.textContent=ok?(TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"):"Couldn't save. Check your connection."; }
+function tkSaved(ok){ const el=$("tkSave"); if(el) el.textContent=ok?(TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"):"Couldn't save. Check your connection."; }
 function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK.state.log.slice(0,200); }
 
 /* create from plan */
@@ -32,7 +32,8 @@ function tkFromPlan(){
   const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
   for(let i=0;i<P.n0;i++) st.accounts.push(newAcct(P.s0,1,st));
   TK.state=st; log(`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
-  tkSave(); location.hash="track"; tkRender();
+  if(TK.test){ st.testDay=todayStr(); }
+  tkSave(); location.hash=TK.test?"lab":"track"; tkRender();
 }
 function newAcct(size,phase,st){ const n=(st.accounts.length+1); return {id:uid(),name:`#${n} ${fmt(size)}`,size,phase,bal:size,dayStart:size,days:[],rec:-1,recUsed:false,off:0,lane:freeLane(st),cyc:{s:todayStr(),b:size},offUntil:"",status:"active",created:todayStr(),hist:[]}; }
 /* evals take turns by week (2 lanes) so two evals never trade the same window */
@@ -122,7 +123,35 @@ function calLinks(time){
 }
 
 /* ---------- render ---------- */
+function tkTestBar(){
+  if(!TK.test) return "";
+  const st=TK.state, d=st&&st.start?dnum(todayStr())-dnum(st.start)+1:0;
+  const wd=new Date(todayStr()+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+  return `<div class="tk-test"><div class="tt-l"><span class="tt-chip">Test mode</span><b>${st?`Day ${d} · Week ${Math.floor((d-1)/7)+1} · ${wd}`:"No test plan yet"}</b><span>Practice data only. Your real coach is not touched.</span></div>
+  <div class="tt-r">${st?`<button type="button" class="btn ghost sm" data-tt="1">+1 day</button><button type="button" class="btn ghost sm" data-tt="7">+1 week</button><button type="button" class="btn ghost sm" data-tt="reset">Restart</button>`:`<button type="button" class="btn gold sm" data-tt="new">Start test from my plan</button>`}<button type="button" class="btn ghost sm" data-tt="exit">Exit test</button></div></div>`;
+}
+const TK_TEST_KEY="ts-tracker-test";
+async function tkTestEnter(){
+  if(TK.test) { tkRender(); return; }
+  TK.real={state:TK.state,store:TK.store}; TK.test=true;
+  TK.store={kind:"test",async load(){ try{ const t=localStorage.getItem(TK_TEST_KEY); return t?JSON.parse(t):null; }catch(e){ return null; } },async save(o){ try{ if(o===null) localStorage.removeItem(TK_TEST_KEY); else localStorage.setItem(TK_TEST_KEY,JSON.stringify(o)); }catch(e){} }};
+  let t=null; try{ t=await TK.store.load(); }catch(e){}
+  TK.testDay=t&&t.testDay||null; TK.state=t?tkMigrate(t):null; tkRender();
+}
+function tkTestExit(){ if(!TK.test) return; TK.test=false; TK.testDay=null; if(TK.real){ TK.state=TK.real.state; TK.store=TK.real.store; TK.real=null; } tkRender(); }
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-tt]"); if(!b||!TK.test) return; const k=b.dataset.tt;
+  if(k==="exit"){ location.hash="track"; return; }
+  if(k==="new"){ tkFromPlan(); return; }
+  if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to restart"; return; } TK.state=null; TK.testDay=null; TK.store.save(null); tkRender(); return; }
+  const n=parseInt(k,10); if(!(n>0)||!TK.state) return;
+  const d=new Date(todayStr()+"T12:00:00"); d.setDate(d.getDate()+n);
+  TK.testDay=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  TK.state.testDay=TK.testDay; tkTick(TK.state); tkSave(); tkRender(); });
 function tkRender(){
+  const o=$("tkOut"); if(!o) return;
+  tkRenderInner(); if(TK.test) o.insertAdjacentHTML("afterbegin",tkTestBar());
+}
+function tkRenderInner(){
   const o=$("tkOut"); if(!o) return;
   if(!TK.ready){ o.innerHTML=`<div class="card"><p class="sub2" style="margin:0"><span class="spin"></span> Loading your tracker…</p></div>`; return; }
   const st=TK.state;
@@ -144,7 +173,7 @@ function tkRender(){
   const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
-    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
+    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&!TK.test&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
     <div class="tk-goal"><div class="tk-gtop"><span>Funded <b>${fmt(pf.T1)}</b> of ${fmt(p.target)}</span><span>${prog.toFixed(0)}%</span></div><div class="tk-bar"><i style="width:${prog}%"></i></div></div>
     <div class="fx-big">
       <div><span class="v t1">${nTrade}</span><span class="k">trade today</span></div>
@@ -232,6 +261,7 @@ async function tkBoot(){ await tkStoreInit(); try{ TK.state=tkMigrate(await TK.s
 tkBoot();
 /* account switch: on sign in, load the cloud coach; if the account has none yet, move this browser's coach into it */
 if(window.TSAuth) window.TSAuth.onChange(async u=>{
+  if(TK.test) tkTestExit();
   const local=TK.store&&TK.store.kind==="local"?TK.state:null;
   if(u&&window.TSAuth.ok){ TK.store=window.TSAuth.store(); let cloud=null; try{ cloud=await TK.store.load(); }catch(e){}
     if(cloud){ TK.state=tkMigrate(cloud); } else if(local){ TK.state=local; try{ await TK.store.save(local); }catch(e){} } else TK.state=null;

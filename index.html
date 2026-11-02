@@ -725,6 +725,12 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 .stage.done{opacity:.8}
 .road-fine{color:var(--dim);font-size:12.5px;text-align:center}
 @media (max-width:640px){.sg-h{grid-template-columns:40px minmax(0,1fr)}.sg-n{width:40px;height:40px}.sg-st{grid-column:1/-1;justify-self:start}.rs{grid-template-columns:1fr;gap:2px}.sg-steps{margin-left:12px;padding-left:16px}.rs::before{left:-23px}.stage{padding:20px 16px}}
+/* test mode */
+.tk-test{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 18px;border-radius:18px;border:1.5px dashed var(--warn);background:var(--warn-bg)}
+.tt-l{display:flex;flex-direction:column;gap:2px}.tt-l b{font-size:16px}.tt-l span:last-child{font-size:13px;color:var(--muted)}
+.tt-chip{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0B132B;background:var(--warn);padding:3px 9px;border-radius:99px;margin-bottom:4px}
+.tt-r{display:flex;gap:8px;flex-wrap:wrap}
+.ad-tabs .ad-lab{margin-left:0;border:1px solid var(--warn);color:var(--warn);background:var(--card);font:600 14px Inter,sans-serif;padding:9px 14px;border-radius:99px;text-decoration:none}
 </style><script src="vendor/supabase.js"></script>
 <script>/* TierStack accounts (site only): Supabase email signup + cloud save of the daily coach.
    The anon key is public by design; Row Level Security keeps each trader's rows private. */
@@ -828,7 +834,7 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
     var list=all.filter(function(m){return m.status===adTab;});
     function d(x){return x?new Date(x).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}):"";}
     o.innerHTML='<div class="ad-stats"><div><b>'+all.length+'</b><span>members</span></div><div><b>'+c.pending+'</b><span>waiting</span></div><div><b>'+c.approved+'</b><span>approved</span></div><div><b>'+c.rejected+'</b><span>rejected</span></div></div>'+
-      '<div class="ad-tabs">'+["pending","approved","rejected"].map(function(k){return '<button type="button" data-adtab="'+k+'"'+(k===adTab?' class="on"':'')+'>'+({pending:"Waiting",approved:"Approved",rejected:"Rejected"})[k]+' <i>'+c[k]+'</i></button>';}).join("")+'<button type="button" class="ad-ref" data-adref="1">Refresh</button></div>'+
+      '<div class="ad-tabs">'+["pending","approved","rejected"].map(function(k){return '<button type="button" data-adtab="'+k+'"'+(k===adTab?' class="on"':'')+'>'+({pending:"Waiting",approved:"Approved",rejected:"Rejected"})[k]+' <i>'+c[k]+'</i></button>';}).join("")+'<button type="button" class="ad-ref" data-adref="1">Refresh</button><a class="ad-ref ad-lab" href="#lab">Test lab</a></div>'+
       (list.length?'<div class="ad-list">'+list.map(function(m){return '<div class="ad-row"><div class="ad-av">'+esc(((m.name||m.email||"?").trim()[0]||"?").toUpperCase())+'</div><div class="ad-who"><b>'+esc(m.name||"(no name)")+(m.is_admin?' <span class="ad-badge">Admin</span>':'')+'</b><span>'+esc(m.email||"")+'</span><span class="ad-date">Joined '+d(m.created_at)+(m.decided_at?' · decided '+d(m.decided_at):'')+'</span></div><div class="ad-act">'+
         (m.is_admin?'':(m.status!=="approved"?'<button type="button" class="btn gold sm" data-adset="approved" data-uid="'+m.id+'">Approve</button>':'')+(m.status!=="rejected"?'<button type="button" class="btn ghost sm" data-adset="rejected" data-uid="'+m.id+'">'+(m.status==="approved"?"Remove access":"Reject")+'</button>':'')+(m.status==="rejected"?'<button type="button" class="btn ghost sm" data-adset="pending" data-uid="'+m.id+'">Move to waiting</button>':''))+'</div></div>';}).join("")+'</div>':'<div class="ad-empty">No one here yet.</div>');};
   document.addEventListener("click",async function(e){var t=e.target.closest&&e.target.closest("[data-adtab],[data-adset],[data-adref]");if(!t||!A.admin)return;
@@ -1772,9 +1778,9 @@ if(window.TSAuth) window.TSAuth.onChange(()=>{ renderChips(); if(currentFirm) sh
 if(window.TSAuth&&window.TSAuthReady&&window.TSAuth.sb) window.TSAuthReady.then(()=>{ document.body.classList.toggle("ts-locked",!window.TSAuth.ok); renderChips(); if(currentFirm) showFirm(currentFirm); });
 
 /* ---------- live tracker ---------- */
-const TK={state:null, store:null, ready:false};
+const TK={state:null, store:null, ready:false, test:false, testDay:null};
 const DAY=86400000;
-const todayStr=()=>{ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const todayStr=()=>{ const d=TK.testDay?new Date(TK.testDay+"T12:00:00"):new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
 const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 const uid=()=>Math.random().toString(36).slice(2,9);
@@ -1792,7 +1798,7 @@ async function tkStoreInit(){
 }
 let saveT=null;
 function tkSave(){ clearTimeout(saveT); saveT=setTimeout(async()=>{ try{ await TK.store.save(TK.state); tkSaved(true); }catch(e){ tkSaved(false); } },400); }
-function tkSaved(ok){ const el=$("tkSave"); if(el) el.textContent=ok?(TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"):"Couldn't save. Check your connection."; }
+function tkSaved(ok){ const el=$("tkSave"); if(el) el.textContent=ok?(TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"):"Couldn't save. Check your connection."; }
 function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK.state.log.slice(0,200); }
 
 /* create from plan */
@@ -1805,7 +1811,8 @@ function tkFromPlan(){
   const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
   for(let i=0;i<P.n0;i++) st.accounts.push(newAcct(P.s0,1,st));
   TK.state=st; log(`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
-  tkSave(); location.hash="track"; tkRender();
+  if(TK.test){ st.testDay=todayStr(); }
+  tkSave(); location.hash=TK.test?"lab":"track"; tkRender();
 }
 function newAcct(size,phase,st){ const n=(st.accounts.length+1); return {id:uid(),name:`#${n} ${fmt(size)}`,size,phase,bal:size,dayStart:size,days:[],rec:-1,recUsed:false,off:0,lane:freeLane(st),cyc:{s:todayStr(),b:size},offUntil:"",status:"active",created:todayStr(),hist:[]}; }
 /* evals take turns by week (2 lanes) so two evals never trade the same window */
@@ -1895,7 +1902,35 @@ function calLinks(time){
 }
 
 /* ---------- render ---------- */
+function tkTestBar(){
+  if(!TK.test) return "";
+  const st=TK.state, d=st&&st.start?dnum(todayStr())-dnum(st.start)+1:0;
+  const wd=new Date(todayStr()+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+  return `<div class="tk-test"><div class="tt-l"><span class="tt-chip">Test mode</span><b>${st?`Day ${d} · Week ${Math.floor((d-1)/7)+1} · ${wd}`:"No test plan yet"}</b><span>Practice data only. Your real coach is not touched.</span></div>
+  <div class="tt-r">${st?`<button type="button" class="btn ghost sm" data-tt="1">+1 day</button><button type="button" class="btn ghost sm" data-tt="7">+1 week</button><button type="button" class="btn ghost sm" data-tt="reset">Restart</button>`:`<button type="button" class="btn gold sm" data-tt="new">Start test from my plan</button>`}<button type="button" class="btn ghost sm" data-tt="exit">Exit test</button></div></div>`;
+}
+const TK_TEST_KEY="ts-tracker-test";
+async function tkTestEnter(){
+  if(TK.test) { tkRender(); return; }
+  TK.real={state:TK.state,store:TK.store}; TK.test=true;
+  TK.store={kind:"test",async load(){ try{ const t=localStorage.getItem(TK_TEST_KEY); return t?JSON.parse(t):null; }catch(e){ return null; } },async save(o){ try{ if(o===null) localStorage.removeItem(TK_TEST_KEY); else localStorage.setItem(TK_TEST_KEY,JSON.stringify(o)); }catch(e){} }};
+  let t=null; try{ t=await TK.store.load(); }catch(e){}
+  TK.testDay=t&&t.testDay||null; TK.state=t?tkMigrate(t):null; tkRender();
+}
+function tkTestExit(){ if(!TK.test) return; TK.test=false; TK.testDay=null; if(TK.real){ TK.state=TK.real.state; TK.store=TK.real.store; TK.real=null; } tkRender(); }
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-tt]"); if(!b||!TK.test) return; const k=b.dataset.tt;
+  if(k==="exit"){ location.hash="track"; return; }
+  if(k==="new"){ tkFromPlan(); return; }
+  if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to restart"; return; } TK.state=null; TK.testDay=null; TK.store.save(null); tkRender(); return; }
+  const n=parseInt(k,10); if(!(n>0)||!TK.state) return;
+  const d=new Date(todayStr()+"T12:00:00"); d.setDate(d.getDate()+n);
+  TK.testDay=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  TK.state.testDay=TK.testDay; tkTick(TK.state); tkSave(); tkRender(); });
 function tkRender(){
+  const o=$("tkOut"); if(!o) return;
+  tkRenderInner(); if(TK.test) o.insertAdjacentHTML("afterbegin",tkTestBar());
+}
+function tkRenderInner(){
   const o=$("tkOut"); if(!o) return;
   if(!TK.ready){ o.innerHTML=`<div class="card"><p class="sub2" style="margin:0"><span class="spin"></span> Loading your tracker…</p></div>`; return; }
   const st=TK.state;
@@ -1917,7 +1952,7 @@ function tkRender(){
   const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
-    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
+    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&!TK.test&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
     <div class="tk-goal"><div class="tk-gtop"><span>Funded <b>${fmt(pf.T1)}</b> of ${fmt(p.target)}</span><span>${prog.toFixed(0)}%</span></div><div class="tk-bar"><i style="width:${prog}%"></i></div></div>
     <div class="fx-big">
       <div><span class="v t1">${nTrade}</span><span class="k">trade today</span></div>
@@ -2005,6 +2040,7 @@ async function tkBoot(){ await tkStoreInit(); try{ TK.state=tkMigrate(await TK.s
 tkBoot();
 /* account switch: on sign in, load the cloud coach; if the account has none yet, move this browser's coach into it */
 if(window.TSAuth) window.TSAuth.onChange(async u=>{
+  if(TK.test) tkTestExit();
   const local=TK.store&&TK.store.kind==="local"?TK.state:null;
   if(u&&window.TSAuth.ok){ TK.store=window.TSAuth.store(); let cloud=null; try{ cloud=await TK.store.load(); }catch(e){}
     if(cloud){ TK.state=tkMigrate(cloud); } else if(local){ TK.state=local; try{ await TK.store.save(local); }catch(e){} } else TK.state=null;
@@ -2240,12 +2276,14 @@ window.fillHome=function(P,S){
 
 /* ---------- router ---------- */
 function show(){
-  let v=["build","rules","track","check","admin","road"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
+  let v=["build","rules","track","check","admin","road","lab"].includes(location.hash.slice(1))?location.hash.slice(1):"home";
   const A=window.TSAuth;
+  if(v==="lab"&&A&&A.sb){ if(!A.ready){ A.after=show; return; } if(!A.admin){ v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); } }
   if(v==="admin"){ if(A&&A.sb&&!A.ready){ A.after=show; return; } if(!(A&&A.admin)){ v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); } else setTimeout(()=>A.renderAdmin(),0); }
   if(v!=="home"&&v!=="build"&&v!=="rules"&&v!=="admin"&&A&&A.sb&&!A.ok){ if(!A.ready){ A.after=show; return; } A.wanted=v; v="home"; history.replaceState(null,"",location.pathname+location.search+"#home"); setTimeout(()=>A.open&&A.open("up",true),60); }
   if(v==="check") setTimeout(demoRender,30);
   if(v==="road") setTimeout(roadRender,30);
+  if(v==="lab"){ v="track"; setTimeout(()=>tkTestEnter(),0); } else if(typeof TK!=="undefined"&&TK.test) tkTestExit();
   document.querySelectorAll("[data-view]").forEach(m=>{ const on=m.dataset.view===v; m.hidden=!on; if(on){ m.classList.remove("view-in"); void m.offsetWidth; m.classList.add("view-in"); } });
   document.querySelectorAll("[data-nav]").forEach(a=>a.toggleAttribute("aria-current",a.dataset.nav===v));
   document.querySelectorAll('.links a[data-nav="home"]').forEach(a=>a.setAttribute("aria-current",v==="home"?"page":"false"));
