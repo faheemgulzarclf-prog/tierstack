@@ -98,6 +98,28 @@ function portfolio(st){
   return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
 
+/* ---------- daily reminder: calendar alarm + WhatsApp share (no account needed) ---------- */
+const SITE_URL="https://faheemgulzarclf-prog.github.io/tierstack/#track";
+function todayText(st,adv){
+  const p=st.p, lines=[`TierStack · ${fmtDate(todayStr())}`];
+  adv.forEach(({a,v})=>{
+    if(v.kind==="trade") lines.push(`TRADE ${a.name}: risk ${fmtFull(v.riskUsd)} per trade, aim 1:${p.rr}, stop for the day at ${fmtFull(v.dailyStop)}.`);
+    else if(v.kind==="recover") lines.push(`RECOVERY ${a.name}: ${v.title}, risk ${fmtFull(v.riskUsd)}.`);
+    else if(v.kind==="rest") lines.push(`${v.pill} ${a.name}: ${v.title.toLowerCase()}.`);
+    else lines.push(`${v.pill} ${a.name}: ${v.title}.`);
+  });
+  lines.push(`Coach: ${SITE_URL}`);
+  return lines.join("\n");
+}
+function calLinks(time){
+  const [hh,mm]=(time||"08:00").split(":").map(Number); const d=new Date(); d.setDate(d.getDate()+1); d.setHours(hh||8,mm||0,0,0);
+  const e=new Date(d.getTime()+15*60000), z=x=>x.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+  const title="TierStack: open your daily coach", det="Log yesterday's balances, then follow today's moves: "+SITE_URL;
+  const g=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(det)}&dates=${z(d)}/${z(e)}&recur=${encodeURIComponent("RRULE:FREQ=DAILY")}`;
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//TierStack//Coach//EN","BEGIN:VEVENT",`UID:tierstack-coach-${Date.now()}@tierstack`,`DTSTAMP:${z(new Date())}`,`DTSTART:${z(d)}`,`DTEND:${z(e)}`,"RRULE:FREQ=DAILY",`SUMMARY:${title}`,`DESCRIPTION:${det}`,`URL:${SITE_URL}`,"BEGIN:VALARM","TRIGGER:PT0M","ACTION:DISPLAY",`DESCRIPTION:${title}`,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  return {g, ics:"data:text/calendar;charset=utf-8,"+encodeURIComponent(ics)};
+}
+
 /* ---------- render ---------- */
 function tkRender(){
   const o=$("tkOut"); if(!o) return;
@@ -157,6 +179,11 @@ function tkRender(){
       <p class="hint">Backup must reach 60% and Pipeline 40% of Funded before you take money home.</p>
       ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
       <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
+    <div class="card tk-remind"><h3 class="ct">Daily reminder</h3><p class="hint" style="margin-top:-6px">Get an alarm every morning that opens this coach. No account needed.</p>
+      <label class="f" for="tkTime">Remind me at<input type="time" id="tkTime" value="${esc(st.remind||"08:00")}"></label>
+      <div class="tk-rbtns"><a class="btn gold sm" id="tkCalG" href="${calLinks(st.remind).g}" target="_blank" rel="noopener">Add to Google Calendar</a><a class="btn ghost sm" id="tkCalI" href="${calLinks(st.remind).ics}" download="tierstack-coach.ics">Apple / Outlook calendar</a></div>
+      <a class="btn ghost sm tk-wa" href="https://wa.me/?text=${encodeURIComponent(todayText(st,adv))}" target="_blank" rel="noopener">Send today's plan to WhatsApp</a>
+      <p class="hint">WhatsApp and Telegram messages that arrive by themselves come with accounts, soon.</p></div>
     <div class="card"><h3 class="ct">Activity log</h3><ul class="tk-log">${st.log.slice(0,14).map(l=>`<li><span>${fmtDate(l.d)}</span>${esc(l.t)}</li>`).join("")}</ul>
       <button class="linkbtn" data-tk="reset">Start over</button></div>
   </div>`;
@@ -198,5 +225,6 @@ document.addEventListener("click",e=>{
   else return;
   tkSave(); tkRender();
 });
+document.addEventListener("change",e=>{ if(e.target.id!=="tkTime"||!TK.state) return; TK.state.remind=e.target.value; const L=calLinks(e.target.value); $("tkCalG").href=L.g; $("tkCalI").href=L.ics; tkSave(); });
 document.addEventListener("click",e=>{ if(e.target.closest("#startTrack")){ if(TK.state&&!e.target.closest("#startTrack").dataset.sure){ const b=e.target.closest("#startTrack"); b.dataset.sure="1"; b.innerHTML="This replaces your current tracker. Tap again"; return; } tkFromPlan(); } });
 (async()=>{ await tkStoreInit(); try{ TK.state=tkMigrate(await TK.store.load()); }catch(e){ TK.state=null; } TK.ready=true; if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); })();
