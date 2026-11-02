@@ -207,7 +207,7 @@ function start(){
   const live=new Set();
   const io=new IntersectionObserver(es=>es.forEach(en=>{ const m=en.target._mx; if(!m)return; if(en.isIntersecting){ m.t0=performance.now(); live.add(m); } else live.delete(m); }),{threshold:.25});
   boxes.forEach(b=>io.observe(b));
-  const loop=now=>{ live.forEach(m=>{ const t=((now-m.t0)/1000)%m.sc.dur; m.draw(t); }); requestAnimationFrame(loop); };
+  const loop=now=>{ if(!document.hidden&&!document.querySelector("dialog.authd[open]")) live.forEach(m=>{ const t=((now-m.t0)/1000)%m.sc.dur; m.draw(t); }); requestAnimationFrame(loop); };
   requestAnimationFrame(loop);
 }
 window.TierMotion={scenes:SC,mount,start};

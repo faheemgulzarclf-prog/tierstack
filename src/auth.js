@@ -5,11 +5,13 @@
   var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzdW1nbmZtYnR0cmFoenlqdGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MTczMDcsImV4cCI6MjEwOTE5MzMwN30.CUsSZwwppJ_q4UjX3xVLTZw9JNbkFwemmNvNeHcwG58";
   var A=window.TSAuth={sb:null,user:null,name:"",listeners:[]};
   A.onChange=function(f){A.listeners.push(f)};
-  function emit(){A.listeners.forEach(function(f){try{f(A.user)}catch(e){}});paint();}
+  function emit(){A.listeners.forEach(function(f){try{f(A.user)}catch(e){}});paint();
+    if(A.user&&A.wanted){var w=A.wanted;A.wanted=null;location.hash=w;}
+    else if(!A.user&&location.hash&&location.hash!=="#home"){location.hash="home";}}
   if(!window.supabase||!window.supabase.createClient){window.TSAuthReady=Promise.resolve(null);return;}
   A.sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"ts-auth"}});
   function setUser(u){A.user=u||null;A.name=u&&u.user_metadata&&u.user_metadata.name||"";}
-  window.TSAuthReady=A.sb.auth.getSession().then(function(r){setUser(r.data&&r.data.session&&r.data.session.user);return A.user;}).catch(function(){return null;});
+  window.TSAuthReady=A.sb.auth.getSession().then(function(r){setUser(r.data&&r.data.session&&r.data.session.user);return A.user;}).catch(function(){return null;}).then(function(u){A.ready=true;if(A.after){var f=A.after;A.after=null;setTimeout(f,0);}return u;});
   var first=true;
   A.sb.auth.onAuthStateChange(function(ev,session){var before=A.user&&A.user.id;setUser(session&&session.user);
     if(first){first=false;paint();return;}
@@ -27,7 +29,7 @@
   function $(id){return document.getElementById(id)}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
   function initials(){var n=(A.name||A.user&&A.user.email||"?").trim();var p=n.split(/\s+/);return((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase();}
-  function paint(){var b=$("acctBtn");if(!b)return;b.hidden=false;
+  function paint(){document.body&&document.body.classList.toggle("ts-locked",!A.user);var b=$("acctBtn");if(!b)return;b.hidden=false;
     if(A.user){b.classList.add("au-in");b.innerHTML='<span class="au-av">'+esc(initials())+'</span><span class="au-nm">'+esc((A.name||"Account").split(" ")[0])+'</span>';b.setAttribute("aria-label","Your account");}
     else{b.classList.remove("au-in");b.textContent="Sign in";b.setAttribute("aria-label","Sign in or create an account");}}
   var mode="up";
@@ -38,13 +40,14 @@
     $("auSub").textContent=m==="up"?"Your plan and coach are saved to your account, on every device.":m==="in"?"Sign in to load your coach on this device.":m==="new"?"Type a new password with 6 or more characters.":"We'll email you a link to set a new password.";
     $("auGo").textContent=m==="up"?"Create account":m==="in"?"Sign in":m==="new"?"Save password":"Send reset link";
     $("auPass").setAttribute("autocomplete",m==="in"?"current-password":"new-password");
-    $("auForgot").hidden=m!=="in";$("auTabs").hidden=m==="reset"||m==="new";
+    $("auForgot").hidden=m!=="in";$("auPerks").hidden=m!=="up";$("auTabs").hidden=m==="reset"||m==="new";
     var e=$("auMsg");e.textContent=msg||"";e.className="au-msg"+(bad?" bad":msg?" ok":"");f.hidden=false;$("auAcct").hidden=true;}
-  function acct(){var d=$("authDlg");$("authForm").hidden=true;$("auTabs").hidden=true;var a=$("auAcct");a.hidden=false;
+  function acct(){var d=$("authDlg");$("authForm").hidden=true;$("auTabs").hidden=true;$("auPerks").hidden=true;var a=$("auAcct");a.hidden=false;
     $("auTitle").textContent="Hi "+(A.name||"trader").split(" ")[0];$("auSub").textContent="Your coach is saved to your account.";
     a.innerHTML='<div class="au-row"><span>Name</span><b>'+esc(A.name||"-")+'</b></div><div class="au-row"><span>Email</span><b>'+esc(A.user.email)+'</b></div><a class="btn gold" href="#track" data-nav="track" id="auCoach">Open my coach</a><button type="button" class="btn ghost" id="auOut">Sign out</button>';
     $("auMsg").textContent="";}
-  function open(m){var d=$("authDlg");if(!d)return;if(A.user&&m!=="new")acct();else view(m||"up");if(d.showModal&&!d.open)d.showModal();else d.setAttribute("open","");}
+  function open(m,gate){var d=$("authDlg");if(!d)return;if(A.user&&m!=="new")acct();else{view(m||"up");if(gate)$("auSub").textContent="Make a free account to build your plan and open your daily coach. Takes 20 seconds.";}document.querySelectorAll("video").forEach(function(v){if(!v.paused){v.pause();v.dataset.auP="1";}});if(!d._cl){d._cl=1;d.addEventListener("close",function(){document.querySelectorAll("video[data-au-p]").forEach(function(v){delete v.dataset.auP;v.play().catch(function(){});});});}
+    if(d.showModal&&!d.open)d.showModal();else d.setAttribute("open","");setTimeout(function(){var f=d.querySelector(".au-f:not([hidden]) input");if(f&&!A.user)f.focus();else{var b=d.querySelector(".au-acct .btn");if(b)b.focus();}},30);}
   function close(){var d=$("authDlg");if(d&&d.open){if(d.close)d.close();else d.removeAttribute("open");}}
   A.open=open;
   function friendly(err){var m=(err&&err.message)||"Something went wrong.";
