@@ -23,10 +23,10 @@ function tkSaved(ok){ const el=$("tkSave"); if(el) el.textContent=ok?(TK.store.k
 function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK.state.log.slice(0,200); }
 
 /* create from plan */
-function tkFromPlan(){
-  const P=readParams();
-  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl"];
-  const p={}; keep.forEach(k=>p[k]=P[k]);
+function tkFromPlan(Pin){
+  const P=Pin&&Pin.s0?Pin:readParams();
+  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv"];
+  const p={}; keep.forEach(k=>{ if(P[k]!==undefined) p[k]=P[k]; });
   p.ladder=P.ladder.map(r=>({size:r.size,fee:r.fee,unlockT1:r.unlockT1,unlockPay:r.unlockPay}));
   p.firm=typeof firmApplied!=="undefined"&&firmApplied?firmApplied:"";
   const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
@@ -87,16 +87,18 @@ function portfolio(st){
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
   const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T3>=0.4*T1-1,"Pipeline = 40% of funded"]];
+  if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
   const provenMax=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
   const pipeTarget=Math.max(Math.min(T1,p.target),p.n0*p.s0);
   const needT3=T1>0?Math.max(0,0.4*pipeTarget-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   let buySize=L[lvl].size; let note="";
-  if(lvl>provenMax){ const outNew=act.some(a=>a.size===L[lvl].size&&a.phase!==3); if(outNew){ buySize=L[provenMax].size; note=`Wait for your first ${fmt(L[lvl].size)} account to get funded before buying more of that size.`; } else note=`You unlocked ${fmt(L[lvl].size)} accounts. Buy just ONE first.`; }
-  const fee=(L.find(r=>r.size===buySize)||L[0]).fee;
+  if(p.buy&&p.buy!=="auto"){ buySize=+p.buy; note=`You chose to reinvest into ${fmt(buySize)} accounts.`; }
+  else if(lvl>provenMax){ const outNew=act.some(a=>a.size===L[lvl].size&&a.phase!==3); if(outNew){ buySize=L[provenMax].size; note=`Wait for your first ${fmt(L[lvl].size)} account to get funded before buying more of that size.`; } else note=`You unlocked ${fmt(L[lvl].size)} accounts. Buy just ONE first.`; }
+  const fee=(L.find(r=>r.size===buySize)||{fee:guessFee(buySize)}).fee;
   const stocked=T1>0&&T2>=0.6*T1-1&&T3>=0.4*T1-1;
-  const rate=!stocked?1:T1<0.2*p.target?0.8:T1<0.6*p.target?0.65:T1<p.target?0.5:0.3;
+  const rate=!stocked?1:p.reinv&&p.reinv.length?(p.reinv.find(r=>r.upto==null||T1<r.upto)||p.reinv[p.reinv.length-1]).rate:T1<0.2*p.target?0.8:T1<0.6*p.target?0.65:T1<p.target?0.5:0.3;
   return {T1,T2,T3,lvl,buySize,fee,need:Math.max(needT3,needPipe),stocked,rate,note,pays,done:T1>=p.target,grow,growOk};
 }
 
@@ -128,7 +130,7 @@ function tkTestBar(){
   const st=TK.state, d=st&&st.start?dnum(todayStr())-dnum(st.start)+1:0;
   const wd=new Date(todayStr()+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
   return `<div class="tk-test"><div class="tt-l"><span class="tt-chip">Test mode</span><b>${st?`Day ${d} · Week ${Math.floor((d-1)/7)+1} · ${wd}`:"No test plan yet"}</b><span>Practice data only. Your real coach is not touched.</span></div>
-  <div class="tt-r">${st?`<button type="button" class="btn ghost sm" data-tt="1">+1 day</button><button type="button" class="btn ghost sm" data-tt="7">+1 week</button><button type="button" class="btn ghost sm" data-tt="reset">Restart</button>`:`<button type="button" class="btn gold sm" data-tt="new">Start test from my plan</button>`}<button type="button" class="btn ghost sm" data-tt="exit">Exit test</button></div></div>`;
+  <div class="tt-r">${st&&!(typeof LAB!=="undefined"&&LAB.setup)?`<button type="button" class="btn ghost sm" data-lab="setup">New plan</button>`:""}<button type="button" class="btn ghost sm" data-tt="exit">Exit test</button></div></div>`;
 }
 const TK_TEST_KEY="ts-tracker-test";
 async function tkTestEnter(){
@@ -149,6 +151,7 @@ document.addEventListener("click",e=>{ const b=e.target.closest("[data-tt]"); if
   TK.state.testDay=TK.testDay; tkTick(TK.state); tkSave(); tkRender(); });
 function tkRender(){
   const o=$("tkOut"); if(!o) return;
+  if(TK.test&&typeof labSetupHtml==="function"&&(!TK.state||LAB.setup)){ o.innerHTML=tkTestBar()+labSetupHtml(); return; }
   tkRenderInner(); if(TK.test){ if(TK.state&&typeof labBoard==="function") o.insertAdjacentHTML("afterbegin",labBoard()); o.insertAdjacentHTML("afterbegin",tkTestBar()); }
 }
 function tkRenderInner(){
