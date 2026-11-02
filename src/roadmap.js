@@ -23,7 +23,7 @@ function roadTimeline(P){
   }
   const med=k=>W[k].length>=runs*0.3?Math.max(1,Math.round(quant(W[k],0.5))):null;
   const T={}; keys.forEach(k=>T[k]=med(k));
-  T.payAmt=amt.length?quant(amt,0.5):P.s0*P.lock/100*P.split/100;
+  T.payAmt=amt.length?quant(amt,0.5):P.s0*P.lock/100*P.split;
   T.rate=rate.length?quant(rate,0.5):0.8;
   T.miles=Object.keys(ms).map(Number).sort((a,b)=>a-b).filter(v=>ms[v].length>=runs*0.3).map(v=>({v,w:Math.round(quant(ms[v],0.5))}));
   T.reach=W.goal.length/runs;
@@ -55,7 +55,7 @@ function roadRender(){
        unlock:"Starts today",
        next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
        steps:[
-        step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(Math.min(day,rE*P.tpd))}.`),
+        step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(s0*Math.min(P.daily,P.c3)/100*0.8)}.`),
         n0>1?step("Week 2",`Test #1 rests. Trade test #2`,`Tests take turns by week, so one bad week can't hit both.`):"",
         step("Every week",`Keep the same rhythm`,`Same ${fmtFull(rE)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
         T.p1?step(wk(T.p1),`First Phase 1 pass (+${P.p1t}%)`,`That account moves to Phase 2. Same risk, same turns.`,"mile"):"",

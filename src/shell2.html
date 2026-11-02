@@ -720,6 +720,31 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 .tt-chip{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0B132B;background:var(--warn);padding:3px 9px;border-radius:99px;margin-bottom:4px}
 .tt-r{display:flex;gap:8px;flex-wrap:wrap}
 .ad-tabs .ad-lab{margin-left:0;border:1px solid var(--warn);color:var(--warn);background:var(--card);font:600 14px Inter,sans-serif;padding:9px 14px;border-radius:99px;text-decoration:none}
+/* lab auto-play */
+.lab{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.lab-top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}.lab-top h3{font-size:24px;margin:4px 0 2px}.lab-sub{font-size:13px;color:var(--muted)}
+.lab-ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.lab-ctl select{height:36px;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--ink);padding:0 10px;font:600 13px Inter,sans-serif}
+.lab-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.lab-stats div{background:var(--card2);padding:12px;display:flex;flex-direction:column}.lab-stats b{font:800 18px "Inter Tight",Inter,sans-serif}.lab-stats span{font-size:12px;color:var(--muted)}
+.lab-next{padding:12px 14px;border-radius:12px;background:var(--sky-bg);font-size:14px}.lab-next b{color:var(--gold)}
+.lab-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.lb-col{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.lb-h{display:flex;gap:10px;align-items:center;margin-bottom:2px}.lb-h b{font-size:14px;display:block}.lb-h span{font-size:12px;color:var(--muted)}
+.lb-acc{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;transition:all .3s}
+.lb-acc.k-trade{border-left-color:var(--gold)}.lb-acc.k-recover{border-left-color:var(--warn)}.lb-acc.k-cut{border-left-color:var(--bad)}.lb-acc.k-payout,.lb-acc.k-pass{border-left-color:var(--good)}
+.lb-a1{display:flex;justify-content:space-between;align-items:center;gap:6px}.lb-a1 b{font-size:13.5px}.lb-a1 .tk-pill{font-size:10px;padding:2px 7px}
+.lb-bar{height:5px;border-radius:5px;background:var(--line2);overflow:hidden}.lb-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gmid))}
+.lb-a2{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}.lb-a2 .up{color:var(--good)}.lb-a2 .dn{color:var(--bad)}
+.lb-empty{font-size:12.5px;color:var(--dim);text-align:center;padding:16px 0}
+.lab-closed{font-size:13px;color:var(--muted)}
+.lab-g2{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}.lab h4{font-size:15px;margin-bottom:10px;display:flex;gap:10px;align-items:center}.lab h4 .ok{color:var(--good);font-size:13px}.lab h4 .bad{color:var(--bad);font-size:13px}
+.lab-checks,.lab-feed{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
+.lab-ck{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}.lab-ck:first-of-type{border-top:0}
+.lab-ck>span{font-weight:800;color:var(--dim)}.lab-ck.ok>span{color:var(--good)}.lab-ck.bad>span{color:var(--bad)}.lab-ck p{margin:0;color:var(--muted);font-size:12px}.lab-ck em{font-style:normal;color:var(--dim);font-size:12px}
+.lab-err{margin:10px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--bad)}.lab-err span{color:var(--dim);margin-right:6px}
+@media (max-width:820px){.lab-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.lab-cols,.lab-g2{grid-template-columns:1fr}}
+.lab-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lab-mode button{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line2);background:var(--card2);color:var(--ink);cursor:pointer;font:inherit}
+.lab-mode button b{font-size:14px}.lab-mode button span{font-size:12px;color:var(--muted)}.lab-mode button.on{border-color:var(--gold);background:var(--sky-bg)}
 </style>
 
 <nav class="top"><div class="in">
@@ -926,6 +951,7 @@ body.ts-locked .prem-gate{display:flex;flex-direction:column;align-items:center;
 /*FIRMS*/
 /*FIRMCTL*/
 /*TRACKER*/
+/*LAB*/
 /*DEMO*/
 /*ROADMAP*/
 

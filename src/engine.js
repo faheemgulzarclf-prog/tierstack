@@ -188,11 +188,11 @@ function portfolioSim(P,wr,runs,seed,lg){
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       const pipeTarget=Math.max(Math.min(T1,tgt), P.n0*P.s0);
       let guard=0;
-      while((pipe<pipeTarget || t3cap<0.4*pipeTarget-1) && guard++<50){
+      while((pipe<pipeTarget || (T1>0 && t3cap<0.4*pipeTarget-1)) && guard++<50){
         let li=lvl; let outNew=false;
         if(lvl>proven){ outNew=accts.some(a=>a.li===lvl && a.ph!==3); if(outNew) li=proven; }
         const fee=L[li].fee; if(cash<fee) break;
-        const why=t3cap<0.4*pipeTarget-1?"t3":"pipe";
+        const why=T1>0&&t3cap<0.4*pipeTarget-1?"t3":"pipe";
         cash-=fee; fees+=fee; evals++;
         const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
       }

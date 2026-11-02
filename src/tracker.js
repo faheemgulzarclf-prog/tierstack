@@ -32,7 +32,7 @@ function tkFromPlan(){
   const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
   for(let i=0;i<P.n0;i++) st.accounts.push(newAcct(P.s0,1,st));
   TK.state=st; log(`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
-  if(TK.test){ st.testDay=todayStr(); }
+  if(TK.test){ st.testDay=todayStr(); st.p.mindays=0; log("Test mode: the minimum trading days rule is off, so accounts move the moment they hit target."); }
   tkSave(); location.hash=TK.test?"lab":"track"; tkRender();
 }
 function newAcct(size,phase,st){ const n=(st.accounts.length+1); return {id:uid(),name:`#${n} ${fmt(size)}`,size,phase,bal:size,dayStart:size,days:[],rec:-1,recUsed:false,off:0,lane:freeLane(st),cyc:{s:todayStr(),b:size},offUntil:"",status:"active",created:todayStr(),hist:[]}; }
@@ -69,8 +69,8 @@ function advise(a,st){
     return {...base,kind:"cut",pill:"CUT IT",title:"Close this account",text:a.phase===3?`It didn't recover. Close it. Your best backup account replaces it as soon as it passes, and buy a new Phase 1 evaluation.`:`It didn't recover. Close it and buy a new evaluation from the pool.`,act:"cut"};
   }
   if(pct>=r.tgt){
-    if(daysDone<needDays) return {...base,kind:"wait",pill:"HOLD",title:`Target hit. ${needDays-daysDone} more trading day${needDays-daysDone>1?"s":""}`,text:`Don't risk the gain. Take one tiny trade a day until you have ${needDays} trading days.`};
-    if(a.phase===3){ const pay=(a.bal-a.size)*p.split/100; return {...base,kind:"payout",pill:"PAYOUT",title:`Request your payout: about ${fmtFull(pay)}`,text:`It's up ${pct.toFixed(1)}%. Ask the firm for the payout now, then log it here.`,act:"payout",pay}; }
+    if(daysDone<needDays) return {...base,kind:"wait",pill:"HOLD",title:`Target hit. ${needDays-daysDone} more trading day${needDays-daysDone>1?"s":""} to pass`,text:`The firm needs ${needDays} trading days (you have ${daysDone}). Take one tiny trade a day and log the balance. It moves to ${a.phase===1?"Tier 2 (Phase 2)":"Tier 1 (funded)"} by itself on day ${needDays}.`};
+    if(a.phase===3){ const pay=(a.bal-a.size)*(p.split>1?p.split/100:p.split); return {...base,kind:"payout",pill:"PAYOUT",title:`Request your payout: about ${fmtFull(pay)}`,text:`It's up ${pct.toFixed(1)}%. Ask the firm for the payout now, then log it here.`,act:"payout",pay}; }
     return {...base,kind:"pass",pill:"PASSED",title:a.phase===1?"Passed Phase 1":"Passed Phase 2, now funded",text:a.phase===1?"Mark it passed. It moves to Backup (Phase 2).":"Mark it passed. It joins your funded accounts.",act:"pass"};
   }
   if(!isOn(a,st)){ if(offline(a)) return {...base,kind:"rest",pill:"OFFLINE",title:"Offline week, don't trade",text:`Its last 4 weeks ended in a loss. Rule: rest it 1 full week. Back on ${fmtDate(a.offUntil)}.`};
@@ -91,7 +91,7 @@ function portfolio(st){
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
   const provenMax=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
   const pipeTarget=Math.max(Math.min(T1,p.target),p.n0*p.s0);
-  const needT3=Math.max(0,0.4*pipeTarget-T3), needPipe=Math.max(0,pipeTarget-T2-T3);
+  const needT3=T1>0?Math.max(0,0.4*pipeTarget-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
   let buySize=L[lvl].size; let note="";
   if(lvl>provenMax){ const outNew=act.some(a=>a.size===L[lvl].size&&a.phase!==3); if(outNew){ buySize=L[provenMax].size; note=`Wait for your first ${fmt(L[lvl].size)} account to get funded before buying more of that size.`; } else note=`You unlocked ${fmt(L[lvl].size)} accounts. Buy just ONE first.`; }
   const fee=(L.find(r=>r.size===buySize)||L[0]).fee;
@@ -136,20 +136,20 @@ async function tkTestEnter(){
   TK.real={state:TK.state,store:TK.store}; TK.test=true;
   TK.store={kind:"test",async load(){ try{ const t=localStorage.getItem(TK_TEST_KEY); return t?JSON.parse(t):null; }catch(e){ return null; } },async save(o){ try{ if(o===null) localStorage.removeItem(TK_TEST_KEY); else localStorage.setItem(TK_TEST_KEY,JSON.stringify(o)); }catch(e){} }};
   let t=null; try{ t=await TK.store.load(); }catch(e){}
-  TK.testDay=t&&t.testDay||null; TK.state=t?tkMigrate(t):null; tkRender();
+  TK.testDay=t&&t.testDay||null; TK.state=t?tkMigrate(t):null; if(TK.state) TK.state.p.mindays=0; tkRender();
 }
-function tkTestExit(){ if(!TK.test) return; TK.test=false; TK.testDay=null; if(TK.real){ TK.state=TK.real.state; TK.store=TK.real.store; TK.real=null; } tkRender(); }
+function tkTestExit(){ if(!TK.test) return; if(typeof labPlay==="function"&&LAB.timer){ clearInterval(LAB.timer); LAB.timer=null; } TK.test=false; TK.testDay=null; if(TK.real){ TK.state=TK.real.state; TK.store=TK.real.store; TK.real=null; } tkRender(); }
 document.addEventListener("click",e=>{ const b=e.target.closest("[data-tt]"); if(!b||!TK.test) return; const k=b.dataset.tt;
   if(k==="exit"){ location.hash="track"; return; }
-  if(k==="new"){ tkFromPlan(); return; }
-  if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to restart"; return; } TK.state=null; TK.testDay=null; TK.store.save(null); tkRender(); return; }
+  if(k==="new"){ if(typeof labReset==="function") labReset(); tkFromPlan(); return; }
+  if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to restart"; return; } TK.state=null; TK.testDay=null; TK.store.save(null); if(typeof labReset==="function"){ if(LAB.timer) clearInterval(LAB.timer); LAB.timer=null; labReset(); } tkRender(); return; }
   const n=parseInt(k,10); if(!(n>0)||!TK.state) return;
   const d=new Date(todayStr()+"T12:00:00"); d.setDate(d.getDate()+n);
   TK.testDay=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   TK.state.testDay=TK.testDay; tkTick(TK.state); tkSave(); tkRender(); });
 function tkRender(){
   const o=$("tkOut"); if(!o) return;
-  tkRenderInner(); if(TK.test) o.insertAdjacentHTML("afterbegin",tkTestBar());
+  tkRenderInner(); if(TK.test){ if(TK.state&&typeof labBoard==="function") o.insertAdjacentHTML("afterbegin",labBoard()); o.insertAdjacentHTML("afterbegin",tkTestBar()); }
 }
 function tkRenderInner(){
   const o=$("tkOut"); if(!o) return;
@@ -166,7 +166,7 @@ function tkRenderInner(){
   const nTrade=adv.filter(x=>["trade","recover"].includes(x.v.kind)).length, nRest=adv.filter(x=>x.v.kind==="rest").length, nAct=adv.filter(x=>["payout","pass","cut"].includes(x.v.kind)).length;
   const prog=Math.min(100,pf.T1/p.target*100);
   let next;
-  if(pf.done) next={t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`};
+  if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to the pool until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
   else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in the pool. Buy it now.`:`Pool has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into the pool, ${Math.round((1-pf.rate)*100)}% to you.`};
@@ -233,22 +233,28 @@ function doLog(a,bal){
   else log(`${a.name}: balance ${fmtFull(bal)} (${pct>=0?"+":""}${pct.toFixed(1)}%).`);
   if(pct<=-st.p.maxdd){ a.status="failed"; st.cuts.push({d:t,phase:a.phase}); log(`${a.name} broke the firm's max loss and is closed.`); }
 }
-function promoteBackupIfNeeded(){ /* T2 accounts become funded only by passing; nothing to auto-move */ }
+/* guide: pass Phase 1 → Tier 2 (Phase 2); pass Phase 2 → Tier 1 (funded). Moves by itself once the target and the firm's minimum days are met. */
+function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3) return;
+  a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
+  if(a.phase===3){ const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt));
+    log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the pipeline.`); }
+  else log(`${a.name} passed Phase 1. It moves to Tier 2 as a backup (Phase 2). Same risk, same turns.`); }
+function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
+  const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
+  log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to the pool, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
+function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". Move your best backup up as soon as it passes.":". Buy a new evaluation when the pool allows."}`); }
+function doBuy(size,fee){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
+  log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from the pool"}.`); return a; }
+function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
+  if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){ passAcct(a); return true; } return false; }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-tk]"); if(!b||!TK.state&&b.dataset.tk!=="start") return;
   const k=b.dataset.tk, st=TK.state;
-  if(k==="log"){ const a=acct(b.dataset.id); const inp=document.querySelector(`[data-bal="${a.id}"]`); const v=parseFloat(inp.value); if(!(v>0)){ inp.focus(); inp.classList.add("bad"); return; } doLog(a,v); }
-  else if(k==="pass"){ const a=acct(b.dataset.id); a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
-    if(a.phase===3){ const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt)); log(`${a.name} is now FUNDED. Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the pipeline.`); }
-    else log(`${a.name} passed Phase 1. Now a backup (Phase 2).`); }
-  else if(k==="payout"){ const a=acct(b.dataset.id); const pf=portfolio(st); const amt=parseFloat(b.dataset.pay)||0;
-    const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size};
-    log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to the pool, ${fmtFull(amt-re)} for you.`); }
-  else if(k==="cut"||k==="close"){ const a=acct(b.dataset.id); if(k==="close"&&!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to confirm"; return; }
-    a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase}); log(`${a.name} closed${a.phase===3?". Move your best backup up as soon as it passes.":". Buy a new evaluation when the pool allows."}`); }
-  else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; }
-    const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
-    log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from the pool"}.`); }
+  if(k==="log"){ const a=acct(b.dataset.id); const inp=document.querySelector(`[data-bal="${a.id}"]`); const v=parseFloat(inp.value); if(!(v>0)){ inp.focus(); inp.classList.add("bad"); return; } doLog(a,v); if(a.status==="active") autoPass(a); }
+  else if(k==="pass"){ passAcct(acct(b.dataset.id)); }
+  else if(k==="payout"){ doPayout(acct(b.dataset.id),parseFloat(b.dataset.pay)||0); }
+  else if(k==="cut"||k==="close"){ const a=acct(b.dataset.id); if(k==="close"&&!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to confirm"; return; } doCut(a); }
+  else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; } doBuy(size,fee); }
   else if(k==="risk"){ const lv=b.dataset.lvl; if(!RISK_LV[lv]||st.p.risklvl===lv) return; const r=levelRisk(lv,{rr:st.p.rr,maxdd:st.p.maxdd,daily:st.p.daily||5,tpd:st.p.tpd||1,c1:st.p.c1,c2:st.p.c2,c3:st.p.c3}); Object.assign(st.p,r); st.p.risklvl=lv;
     log(`Risk style set to ${RISK_LV[lv].name}: ${r.riskE}% per test trade, ${r.riskF}% funded, ${r.k3} recovery trades on tests.`); }
   else if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to delete this tracker"; return; } TK.state=null; tkSave(); tkRender(); return; }
@@ -268,3 +274,4 @@ if(window.TSAuth) window.TSAuth.onChange(async u=>{
     if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); }
   else { await tkBoot(); }
 });
+window.__tk={TK,doLog,autoPass,advise,portfolio,dnum,todayStr,tkSave,tkRender,doPayout,doCut,doBuy,rulesFor,isOn,weekIdx,offline,tkTick,tkFromPlan}; /* used by the test lab checks */
