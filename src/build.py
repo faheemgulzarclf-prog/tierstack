@@ -18,6 +18,7 @@ head=f'''<!doctype html>
 body=out.replace('<title>TierStack</title>','<title>TierStack · Prop firm plan + daily coach</title>',1)
 # split: everything up to </style> is head, rest is body
 i=body.index('</style>')+len('</style>')
-site=head+body[:i]+'\n</head>\n<body>\n'+body[i:]+'\n</body>\n</html>\n'
+auth='<script src="vendor/supabase.js"></script>\n<script>'+open('auth.js').read()+'</script>\n'
+site=head+body[:i]+auth+'\n</head>\n<body>\n'+body[i:]+'\n</body>\n</html>\n'
 open('site/index.html','w').write(site)
 print(len(site))

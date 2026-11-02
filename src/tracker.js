@@ -10,6 +10,7 @@ const PHC={1:"t3",2:"t2",3:"t1"};
 
 /* storage: private per-trader doc in db, else this browser */
 async function tkStoreInit(){
+  if(window.TSAuth&&window.TSAuthReady){ try{ await window.TSAuthReady; }catch(e){} if(window.TSAuth.user){ TK.store=window.TSAuth.store(); return; } }
   let db=null,user=null;
   try{ if(window.claude&&window.claude.use){ [db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]); } }catch(e){}
   if(db&&user){ try{ const id=await user.id(); if(id){ const ref=db.collection("data/users/"+id).doc("tracker");
@@ -143,7 +144,7 @@ function tkRender(){
   const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Pipeline",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
-    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="fbadge" id="tkSave">${TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span></div>
+    <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
     <div class="tk-goal"><div class="tk-gtop"><span>Funded <b>${fmt(pf.T1)}</b> of ${fmt(p.target)}</span><span>${prog.toFixed(0)}%</span></div><div class="tk-bar"><i style="width:${prog}%"></i></div></div>
     <div class="fx-big">
       <div><span class="v t1">${nTrade}</span><span class="k">trade today</span></div>
@@ -227,4 +228,13 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("change",e=>{ if(e.target.id!=="tkTime"||!TK.state) return; TK.state.remind=e.target.value; const L=calLinks(e.target.value); $("tkCalG").href=L.g; if($("tkCalI")) $("tkCalI").href=L.ics; tkSave(); });
 document.addEventListener("click",e=>{ if(e.target.closest("#startTrack")){ if(TK.state&&!e.target.closest("#startTrack").dataset.sure){ const b=e.target.closest("#startTrack"); b.dataset.sure="1"; b.innerHTML="This replaces your current tracker. Tap again"; return; } tkFromPlan(); } });
-(async()=>{ await tkStoreInit(); try{ TK.state=tkMigrate(await TK.store.load()); }catch(e){ TK.state=null; } TK.ready=true; if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); })();
+async function tkBoot(){ await tkStoreInit(); try{ TK.state=tkMigrate(await TK.store.load()); }catch(e){ TK.state=null; } TK.ready=true; if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); }
+tkBoot();
+/* account switch: on sign in, load the cloud coach; if the account has none yet, move this browser's coach into it */
+if(window.TSAuth) window.TSAuth.onChange(async u=>{
+  const local=TK.store&&TK.store.kind==="local"?TK.state:null;
+  if(u){ TK.store=window.TSAuth.store(); let cloud=null; try{ cloud=await TK.store.load(); }catch(e){}
+    if(cloud){ TK.state=tkMigrate(cloud); } else if(local){ TK.state=local; try{ await TK.store.save(local); }catch(e){} } else TK.state=null;
+    if(TK.state&&tkTick(TK.state)) tkSave(); tkRender(); }
+  else { await tkBoot(); }
+});
