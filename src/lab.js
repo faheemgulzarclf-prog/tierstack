@@ -1,7 +1,7 @@
 /* ---------- Test Lab auto-play: trades every day by itself with the coach's own rules, and checks each move against the guide ---------- */
 const LAB={instant:true,timer:null,seed:1,rng:null,speed:200,checks:{},errors:[],lanes:{},recCount:{},done:false};
 function labRng(seed){ let a=seed>>>0; return ()=>{ a=(a+0x6D2B79F5)>>>0; let t=a; t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61); return ((t^(t>>>14))>>>0)/4294967296; }; }
-function labReset(){ LAB.ms=[]; LAB.phSeen={}; LAB.cnt={p1:0,p2:0,bench:0}; LAB.lastRate=null; LAB.showRep=false; LAB.bust=false; LAB.peak=0; LAB.inPool=0; LAB.outPool=0; LAB.home=0; LAB.orders=0; LAB.setups=0; LAB.tdays=0; LAB.checks={}; LAB.errors=[]; LAB.lanes={}; LAB.recCount={}; LAB.done=false; LAB.rng=labRng(LAB.seed); }
+function labReset(){ LAB.ms=[]; LAB.phSeen={}; LAB.cnt={p1:0,p2:0,bench:0}; LAB.lastRate=null; LAB.showRep=false; LAB.bust=false; LAB.peak=0; LAB.inPool=0; LAB.outPool=0; LAB.home=0; LAB.orders=0; LAB.firmx=[]; LAB.setups=0; LAB.tdays=0; LAB.checks={}; LAB.errors=[]; LAB.lanes={}; LAB.recCount={}; LAB.done=false; LAB.rng=labRng(LAB.seed); }
 const LAB_RULES=[
   ["risk","Fixed risk per trade","Same % risk every trade: tests "+"and funded use your risk style."],
   ["turns","Tests take turns by week","Never trade all evaluations in the same window."],
@@ -60,7 +60,7 @@ function labStepDay(){
         if(a.phase===3&&v.kind==="trade") labCheck("cycle",(w%3)===a.off,`${a.name} traded in week ${w+1} but its ON week is ${a.off}`);
         const expRisk=a.size*(a.phase===3?p.riskF:p.riskE)/100; labCheck("risk",Math.abs(v.riskUsd-expRisk)<0.5,`${a.name} risk ${fmtFull(v.riskUsd)} vs ${fmtFull(expRisk)}`);
         let bal=a.bal; const n=v.kind==="recover"?1:(p.tpd||1);
-        if(LAB.instant) bal=Math.max(bal,v.tgtUsd); else for(let i=0;i<n;i++){ LAB.orders++; if(i+1>dMax) dMax=i+1; const win=LAB.rng()<p.wr; bal+=win?v.riskUsd*p.rr:-v.riskUsd; if(bal<=v.dailyStop||bal>=v.tgtUsd) break; }
+        if(LAB.instant) bal=Math.max(bal,v.tgtUsd); else { let nL=0; for(let i=0;i<n;i++){ LAB.orders++; if(i+1>dMax) dMax=i+1; const win=LAB.rng()<p.wr; bal+=win?v.riskUsd*p.rr:-v.riskUsd; if(!win) nL++; if(bal<=v.dailyStop||bal>=v.tgtUsd) break; if(p.dstop!==false&&nL>=2) break; } }
         if(v.kind==="recover"){ LAB.recCount[a.id]=(LAB.recCount[a.id]||0)+1; labCheck("recovery",LAB.recCount[a.id]<=r.K,`${a.name} took ${LAB.recCount[a.id]} recovery trades (max ${r.K})`); }
         const wasUsed=a.recUsed, ph=a.phase, pct2=(Math.round(bal)-a.size)/a.size*100;
         doLog(a,Math.round(bal));
@@ -145,7 +145,9 @@ function labReport(st){
     <div class="${failed.length?"bd":""}"><b>${failed.length} of ${st.accounts.length}</b><span>accounts failed (cut)</span></div>
     <div><b>${fmtFull(lostFees)}</b><span>fees lost on failed tests</span></div>
     <div><b>${LAB.instant?"—":(LAB.orders||0).toLocaleString("en-US")}</b><span>${LAB.instant?"trades (not counted in instant pass)":"trades placed on all accounts"}</span></div>
-    <div><b>${LAB.instant?"—":"~"+Math.round((LAB.orders||0)/Math.max(1,d/30.44))}</b><span>${LAB.instant?"trades a month":`trades a month, on ${LAB.tdays||0} trading days`}</span></div></div>
+    <div><b>${LAB.instant?"—":"~"+Math.round((LAB.orders||0)/Math.max(1,d/30.44))}</b><span>${LAB.instant?"trades a month":`trades a month, on ${LAB.tdays||0} trading days`}</span></div>
+    <div><b>${guardScore(st).score}/100</b><span>discipline score (rules broken: ${(st.viol||[]).length})</span></div>
+    <div class="${(LAB.firmx||[]).length?"bd":""}"><b>${(LAB.firmx||[]).length?fmt((LAB.firmx||[]).reduce((s,x)=>s+x.sz,0)):"—"}</b><span>${(LAB.firmx||[]).length?(LAB.firmx||[]).map(x=>`${esc(x.firm)} closed day ${x.d}: ${x.n} accounts lost`).join("; "):"no firm closed in this test"}</span></div></div>
   <div class="lr-g">
     <section><h4>Where each payout went</h4><table class="lr-t"><thead><tr><th>Stage</th><th>Payouts</th><th>Total</th><th>Back in</th><th>You kept</th></tr></thead><tbody>
       ${Object.keys(groups).map(Number).sort((a,b)=>b-a).map(k=>{ const g=groups[k]; return `<tr><td><b>${k}% back in</b><span>${esc(stageName(k))}</span></td><td>${g.n}</td><td>${fmtFull(g.amt)}</td><td>${fmtFull(g.re)}</td><td>${fmtFull(g.amt-g.re)}</td></tr>`; }).join("")||`<tr><td colspan="5">No payouts yet.</td></tr>`}</tbody></table>
@@ -180,7 +182,7 @@ function labBoard(){
   const names=["Tier 3 · Evaluation","Tier 1 · First funded","Tier 2 · Bench & scale","Goal"];
   return `<div class="lab" id="labBoard">
     <div class="lab-top"><div><span class="kicker">Auto-play</span><h3>${LAB.bust?`Plan ended on day ${d}: all tests failed`:LAB.done?`Goal reached on day ${d}`:`Day ${d} · Week ${Math.floor((d-1)/7)+1}`}</h3><span class="lab-sub">${LAB.instant?"Instant pass: every account hits its target on its first trading day":`Future #${LAB.seed} · ${Math.round(p.wr*100)}% win rate · 1 : ${p.rr}`} · trades Mon–Fri</span></div>
-      <div class="lab-ctl"><button type="button" class="btn ${playing?"ghost":"gold"} sm" data-lab="${playing?"pause":"play"}">${playing?"Pause":"▶ Play"}</button><button type="button" class="btn ghost sm" data-lab="day">+1 day</button><button type="button" class="btn ghost sm" data-lab="week">+1 week</button>
+      <div class="lab-ctl"><button type="button" class="btn ${playing?"ghost":"gold"} sm" data-lab="${playing?"pause":"play"}">${playing?"Pause":"▶ Play"}</button><button type="button" class="btn ghost sm" data-lab="day">+1 day</button><button type="button" class="btn ghost sm" data-lab="week">+1 week</button><button type="button" class="btn ghost sm" data-lab="firmx" title="Test: the firm with the most money closes today">Firm closes</button>
       <select id="labSpeed" aria-label="Speed"><option value="600"${LAB.speed==600?" selected":""}>Slow</option><option value="200"${LAB.speed==200?" selected":""}>Normal</option><option value="40"${LAB.speed==40?" selected":""}>Fast</option></select><button type="button" class="btn ghost sm" data-lab="new">${LAB.instant?"Restart":"New future"}</button><button type="button" class="btn ghost sm" data-lab="setup">Edit plan</button>${LAB.done?"":`<button type="button" class="btn ghost sm" data-lab="report">${LAB.showRep?"Hide report":"Report"}</button>`}</div></div>
     <div class="lab-plan"><span><b>Plan</b> ${p.n0} × ${fmt(p.s0)} · goal ${fmt(p.target)} · ${Math.round(p.wr*100)}% · 1 : ${p.rr} · risk ${p.riskE}% / ${p.riskF}%</span><span><b>Sizes</b> ${p.ladder.map((r,i)=>i===pf.lvl?`<u>${fmt(r.size)}</u>`:fmt(r.size)).join(" → ")}</span>
       <label class="lab-rb"><b>Payouts buy</b><select id="labBuy" aria-label="Payouts reinvest into">${["auto",...p.ladder.map(r=>r.size)].map(v=>`<option value="${v}"${String(p.buy||"auto")===String(v)?" selected":""}>${v==="auto"?"Auto (size table)":fmt(v)+" · "+fmtFull(p.ladder.find(r=>r.size===v).fee)}</option>`).join("")}</select></label></div>
@@ -204,6 +206,8 @@ document.addEventListener("click",e=>{ const b=e.target.closest("[data-lab]"); i
   if(k==="play") labPlay(true); else if(k==="pause") labPlay(false);
   else if(k==="day"){ labStepDay(); tkSave(); tkRender(); }
   else if(k==="week"){ for(let i=0;i<7&&!LAB.done;i++) labStepDay(); tkSave(); tkRender(); }
+  else if(k==="firmx"){ const mix=firmMix(TK.state); if(!mix.top) return; const f=mix.top.firm; let n=0, sz=0; TK.state.accounts.filter(a=>a.status==="active"&&(a.firm||TK.state.p.firm||"My firm")===f).forEach(a=>{ doCut(a); n++; sz+=a.size; });
+    LAB.firmx=(LAB.firmx||[]).concat([{d:dnum(todayStr())-dnum(TK.state.start)+1,firm:f,n,sz}]); log(`TEST: ${f} closed. ${n} accounts (${fmt(sz)}) lost at once.`); tkSave(); tkRender(); }
   else if(k==="new"){ labPlay(false); LAB.seed=1+Math.floor(Math.random()*9999); labReset(); TK.testDay=null; TK.state.testDay=null; labNewFromCfg(); labReset(); tkRender(); } });
 document.addEventListener("change",e=>{ if(e.target.id!=="labSpeed") return; LAB.speed=+e.target.value; if(LAB.timer) labPlay(true); });
 /* ---------- Lab plan setup: type any plan, any account sizes, and choose what each payout buys ---------- */
@@ -243,7 +247,7 @@ function labCfgToP(c){
   const RV=c.reinv||[]; for(let i=1;i<RV.length-1;i++) if(!(+RV[i].upto>+RV[i-1].upto)) err.push("Reinvest stages: each Tier 1 limit must be bigger than the one before.");
   if(err.length) return {err};
   const P={s0:+c.s0,n0:Math.round(c.n0),target:+c.target,wr:c.wr/100,rr:+c.rr,riskE:+c.riskE,riskF:+c.riskF,tpd:Math.max(1,Math.round(c.tpd)),split:c.split/100,reserve:0,
-    reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
+    firms:String(c.firms||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,8),dstop:c.dstop!==false,reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   const warn=[]; if(P.riskE>capE){ warn.push(`Test risk lowered to ${capE}% so it stays inside the firm's limits.`); P.riskE=capE; } if(P.riskF>capF){ warn.push(`Funded risk lowered to ${capF}% so it stays inside the firm's limits.`); P.riskF=capF; }
   return {P,warn};
@@ -269,6 +273,9 @@ function labSetupHtml(){
   <div class="ls-g"><h4>Reinvest ladder</h4><p class="ls-help">How much of each payout goes back in, by Tier 1 size. Until Tier 2 = 60% and Tier 3 = 40% of Tier 1, 100% goes back in. Numbers from the guide.</p>
     <table class="ls-lad"><thead><tr><th>Stage</th><th>Tier 1 up to</th><th>Reinvest</th><th>Take home</th></tr></thead><tbody>
     ${(c.reinv||[]).map((r,i,A)=>`<tr><td><b>${esc(r.name||"Stage "+(i+1))}</b></td><td>${r.upto==null?`<span class="muted">${fmt(A[i-1]?A[i-1].upto:0)}+</span>`:`<input type="number" data-lr="upto" data-i="${i}" value="${r.upto}" step="25000" aria-label="Tier 1 up to">`}</td><td><input type="number" data-lr="rate" data-i="${i}" value="${r.rate}" step="5" min="0" max="100" aria-label="Reinvest %"></td><td class="muted">${100-r.rate}%</td></tr>`).join("")}</tbody></table></div>
+  <div class="ls-g"><h4>Firms and guards</h4><p class="ls-help">Spread accounts over firms (new tests go to the firm with the least money). Then press "Firm closes" while it plays to see how much survives.</p>
+    <div class="ls-row"><label class="ls-f" style="flex:2"><span>Firms, comma separated</span><div class="field"><input type="text" data-lfirms value="${esc(c.firms||"")}" placeholder="FTMO, FundedNext, The5ers"></div></label></div>
+    <label class="chk"><input type="checkbox" data-lds${c.dstop!==false?" checked":""}> Daily stop: after 2 losing accounts in a day, no more trades that day</label></div>
   <div class="ls-g"><h4>Each payout reinvests into</h4>
     <div class="ls-buy" role="radiogroup">${["auto",...on].map(v=>`<button type="button" role="radio" data-lb="${v}" aria-checked="${String(c.buy)===String(v)}" class="${String(c.buy)===String(v)?"on":""}">${v==="auto"?"<b>Auto</b><span>Follow the size table</span>":`<b>${fmt(v)}</b><span>${fmtFull((c.ladder.find(r=>r.size===v)||{}).fee||0)} each</span>`}</button>`).join("")}</div>
     <label class="chk"><input type="checkbox" data-lc="scale"${c.scale==="guide"?" checked":""}> Guide scale-up checklist (all 5: 3 payouts in a row, no cut in 14 days, win rate 40%+ over 20 trades, Tier 2 = 60% and Tier 3 = 40% of Tier 1). Off = only the first 2.</label></div>
@@ -283,6 +290,8 @@ function labBuild(){
   tkFromPlan(r.P); (r.warn||[]).forEach(w=>log(w)); log(`Account sizes: ${r.P.ladder.map(x=>fmt(x.size)).join(" → ")}. Payouts reinvest into ${r.P.buy==="auto"?"the size table":fmt(r.P.buy)+" accounts"}.`); labReset(); tkSave(); tkRender();
 }
 document.addEventListener("input",e=>{ const t=e.target; if(!TK.test) return;
+  if(t.hasAttribute("data-lfirms")){ const c=labCfg(); c.firms=t.value; labCfgSave(); return; }
+  if(t.hasAttribute("data-lds")){ const c=labCfg(); c.dstop=t.checked; labCfgSave(); return; }
   if(t.dataset.lc){ const c=labCfg(); c[t.dataset.lc]=t.type==="checkbox"?(t.checked?"guide":"simple"):+t.value; labCfgSave(); if(t.dataset.lc==="s0"){ c.ladder.forEach(r=>{ if(r.size===+t.value) r.on=true; }); if(c.buy!=="auto"&&+c.buy<+t.value) c.buy="auto"; tkRender(); } }
   else if(t.dataset.lr){ const c=labCfg(), r=c.reinv[+t.dataset.i]; if(!r) return; r[t.dataset.lr]=+t.value; labCfgSave(); if(t.dataset.lr==="rate"){ const td=t.closest("tr").lastElementChild; if(td) td.textContent=(100-r.rate)+"%"; } }
   else if(t.dataset.ll){ const c=labCfg(), r=c.ladder[+t.dataset.i]; if(!r) return; if(t.dataset.ll==="on"){ r.on=t.checked; if(!r.on&&+c.buy===r.size) c.buy="auto"; labCfgSave(); tkRender(); } else { r[t.dataset.ll]=+t.value; labCfgSave(); } } });

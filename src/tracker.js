@@ -25,12 +25,12 @@ function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK
 /* create from plan */
 function tkFromPlan(Pin){
   const P=Pin&&Pin.s0?Pin:readParams();
-  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax"];
+  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax","cons","dstop","firms"];
   const p={}; keep.forEach(k=>{ if(P[k]!==undefined) p[k]=P[k]; });
   p.ladder=P.ladder.map(r=>({size:r.size,fee:r.fee,unlockT1:r.unlockT1,unlockPay:r.unlockPay}));
   p.firm=typeof firmApplied!=="undefined"&&firmApplied?firmApplied:"";
-  const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
-  for(let i=0;i<P.n0;i++) st.accounts.push(newAcct(P.s0,1,st));
+  const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,own:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
+  for(let i=0;i<P.n0;i++){ const a=newAcct(P.s0,1,st); a.firm=p.firms&&p.firms.length?p.firms[i%p.firms.length]:p.firm; st.accounts.push(a); }
   TK.state=st; log(`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
   if(TK.test){ st.testDay=todayStr(); st.p.mindays=0; log("Test mode: the minimum trading days rule is off, so accounts move the moment they hit target."); }
   tkSave(); location.hash=TK.test?"lab":"track"; tkRender();
@@ -57,7 +57,11 @@ function evalLane(st){ const w=weekIdx(st);
 function isOn(a,st){ if(offline(a)) return false; return a.phase===3 ? (weekIdx(st)%3)===a.off : a.lane===evalLane(st); }
 function nextOnDate(a,st){ if(offline(a)) return a.offUntil; const w=weekIdx(st), m=a.phase===3?3:2, o=a.phase===3?a.off:a.lane; let k=1; while(((w+k)%m)!==o) k++; const d=new Date(new Date(st.start+"T12:00:00").getTime()+(w+k)*7*DAY); return d.toISOString().slice(0,10); }
 
-function advise(a,st){
+function advise(a,st){ const v=adviseCore(a,st);
+  if((v.kind==="trade"||v.kind==="recover")&&typeof guardStopped==="function"&&guardStopped(st,a)) return {...v,kind:"rest",pill:"STOP",title:"Daily stop: don't trade today",text:"2 losing trades on this account today. Stop now and come back tomorrow with the same risk.",act:undefined};
+  if(v.kind==="payout"&&typeof consistency==="function"){ const c=consistency(a,st.p); if(!c.ok) return {...v,kind:"trade",pill:"CONSISTENCY",title:`Not yet: firm consistency rule`,text:`Your best day is ${Math.round(c.share)}% of this account's profit. The firm allows ${c.lim}%. Make ${fmtFull(c.need)} more with normal small trades, then ask for the payout.`,act:undefined}; }
+  return v; }
+function adviseCore(a,st){
   const p=st.p, r=rulesFor(a,p), pct=(a.bal-a.size)/a.size*100;
   const riskUsd=a.size*r.risk/100, tgtUsd=a.size*(1+r.tgt/100), cutUsd=a.size*(1-r.cut/100);
   const dailyStop=a.dayStart-a.size*Math.min(p.daily,r.cut)/100*0.8;
@@ -196,13 +200,15 @@ function tkRenderInner(){
 
   <div class="card tk-risk"><span class="kicker">Risk style</span><div class="riskseg">${Object.keys(RISK_LV).map(lv=>{ const r=levelRisk(lv,{rr:p.rr,maxdd:p.maxdd,daily:p.daily||5,tpd:p.tpd||1,c1:p.c1,c2:p.c2,c3:p.c3}); return `<button type="button" role="radio" aria-checked="${p.risklvl===lv}" data-tk="risk" data-lvl="${lv}"><b>${RISK_LV[lv].name}</b><span class="rs-v">${r.riskE}%</span><span class="rs-s">${r.riskE===r.riskF?"tests and funded":`tests, ${r.riskF}% funded`}</span></button>`; }).join("")}</div></div>
 
-  <div class="tk-next"><span class="kicker">Next step to your goal</span><b>${next.t}</b><p>${next.s}</p>${next.btn?`<button class="btn gold sm" data-tk="buy" data-size="${pf.buySize}" data-fee="${pf.fee}">I bought it</button>`:""}</div>
+  <div class="tk-next"><span class="kicker">Next step to your goal</span><b>${next.t}</b><p>${next.s}</p>${next.btn?`<div class="tk-buyrow"><input class="tk-firm" id="tkBuyFirm" list="tkFirmList" placeholder="Firm" value="${esc(firmSuggest(st)||p.firm||"")}" aria-label="Firm for this test"><button class="btn gold sm" data-tk="buy" data-size="${pf.buySize}" data-fee="${pf.fee}">I bought it</button></div>`:""}</div>
+  <datalist id="tkFirmList">${(typeof FIRMS!=="undefined"?FIRMS:[]).map(f=>`<option value="${esc(f.name)}">`).join("")}</datalist>
+  ${guardCards(st,adv,pf)}
 
   <div class="sec"><h3>Your accounts</h3>
   <div class="tk-list">${adv.map(({a,v})=>{
     const lo=v.cutUsd, hi=v.tgtUsd, pos=Math.max(0,Math.min(100,(a.bal-lo)/(hi-lo)*100)), zero=Math.max(0,Math.min(100,(a.size-lo)/(hi-lo)*100));
     return `<div class="tk-acc k-${v.kind}" data-id="${a.id}">
-      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${PH[a.phase]} · ${a.days.length}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
+      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${PH[a.phase]}${a.firm?" · "+esc(a.firm):""} · ${a.days.length}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
       <div class="tk-do"><b>${v.title}</b><p>${v.text}</p></div>
       <div class="tk-meter"><div class="tk-track"><i class="z" style="left:${zero}%"></i><i class="m" style="left:${pos}%"></i></div><div class="tk-ends"><span>Cut ${fmt(lo)}</span><span class="${v.pct>=0?"up":"dn"}">${fmtFull(a.bal)} (${v.pct>=0?"+":""}${v.pct.toFixed(1)}%)</span><span>${a.phase===3?"Payout":"Pass"} ${fmt(hi)}</span></div></div>
       <div class="tk-acts">
@@ -219,7 +225,7 @@ function tkRenderInner(){
     <div class="card"><h3 class="ct">Tier balance</h3>${tiers.map(t=>{ const w=t[2]>0?Math.min(100,t[1]/t[2]*100):0; return `<div class="tk-tb"><div class="tk-gtop"><span><i class="dotl" style="background:var(--${t[3]})"></i>${t[0]}</span><span>${fmt(t[1])} / ${fmt(t[2])}</span></div><div class="tk-bar sm"><i style="width:${w}%;background:var(--${t[3]})"></i></div></div>`; }).join("")}
       <p class="hint">Backup must reach 60% and Evaluation 40% of Funded before you take money home.</p>
       ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
-      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
+      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><input class="tk-firm" id="tkAddFirm" list="tkFirmList" placeholder="Firm" value="${esc(firmSuggest(st)||p.firm||"")}" aria-label="Firm"><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
     <div class="card tk-remind"><h3 class="ct">Daily reminder</h3><p class="hint" style="margin-top:-6px">Get an alarm every morning that opens this coach. No account needed.</p>
       <label class="f" for="tkTime">Remind me at<input type="time" id="tkTime" value="${esc(st.remind||"08:00")}"></label>
       <div class="tk-rbtns"><a class="btn gold sm" id="tkCalG" href="${calLinks(st.remind).g}" target="_blank" rel="noopener">Add to Google Calendar</a>${window.claude&&window.claude.use?"":`<a class="btn ghost sm" id="tkCalI" href="${calLinks(st.remind).ics}" download="tierstack-coach.ics">Apple / Outlook calendar</a>`}</div>
@@ -234,6 +240,7 @@ function tkRenderInner(){
 function acct(id){ return TK.state.accounts.find(a=>a.id===id); }
 function doLog(a,bal){
   const st=TK.state, t=todayStr(), r=rulesFor(a,st.p);
+  if(typeof guardOnLog==="function") guardOnLog(st,a,bal);
   if(!a.days.includes(t)){ a.days.push(t); a.dayStart=a.bal; }
   if(a.rec>0){ a.rec--; }
   if(bal!==a.bal) st.trades.push(bal>a.bal?1:0); st.trades=st.trades.slice(-100);
@@ -254,8 +261,8 @@ function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;
   log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to Reinvestment, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
 function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase,id:a.id,size:a.size,pct:Math.round((a.bal-a.size)/a.size*1000)/10}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
-function doBuy(size,fee){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; const a=newAcct(size,1,st); st.accounts.push(a);
-  log(`Bought ${a.name} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
+function doBuy(size,fee,firm){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; if(st.own==null) st.own=st.p.n0*st.p.ladder[0].fee; st.own+=fee-fromPool; const a=newAcct(size,1,st); a.firm=firm!=null&&firm!==""?firm:(typeof firmSuggest==="function"&&firmSuggest(st))||st.p.firm||""; st.accounts.push(a);
+  log(`Bought ${a.name}${a.firm?" at "+a.firm:""} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
 function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
   if(a.ready) return promoteOne(a);
   if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){
@@ -277,7 +284,7 @@ document.addEventListener("click",e=>{
   else if(k==="pass"){ const a=acct(b.dataset.id); if(a.phase===2){ a.ready=true; if(!promoteOne(a)) log(`${a.name} passed Phase 2. It waits on the Tier 2 bench until a funded account is cut or Tier 1 can grow.`); } else passAcct(a); }
   else if(k==="payout"){ doPayout(acct(b.dataset.id),parseFloat(b.dataset.pay)||0); }
   else if(k==="cut"||k==="close"){ const a=acct(b.dataset.id); if(k==="close"&&!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to confirm"; return; } doCut(a); }
-  else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; } doBuy(size,fee); }
+  else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; } const fi=$(k==="buy"?"tkBuyFirm":"tkAddFirm"); doBuy(size,fee,fi?fi.value.trim():undefined); }
   else if(k==="risk"){ const lv=b.dataset.lvl; if(!RISK_LV[lv]||st.p.risklvl===lv) return; const r=levelRisk(lv,{rr:st.p.rr,maxdd:st.p.maxdd,daily:st.p.daily||5,tpd:st.p.tpd||1,c1:st.p.c1,c2:st.p.c2,c3:st.p.c3}); Object.assign(st.p,r); st.p.risklvl=lv;
     log(`Risk style set to ${RISK_LV[lv].name}: ${r.riskE}% per test trade, ${r.riskF}% funded, ${r.k3} recovery trades on tests.`); }
   else if(k==="reset"){ if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to delete this tracker"; return; } TK.state=null; tkSave(); tkRender(); return; }

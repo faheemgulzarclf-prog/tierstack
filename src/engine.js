@@ -158,14 +158,15 @@ function portfolioSim(P,wr,runs,seed,lg){
         const cut=a.ph===1?P.c3:a.ph===2?P.c2:P.c1;
         const K=a.ph===1?P.k3:a.ph===2?P.k2:P.k1;
         const risk=funded?P.riskF:P.riskE;
-        a.d++; let nT=0;
+        a.d++; let nT=0, nL=0;
         for(let t=0;t<P.tpd && a.b<tg && !a.dead;t++){ nT++;
           const win=P.corr?shared[t]:rng()<wr;
-          a.b+= win? risk*P.rr : -risk; last20.push(win?1:0); if(last20.length>20) last20.shift(); last100.push(win?1:0); if(last100.length>100) last100.shift();
+          a.b+= win? risk*P.rr : -risk; if(!win) nL++; last20.push(win?1:0); if(last20.length>20) last20.shift(); last100.push(win?1:0); if(last100.length>100) last100.shift();
           if(lg) lg({e:"trade",d,w,id:a.id,ph:a.ph,size:a.size,risk,win,b:a.b,lane:a.lane,off:a.off,offW:a.offW,rec:a.rec,tg,cut,K});
           if(a.b<=-P.maxdd){a.dead=true;a.why="maxdd";break;}
           if(a.rec>=0){ a.rec--; if(a.b>-cut){a.rec=-1;a.used=true; if(lg) lg({e:"recovered",d,w,id:a.id,ph:a.ph,b:a.b});} else if(a.rec<=0){a.dead=true;a.why="recfail";break;} }
           else if(a.b<=-cut){ if(a.used||K===0){a.dead=true;a.why="again";break;} a.rec=K; if(lg) lg({e:"recStart",d,w,id:a.id,ph:a.ph,b:a.b,K,cut}); }
+          if(P.dstop!==false&&nL>=2) break; // daily stop: 2 losing trades end this account's day
         }
         dSum+=nT; if(nT>dMax) dMax=nT;
         if(a.dead) continue;
