@@ -50,20 +50,13 @@ function roadRender(){
     const about=w=>w?`about week ${w}`:"later in the plan";
     const yours=Math.round((1-T.rate)*100);
     const step=(w,t,p,kind)=>`<li class="rs ${kind||""}"><span class="rw">${w}</span><div><b>${t}</b>${p?`<p>${p}</p>`:""}</div></li>`;
-    const inst=isInst(P);
     const S=[
-      inst?{tier:"Start",name:"Instant accounts",title:"Buy and go live",from:1,to:T.f1,
-       unlock:"Starts today",
-       next:`Stage 2 is your first payout, ${about(T.po1)}.`,
-       steps:[
-        step("Week 1",`Buy ${n0} × ${fmt(s0)} instant accounts (${fmtFull(L[0].fee)} each)`,`They are funded the same day. No tests. Risk ${fmtFull(rF)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day.`),
-        step("Every week",`Keep the same rhythm`,`Each account trades 1 week, then rests 2. Same ${fmtFull(rF)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
-        step("Any week",`If an account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it.`,"warn")]}:
       {tier:"Tier 3",name:"Evaluation",title:"Pass your first tests",from:1,to:T.f1,
        unlock:"Starts today",
        next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
        steps:[
-        step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(s0*Math.min(P.daily,P.c3)/100*0.8)}.`),
+        (P.have||[]).length?step("Today",`Start from your accounts: ${haveTxt(P.have)}`,`They keep their stage, balance and days traded. ${P.have.some(h=>h.ph===3)?"Funded ones trade 1 week, then rest 2. ":""}No fee is counted for them.`,"mile"):"",
+        n0?step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(s0*Math.min(P.daily,P.c3)/100*0.8)}.`):"",
         n0>1?step("Week 2",`Test #1 rests. Trade test #2`,`Tests take turns by week, so one bad week can't hit both.`):"",
         step("Every week",`Keep the same rhythm`,`Same ${fmtFull(rE)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
         T.p1?step(wk(T.p1),`First Phase 1 pass (+${P.p1t}%)`,`That account moves to Phase 2. Same risk, same turns.`,"mile"):"",
@@ -76,15 +69,15 @@ function roadRender(){
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
         step("Every on-week",`Ask for a payout at ${lockTxt(P)}`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)})${P.lockMax>P.lock?`, and at the latest at +${P.lockMax}%`:""}, request the payout. Don't wait for more.`),
         T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
-        step("Right after",inst?`Buy a backup instant account`:`Refill the Evaluation tier`,inst?`Reinvestment buys backup accounts. They wait, not trading, until a funded account is cut.`:`Reinvestment buys the next tests, so a new account is always on the way.`),
+        step("Right after",`Refill the Evaluation tier`,`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
       {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
        unlock:`Unlocks ${about(T.po1)}`,
        next:`Stage 4 unlocks when you reach ${fmt(P.target)} funded, ${about(T.goal)}.`,
        steps:[
-        step("Always",`Keep a backup ready`,inst?`Backup instant accounts worth 60% of funded, bought and waiting. Like a football bench.`:`For every funded account, keep one test passed or close behind it. Like a football bench.`),
+        step("Always",`Keep a backup ready`,`For every funded account, keep one test passed or close behind it. Like a football bench.`),
         T.f2?step(wk(T.f2),`Second funded account`,`Funded accounts take turns: each one trades 1 week in 3.`,"mile"):"",
-        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} ${inst?"accounts":"tests"}`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
+        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} tests`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
         ...T.miles.slice(0,4).map(m=>step(wk(m.w),`${fmt(m.v)} funded`,`Next account size unlocks.`,"mile"))]},
       {tier:"Goal",name:"Funded team",title:`${fmt(P.target)} funded`,from:T.goal,to:null,
        unlock:T.goal?`Unlocks ${about(T.goal)}`:`Not reached in most futures. Try lower risk or a smaller goal.`,
@@ -95,7 +88,7 @@ function roadRender(){
         step("Always",`Same rules`,`Fixed risk, 1 week on and 2 off, payout at ${lockTxt(P)}.`)]}
     ];
     o.innerHTML=`
-    <div class="card road-sum"><div><span class="k">Your road</span><h2>${T.goal?`${fmt(P.target)} funded in about ${weeksTxt(T.goal)}`:`A long road to ${fmt(P.target)}`}</h2><p>${n0} × ${fmt(s0)} tests · ${Math.round(P.wr*100)}% win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name+" risk":P.riskE+"% risk"}. Weeks are the middle of 160 simulated futures, so yours can be faster or slower.</p></div>
+    <div class="card road-sum"><div><span class="k">Your road</span><h2>${T.goal?`${fmt(P.target)} funded in about ${weeksTxt(T.goal)}`:`A long road to ${fmt(P.target)}`}</h2><p>${(P.have||[]).length?haveTxt(P.have)+(n0?` + ${n0} × ${fmt(s0)} new tests`:""):`${n0} × ${fmt(s0)} tests`} · ${Math.round(P.wr*100)}% win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name+" risk":P.riskE+"% risk"}. Weeks are the middle of 160 simulated futures, so yours can be faster or slower.</p></div>
       <div class="road-bar">${S.map((s,i)=>`<span class="${i<cur?"done":i===cur?"now":""}"><i></i>${s.tier}</span>`).join("")}</div></div>
     ${S.map((s,i)=>{ const st=i<cur?"done":i===cur?"now":"locked";
       return `<section class="stage ${st}"><div class="sg-h"><span class="sg-n">${i+1}</span><div><span class="sg-t">Stage ${i+1} · ${s.tier} · ${s.name}</span><h3>${s.title}</h3><span class="sg-w">${s.from?`Week ${s.from}`:""}${s.to?` → ${s.to}`:s.from?" →":""}</span></div><span class="sg-st">${st==="done"?"Done":st==="now"?"You are here":`<i class="lk"></i>${esc(s.unlock)}`}</span></div>

@@ -8,12 +8,10 @@
           <p class="help">Works with MT4/MT5, cTrader, TradingView and most journal CSV exports. Nothing leaves your device.</p>
           <div id="impOut"></div>
         </div></details>
-      <div class="box"><label id="modeLbl">Account type</label>
-        <div class="riskseg modeseg" id="modeSeg" role="radiogroup" aria-labelledby="modeLbl">
-          <button type="button" role="radio" data-mode="2step" aria-checked="true"><b>2-step challenge</b><span class="rs-s">Pass 2 tests, then funded</span></button>
-          <button type="button" role="radio" data-mode="instant" aria-checked="false"><b>Instant funding</b><span class="rs-s">Funded the day you buy</span></button>
-        </div><input type="hidden" id="mode" value="2step">
-        <p class="help" id="modeHelp">Cheap tests you must pass first. Most traders start here.</p></div>
+      <details class="box imp have" id="haveBox"><summary><span><b>My accounts now</b><small id="haveNote">Already funded, or tests in Phase 1 or 2? Add them and the plan starts from there.</small></span><span class="imp-plus" aria-hidden="true">+</span></summary>
+        <div class="imp-in"><div id="haveRows" class="hv-rows"></div>
+          <button type="button" class="btn ghost sm" id="haveAdd">+ Add an account</button>
+          <p class="help">Size, stage, balance today and days already traded. No fee is counted for these. Your coach starts with them too.</p></div></details>
       <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
         <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
         <p class="help">Size of the test you buy first.</p></div>

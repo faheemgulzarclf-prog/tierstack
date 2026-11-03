@@ -289,6 +289,21 @@ details.more[open] summary::after{content:"−"}
 .imp summary b{display:block;font-size:15px}.imp summary small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.4}
 .imp-plus{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line2);flex:none;transition:transform .25s}.imp[open] .imp-plus{transform:rotate(45deg)}
 .imp-in{display:grid;gap:10px;margin-top:12px}.imp-in textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);padding:10px 12px;font:13px/1.5 var(--f-m);resize:vertical}
+.hv-rows{display:grid;gap:10px}.hv-rows:empty{display:none}
+.hv-row{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;align-items:end;padding:12px 12px 10px;border:1px solid var(--line2);border-radius:14px;background:var(--bg)}
+.hv-f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}.hv-f .field{min-height:42px}.hv-f input,.hv-f select{min-width:0;width:100%}
+.hv-f select{border:0;background:transparent;color:var(--ink);font:inherit;font-size:15px;padding:0 4px;height:40px}
+.hv-x{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--muted);font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}.hv-x:hover{color:var(--bad);border-color:var(--bad)}
+.hv-row .hv-f:nth-child(2){padding-right:22px}
+.hv-msg{grid-column:1/-1;margin:0;font-size:12.5px;color:var(--muted)}.hv-msg.ok{color:var(--good)}.hv-msg.warn{color:var(--warn)}.hv-msg.bad{color:var(--bad)}
+.tk-edit{width:100%}.tk-edit>summary{cursor:pointer;color:var(--muted);font-size:13px;list-style:none;width:max-content}.tk-edit>summary::-webkit-details-marker{display:none}.tk-edit>summary::before{content:"✎ "}
+.tk-mine{margin-top:12px;border-top:1px solid var(--line2);padding-top:10px}.tk-mine>summary{color:var(--ink);font-weight:600}.tk-mine>summary::before{content:"+ "}
+.tk-edrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-items:end;margin-top:8px}
+.tk-edrow label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.tk-edrow input,.tk-edrow select{font:inherit;font-size:14px;color:var(--ink);background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px;min-width:0;width:100%;box-sizing:border-box}
+.tk-edrow .field{display:flex;align-items:center;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding-left:8px}.tk-edrow .field input{border:0;background:transparent;padding-left:2px}.tk-edrow .field .pre{color:var(--muted)}
+.tk-ederr{margin-top:6px}.tk-ederr:empty{display:none}
+.ls-have input,.ls-have select{width:100%;min-width:70px}
 .imp-file{width:max-content;cursor:pointer}.imp-err{color:var(--bad);font-size:13px;margin:0}
 .imp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.imp-stats span{display:flex;flex-direction:column;font-size:12px;color:var(--muted);background:var(--bg2,rgba(127,127,127,.06));border-radius:10px;padding:8px}.imp-stats b{font-size:17px;color:var(--ink);font-family:var(--f-h)}
 #impOut .verdict{margin-bottom:10px}
@@ -508,7 +523,6 @@ table.data th:first-child,table.data td:first-child{text-align:left;font-family:
 .warnt{color:var(--warn);font-weight:600}
 .tk-risk{display:flex;flex-direction:column;align-items:stretch;gap:12px;text-align:left}
 .tk-risk .riskseg{width:100%}
-.modeseg{grid-template-columns:repeat(2,minmax(0,1fr))}
 .tk-risk .riskseg button{padding:9px 12px}
 .tool{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);transition:transform .2s,border-color .2s}
 .tool:hover{transform:translateY(-3px);border-color:var(--gold)}

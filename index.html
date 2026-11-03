@@ -305,6 +305,21 @@ details.more[open] summary::after{content:"−"}
 .imp summary b{display:block;font-size:15px}.imp summary small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.4}
 .imp-plus{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line2);flex:none;transition:transform .25s}.imp[open] .imp-plus{transform:rotate(45deg)}
 .imp-in{display:grid;gap:10px;margin-top:12px}.imp-in textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);padding:10px 12px;font:13px/1.5 var(--f-m);resize:vertical}
+.hv-rows{display:grid;gap:10px}.hv-rows:empty{display:none}
+.hv-row{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;align-items:end;padding:12px 12px 10px;border:1px solid var(--line2);border-radius:14px;background:var(--bg)}
+.hv-f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}.hv-f .field{min-height:42px}.hv-f input,.hv-f select{min-width:0;width:100%}
+.hv-f select{border:0;background:transparent;color:var(--ink);font:inherit;font-size:15px;padding:0 4px;height:40px}
+.hv-x{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--muted);font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}.hv-x:hover{color:var(--bad);border-color:var(--bad)}
+.hv-row .hv-f:nth-child(2){padding-right:22px}
+.hv-msg{grid-column:1/-1;margin:0;font-size:12.5px;color:var(--muted)}.hv-msg.ok{color:var(--good)}.hv-msg.warn{color:var(--warn)}.hv-msg.bad{color:var(--bad)}
+.tk-edit{width:100%}.tk-edit>summary{cursor:pointer;color:var(--muted);font-size:13px;list-style:none;width:max-content}.tk-edit>summary::-webkit-details-marker{display:none}.tk-edit>summary::before{content:"✎ "}
+.tk-mine{margin-top:12px;border-top:1px solid var(--line2);padding-top:10px}.tk-mine>summary{color:var(--ink);font-weight:600}.tk-mine>summary::before{content:"+ "}
+.tk-edrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-items:end;margin-top:8px}
+.tk-edrow label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.tk-edrow input,.tk-edrow select{font:inherit;font-size:14px;color:var(--ink);background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px;min-width:0;width:100%;box-sizing:border-box}
+.tk-edrow .field{display:flex;align-items:center;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding-left:8px}.tk-edrow .field input{border:0;background:transparent;padding-left:2px}.tk-edrow .field .pre{color:var(--muted)}
+.tk-ederr{margin-top:6px}.tk-ederr:empty{display:none}
+.ls-have input,.ls-have select{width:100%;min-width:70px}
 .imp-file{width:max-content;cursor:pointer}.imp-err{color:var(--bad);font-size:13px;margin:0}
 .imp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.imp-stats span{display:flex;flex-direction:column;font-size:12px;color:var(--muted);background:var(--bg2,rgba(127,127,127,.06));border-radius:10px;padding:8px}.imp-stats b{font-size:17px;color:var(--ink);font-family:var(--f-h)}
 #impOut .verdict{margin-bottom:10px}
@@ -524,7 +539,6 @@ table.data th:first-child,table.data td:first-child{text-align:left;font-family:
 .warnt{color:var(--warn);font-weight:600}
 .tk-risk{display:flex;flex-direction:column;align-items:stretch;gap:12px;text-align:left}
 .tk-risk .riskseg{width:100%}
-.modeseg{grid-template-columns:repeat(2,minmax(0,1fr))}
 .tk-risk .riskseg button{padding:9px 12px}
 .tool{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);transition:transform .2s,border-color .2s}
 .tool:hover{transform:translateY(-3px);border-color:var(--gold)}
@@ -1201,12 +1215,10 @@ if(matchMedia("(hover:hover)").matches){var r=0;T.addEventListener("pointermove"
           <p class="help">Works with MT4/MT5, cTrader, TradingView and most journal CSV exports. Nothing leaves your device.</p>
           <div id="impOut"></div>
         </div></details>
-      <div class="box"><label id="modeLbl">Account type</label>
-        <div class="riskseg modeseg" id="modeSeg" role="radiogroup" aria-labelledby="modeLbl">
-          <button type="button" role="radio" data-mode="2step" aria-checked="true"><b>2-step challenge</b><span class="rs-s">Pass 2 tests, then funded</span></button>
-          <button type="button" role="radio" data-mode="instant" aria-checked="false"><b>Instant funding</b><span class="rs-s">Funded the day you buy</span></button>
-        </div><input type="hidden" id="mode" value="2step">
-        <p class="help" id="modeHelp">Cheap tests you must pass first. Most traders start here.</p></div>
+      <details class="box imp have" id="haveBox"><summary><span><b>My accounts now</b><small id="haveNote">Already funded, or tests in Phase 1 or 2? Add them and the plan starts from there.</small></span><span class="imp-plus" aria-hidden="true">+</span></summary>
+        <div class="imp-in"><div id="haveRows" class="hv-rows"></div>
+          <button type="button" class="btn ghost sm" id="haveAdd">+ Add an account</button>
+          <p class="help">Size, stage, balance today and days already traded. No fee is counted for these. Your coach starts with them too.</p></div></details>
       <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
         <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
         <p class="help">Size of the test you buy first.</p></div>
@@ -1301,13 +1313,22 @@ function reinvRate(P,T1,stocked){ if(!stocked) return 1; const R=P.reinv&&P.rein
 function lockPick(P,rnd){ const lo=P.lock, hi=Math.max(lo,P.lockMax||lo); return hi>lo?Math.round((lo+rnd*(hi-lo))*100)/100:lo; }
 function lockTxt(P){ const hi=Math.max(P.lock,P.lockMax||P.lock); return hi>P.lock?`+${P.lock}–${hi}%`:`+${P.lock}%`; }
 function lockMid(P){ return (P.lock+Math.max(P.lock,P.lockMax||P.lock))/2; }
-/* instant funding: no tests, a bought account is funded at once. Tier 3 (tests) does not exist, so the guide's ratios become Tier 2 backup = 60% of Tier 1. */
-function isInst(P){ return !!P&&P.mode==="instant"; }
-function stockOK(P,T1,T2,T3){ return T1>0&&T2>=0.6*T1-1&&(isInst(P)||T2+T3>=T1-1); }
-function growStock(P,nT1,T2b,T3b){ return T2b>=0.6*nT1-1&&(isInst(P)||T2b+T3b>=nT1-1); }
-function instFee(s){ return Math.round(s*0.04/10)*10; } // estimate only: instant accounts cost far more than a 2-step test; type your firm's price
-function curMode(){ const m=document.getElementById("mode"); return m&&m.value==="instant"?"instant":"2step"; }
-function feeKey(s){ return (curMode()==="instant"?"i":"")+s; }
+/* accounts the trader already has (a funded account, tests in Phase 1 or 2): [{size,ph:1|2|3,bal,days}] */
+let HAVE=[]; try{ const t=JSON.parse(localStorage.getItem("ts-have")||"[]"); if(Array.isArray(t)) HAVE=t.slice(0,20); }catch(e){}
+function haveSave(){ try{ localStorage.setItem("ts-have",JSON.stringify(HAVE)); }catch(e){} }
+const HAVE_PH={1:"Phase 1",2:"Phase 2",3:"Funded"};
+/* one row checked against the firm rules: {ok,err} or {ok,size,ph,bal,days,b,warn} */
+function haveCheck(h,R){ const size=+h.size, ph=[1,2,3].includes(+h.ph)?+h.ph:1, bal=h.bal===""||h.bal==null?size:+h.bal, days=Math.max(0,Math.min(60,Math.round(+h.days||0)));
+  if(!(size>=1000&&size<=4e6)) return {ok:false,err:"Type the account size."};
+  if(!(bal>0)) return {ok:false,err:"Type the balance it has now."};
+  const b=(bal-size)/size*100, cut=ph===1?R.c3:ph===2?R.c2:R.c1;
+  if(b<=-R.maxdd) return {ok:false,err:`It is ${Math.abs(b).toFixed(1)}% down, past the firm's ${R.maxdd}% max loss. The firm has closed it.`};
+  let warn=""; if(b<=-cut) warn=`It is below the −${cut}% cut line, so the plan starts it in recovery.`;
+  else if(ph<3&&b>=(ph===1?R.p1t:R.p2t)) warn=`It is already above the ${HAVE_PH[ph]} target. It passes once it has the firm's minimum days.`;
+  return {ok:true,size,ph,bal,days,b,warn}; }
+function haveList(R){ return HAVE.map(h=>haveCheck(h,R)).filter(x=>x.ok).map(({size,ph,bal,days,b})=>({size,ph,bal,days,b})); }
+/* money the plan starts with: new tests plus accounts you already have */
+function startCap(P){ return (P.n0||0)*P.s0+(P.have||[]).reduce((s,h)=>s+h.size,0); }
 function guessFee(s){ if(DEFAULT_FEE[s]) return DEFAULT_FEE[s]; return Math.round(Math.max(40, s*0.0055)/10)*10; }
 const fmt=(v,d)=>{ if(!isFinite(v)) return "—"; const a=Math.abs(v), sg=v<0?"−":"";
   if(a>=1e6) return sg+"$"+(a/1e6).toFixed(a>=1e7?1:2).replace(/\.0+$/,"")+"M";
@@ -1359,16 +1380,17 @@ function buildLadder(){
   return sizes.map((s,i)=>{
     let unlockT1=0, unlockPay=0;
     if(i>0){ const f=k===2?0.3:0.2+0.4*(i-1)/(k-2); unlockT1=Math.round(tgt*f/1000)*1000; unlockPay=10+15*(i-1); }
-    return {size:s, fee:feeMemo[feeKey(s)]??(curMode()==="instant"?instFee(s):guessFee(s)), unlockT1, unlockPay};
+    return {size:s, fee:feeMemo[s]??guessFee(s), unlockT1, unlockPay};
   });
 }
 function renderLadder(){
   const L=buildLadder(); const tb=$("ladderTbl").tBodies[0];
   tb.innerHTML=L.map((r,i)=>`<tr><td class="mono">${fmt(r.size)}</td><td><input type="number" id="fee_${r.size}" data-size="${r.size}" value="${r.fee}" min="0" step="10" aria-label="Eval fee for ${fmt(r.size)}"></td><td class="hint">${i===0?"start":`T1 ≥ ${fmt(r.unlockT1)}, ${r.unlockPay}+ payouts`}</td></tr>`).join("");
-  tb.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{feeMemo[feeKey(inp.dataset.size)]=parseFloat(inp.value)||0;}));
+  tb.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{feeMemo[inp.dataset.size]=parseFloat(inp.value)||0;}));
 }
 function readParams(){
-  const P={s0:num("s0"), n0:Math.max(1,Math.round(num("n0"))), target:num("target"),
+  const have=haveList({maxdd:num("maxdd"),c1:num("c1"),c2:num("c2"),c3:num("c3"),p1t:num("p1t"),p2t:num("p2t")});
+  const P={s0:num("s0"), n0:Math.max(have.length?0:1,Math.round(num("n0"))), have, target:num("target"),
     wr:num("wr")/100, rr:num("rr"), riskE:num("riskE"), riskF:num("riskF"), tpd:Math.max(1,Math.round(num("tpd"))),
     split:num("split")/100, approve:num("approve")/100, reserve:num("reserve"), topup:num("topup"),
     p1t:num("p1t"), p2t:num("p2t"), maxdd:num("maxdd"), mindays:Math.round(num("mindays")),
@@ -1377,8 +1399,8 @@ function readParams(){
   // hard guard: never let risk break the firm's limits, whatever was typed
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   P.capped=P.riskE>capE||P.riskF>capF; P.riskE=Math.min(P.riskE,capE); P.riskF=Math.min(P.riskF,capF);
-  P.ladder=buildLadder().map(r=>({...r, fee:feeMemo[feeKey(r.size)]??r.fee})); P.mode=curMode();
-  if(P.target<P.s0*P.n0) P.target=P.s0*P.n0;
+  P.ladder=buildLadder().map(r=>({...r, fee:feeMemo[r.size]??r.fee}));
+  if(P.target<startCap(P)) P.target=startCap(P);
   P.lockMax=Math.max(P.lock,P.lockMax||P.lock);
   { const d=defaultReinv(P.target), rv=i=>{ const v=parseFloat(($("ri_r"+i)||{}).value); return isFinite(v)?Math.max(0,Math.min(100,v))/100:d[i-1].rate; }, up=i=>{ const v=parseFloat(($("ri_u"+i)||{}).value); return isFinite(v)&&v>0?v:d[i-1].upto; };
     const u1=up(1), u2=Math.max(u1,up(2)), u3=Math.max(u2,up(3));
@@ -1402,7 +1424,7 @@ function unitEcon(P,wr){
   const rng=mulberry(1234567); const N=12000;
   let p1=0,p2=0,t1n=0,t2n=0; for(let i=0;i<N;i++){ const a=phaseSim(rng,wr,P.rr,P.riskE,P.p1t,P.c3,P.k3,P.maxdd,400); if(a.ok){p1++;t1n+=a.n;
     const b=phaseSim(rng,wr,P.rr,P.riskE,P.p2t,P.c2,P.k2,P.maxdd,400); if(b.ok){p2++;t2n+=b.n;}}}
-  let pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N; if(isInst(P)){ pP1=1; pP2=1; pFund=1; }
+  const pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N;
   // funded lifetime: count payouts until cut
   let totPay=0, cyc=0, cycOk=0, totPctPaid=0, payN=0;
   const M=4000;
@@ -1413,7 +1435,7 @@ function unitEcon(P,wr){
   const payout=size*lockMid(P)/100*P.split;
   const feePerFunded=pFund>0?fee/pFund:Infinity;
   const netPerFunded=ePays*payout-feePerFunded;
-  const inst=isInst(P), tP1=inst?0:(p1?t1n/p1:0), tP2=inst?0:(p2?t2n/p2:0), tradesFund=tP1+tP2, tradesPay=cycOk?payN/cycOk:0;
+  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0), tP1=p1?t1n/p1:0, tP2=p2?t2n/p2:0, tradesPay=cycOk?payN/cycOk:0;
   return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,tP1,tP2,tradesPay,
     ev:wr*P.rr-(1-wr)};
 }
@@ -1434,8 +1456,12 @@ function portfolioSim(P,wr,runs,seed,lg){
     const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
     const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
     const persWeek=new Float32Array(weeks+1);
-    const ph0=isInst(P)?4:1; for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:ph0,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
-    if(lg) lg({e:"start",d:0,w:0,n:P.n0,size:L[0].size,fee:L[0].fee,cash});
+    for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
+    // accounts you already have start where they are: same stage, same balance, days already traded
+    (P.have||[]).forEach((h,i)=>{ let li=0; L.forEach((x,j)=>{ if(x.size<=h.size) li=j; });
+      const a={id:++idc,size:h.size,li,ph:h.ph,b:h.b,d:h.days||0,rec:-1,used:false,off:0,lane:(P.n0+i)%2,cs:0,cb:h.b,offW:-1,mine:true};
+      if(h.ph===3){ a.pt=lockPick(P,rng()); a.off=(fundedCtr++)%3; if(li>proven) proven=li; peak+=h.size; } accts.push(a); });
+    if(lg) lg({e:"start",d:0,w:0,n:P.n0,size:L[0].size,fee:L[0].fee,cash,have:(P.have||[]).length});
     let T1=0, evalLane=0, setups=0, orders=0, sGoal=null, oGoal=null, dRun=0;
     for(let d=0; d<days; d++){
       const w=Math.floor(d/5);
@@ -1485,13 +1511,13 @@ function portfolioSim(P,wr,runs,seed,lg){
       // or to grow Tier 1 only when 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% / Tier 3 = 40% of the NEW Tier 1 stay stocked.
       for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
         const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
-        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&growStock(P,nT1,T2b,T3b));
+        const refill=nT1<=Math.max(startCap(P),peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T2b+T3b>=nT1-1);
         if(ok){ const T1b=T1, pk=peak; a.ph=3; a.pt=lockPick(P,rng()); a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
         const T2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), T3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-        const stocked=stockOK(P,T1,T2,T3);
+        const stocked=T1>0 && T2>=0.6*T1-1&&T2+T3>=T1-1;
         const rate=reinvRate(P,T1,stocked);
         cash+=dayPay*rate; personal+=dayPay*(1-rate); persWeek[w]+=dayPay*(1-rate);
         if(lg) lg({e:"alloc",d,w,amt:dayPay,rate,stocked,T1,T2,T3,toPool:dayPay*rate,personal:dayPay*(1-rate),cash});
@@ -1500,14 +1526,14 @@ function portfolioSim(P,wr,runs,seed,lg){
       // guide scale-up checklist: 3+ payouts in a row and no funded cut in the last 14 days (10 trading days)
       // guide: all five must be true (3 payouts in a row, no cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1)
       const uT2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), uT3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-      const growOk=consec>=3 && d-lastCut>10 && wr20() && stockOK(P,T1,uT2,uT3);
+      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1&&uT2+uT3>=T1-1;
       while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut,wr:wr20(),T2:uT2,T3:uT3}); }
       // buy evals (restock T3 first; T2 only refills by passing T3)
       let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
-      const tgtB=base1+growS, pipeTarget=isInst(P)?Math.max(T1>0?0.6*tgtB+growS:0, Math.max(0,P.n0*P.s0-T1)):Math.max(base1+2*growS, P.n0*P.s0), t3Target=isInst(P)?0:Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
+      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, startCap(P)), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
       let guard=0; const noEdge=P.edgeGate!==false&&last100.length>=30&&edgeOf(last100.map(x=>x?P.rr:-1)).state==="none";
       while(!noEdge&&(pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
@@ -1515,7 +1541,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         const fee=L[li].fee; if(cash<fee) break;
         const why=T1>0&&t3cap<t3Target-1?"t3":"pipe";
         cash-=fee; fees+=fee; evals++;
-        const nb={id:++idc,size:L[li].size,li,ph:isInst(P)?4:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; if(!isInst(P)) t3cap+=L[li].size;
+        const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
       }
       // milestones
       for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(m===milestones.length-1){ sGoal=setups; oGoal=orders; } if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }
@@ -1690,12 +1716,12 @@ function render(P,S){
       <div class="kpi"><span class="v">${me.ok?"~"+n0f(me.setG):"—"}</span><span class="k">trades in total</span></div>
     </div>
     <div class="flow">
-      ${isInst(P)?"":`<div class="fl"><span class="k">Pass Phase 1</span><span class="v">~${n0f(u0t.tP1)}</span><p>trades on average to make +${P.p1t}%.</p></div>
-      <div class="fl"><span class="k">Pass Phase 2</span><span class="v">~${n0f(u0t.tP2)}</span><p>trades on average to make +${P.p2t}%.</p></div>`}
+      <div class="fl"><span class="k">Pass Phase 1</span><span class="v">~${n0f(u0t.tP1)}</span><p>trades on average to make +${P.p1t}%.</p></div>
+      <div class="fl"><span class="k">Pass Phase 2</span><span class="v">~${n0f(u0t.tP2)}</span><p>trades on average to make +${P.p2t}%.</p></div>
       <div class="fl"><span class="k">One payout</span><span class="v">~${n0f(u0t.tradesPay)}</span><p>trades to reach ${lockTxt(P)} on a funded account.</p></div>
     </div>
-    <div class="tbl"><table class="data"><thead><tr><th>Trades a day</th><th>Trades a month</th><th>Time to goal</th><th>Reach goal</th><th>${isInst(P)?"Risk per trade":"Risk on tests"}</th></tr></thead><tbody>${TN.map(r=>`<tr${r.tpd===P.tpd?' class="me"':""}><td>${r.tpd}${r.tpd===P.tpd?" (you)":""}</td><td>~${n0f(r.perMo)}</td><td>${r.ok?weeksTxt(r.wk):"Not in "+P.horizon+" mo"}</td><td>${pct(r.reach)}</td><td>${isInst(P)?r.riskF:r.riskE}%</td></tr>`).join("")}</tbody></table></div>
-    <p class="hint">${need?(need.tpd<=P.tpd?`At ${P.tpd} a day you reach the goal inside ${P.horizon} months.`:`To reach the goal inside ${P.horizon} months you need about <b>${need.tpd} trades a day</b> (~${n0f(need.perMo)} a month).`):`No trade count up to ${TN.length?TN[TN.length-1].tpd:5} a day reaches the goal inside ${P.horizon} months at these numbers.`} If more trades a day would break the ${P.daily}% daily limit, risk per trade is lowered, so the goal does not always get faster. Funded accounts trade 1 week in 3${isInst(P)?"":", so many trades go to tests"}.${P.corr?` Orders placed across all accounts: about ${n0f(me.ordMo)} a month.`:""} Middle result of ${best.runs} simulated runs.</p>
+    <div class="tbl"><table class="data"><thead><tr><th>Trades a day</th><th>Trades a month</th><th>Time to goal</th><th>Reach goal</th><th>Risk on tests</th></tr></thead><tbody>${TN.map(r=>`<tr${r.tpd===P.tpd?' class="me"':""}><td>${r.tpd}${r.tpd===P.tpd?" (you)":""}</td><td>~${n0f(r.perMo)}</td><td>${r.ok?weeksTxt(r.wk):"Not in "+P.horizon+" mo"}</td><td>${pct(r.reach)}</td><td>${r.riskE}%</td></tr>`).join("")}</tbody></table></div>
+    <p class="hint">${need?(need.tpd<=P.tpd?`At ${P.tpd} a day you reach the goal inside ${P.horizon} months.`:`To reach the goal inside ${P.horizon} months you need about <b>${need.tpd} trades a day</b> (~${n0f(need.perMo)} a month).`):`No trade count up to ${TN.length?TN[TN.length-1].tpd:5} a day reaches the goal inside ${P.horizon} months at these numbers.`} If more trades a day would break the ${P.daily}% daily limit, risk per trade is lowered, so the goal does not always get faster. Funded accounts trade 1 week in 3, so many trades go to tests.${P.corr?` Orders placed across all accounts: about ${n0f(me.ordMo)} a month.`:""} Middle result of ${best.runs} simulated runs.</p>
   </div>`;
 
   let head;
@@ -1707,25 +1733,21 @@ function render(P,S){
   else if(bust>0.25){vc="warn";vt="Works, but the start is fragile.";vp=`In ${pct(bust)} of realistic runs, every account is lost before payouts start. Starting with more tests or a lower risk style lowers this.`;}
   else {vc="good";vt="The numbers work.";vp=`You make ${ev.toFixed(2)}× your risk per trade on average. Keep logging trades to make sure your win rate holds.`;}
 
-  const inst=isInst(P);
-  const stops=[{t:"Start",g:fmt(P.n0*P.s0),s:`${P.n0} × ${fmt(P.s0)} ${inst?"instant accounts":"evaluations"}`,w:"Now"}];
+  const H=P.have||[], hTxt=haveTxt(H);
+  const stops=[{t:"Start",g:fmt(startCap(P)),s:H.length?hTxt+(P.n0?` + ${P.n0} new test${P.n0>1?"s":""}`:""):`${P.n0} × ${fmt(P.s0)} evaluations`,w:"Now"}];
   for(let i=1;i<L.length;i++){ const r=best.reach[i-1]; stops.push({t:`Move to ${fmt(L[i].size)}`,g:fmt(L[i].unlockT1),s:`funded, ${L[i].unlockPay}+ payouts`,w:r.length?"~"+weeksTxt(quant(r,0.5)):"—"}); }
   stops.push({t:"Goal",g:fmt(tgt),s:`${n1} × ${fmt(top.size)} funded`,w:bestT?"~"+bestT:"—"});
 
-  const stepsArr=inst?[
-    [`Buy ${P.n0} × ${fmt(P.s0)} instant accounts`,`Cost ${fmtFull(P.n0*L[0].fee)}. They are funded the same day, no tests. No rebuy money: every new account after these is paid from payouts. Risk ${P.riskF}% per trade (${fmtFull(P.s0*P.riskF/100)}), never more after a loss.`],
-    [`Start cycling your funded accounts`,`Each account trades one week, then rests two. Start dates are staggered so a bad week only touches a third of them. Any account that loses over 4 weeks rests 1 week.`],
-    [`Take payouts at ${lockTxt(P)}`,`On ${fmt(P.s0)} that is ${P.lockMax>P.lock?fmtFull(P.s0*P.lock/100*P.split)+"–"+fmtFull(P.s0*P.lockMax/100*P.split):fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
-    [`Reinvest every payout until the backup is full`,`Buy backup instant accounts and keep them waiting (not trading) until they hold 60% of funded. When a funded account is cut, a backup goes live that day.`],
-  ]:[
-    [`Buy ${P.n0} × ${fmt(P.s0)} evaluations`,`Cost ${fmtFull(P.n0*L[0].fee)}. No rebuy money: every new test after these is paid from payouts (guide rule). Risk ${P.riskE}% per trade (${fmtFull(P.s0*P.riskE/100)}), never more after a loss.`],
+  const stepsArr=[
+    ...(H.length?[[`Start from your accounts: ${hTxt}`,`They keep their stage, balance and days traded. ${H.some(h=>h.ph===3)?"Funded ones start the 1 week on, 2 weeks off rhythm today. ":""}${H.some(h=>h.ph<3)?"Tests keep going to their target. ":""}No fee is counted for them.`]]:[]),
+    ...(P.n0?[[`Buy ${P.n0} × ${fmt(P.s0)} evaluations`,`Cost ${fmtFull(P.n0*L[0].fee)}. No rebuy money: every new test after these is paid from payouts (guide rule). Risk ${P.riskE}% per trade (${fmtFull(P.s0*P.riskE/100)}), never more after a loss.`]]:[]),
     [`Pass Phase 1 (+${P.p1t}%) and Phase 2 (+${P.p2t}%)`,`About ${pct(S[0].ue.pFund)} of evaluations make it to funded at your numbers. ${P.n0>1?"Evaluations take turns by week, never the same trade on two at once. ":""}Stop and rebuy if one falls ${P.c3}% and does not recover in ${P.k3} trades.`],
     [`Start cycling your funded accounts`,`Each account trades one week, then rests two. Start dates are staggered so a bad week only touches a third of them. Any account that loses over 4 weeks rests 1 week.`],
     [`Take payouts at ${lockTxt(P)}`,`On ${fmt(P.s0)} that is ${P.lockMax>P.lock?fmtFull(P.s0*P.lock/100*P.split)+"–"+fmtFull(P.s0*P.lockMax/100*P.split):fmtFull(P.s0*P.lock/100*P.split)} to you. Cut a funded account at −${P.c1}% if ${P.k1} trades do not bring it back.`],
     [`Reinvest every payout until the tiers are full`,`Backup must reach 60% and evaluation 40% of funded. Spend in this order: evaluation, backup, funded, then yourself.`],
   ];
-  for(let i=1;i<L.length;i++) stepsArr.push([`Move up to ${fmt(L[i].size)} accounts`,`When funded reaches ${fmt(L[i].unlockT1)} with ${L[i].unlockPay}+ payouts, 3 in a row and no funded cut in 14 days. ${inst?"Put one":"Pass one"} ${fmt(L[i].size)} account ${inst?"live":""} first, then buy more.`]);
-  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup${inst?"":`, ${n3} evaluation`} accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
+  for(let i=1;i<L.length;i++) stepsArr.push([`Move up to ${fmt(L[i].size)} accounts`,`When funded reaches ${fmt(L[i].unlockT1)} with ${L[i].unlockPay}+ payouts, 3 in a row and no funded cut in 14 days. Pass one ${fmt(L[i].size)} account first, then buy more.`]);
+  stepsArr.push([`Reach ${fmt(tgt)} and switch to income`,`${n1} funded, ${n2} backup, ${n3} evaluation accounts of ${fmt(top.size)}. Reinvest 30% for replacements and keep 70%.`]);
 
   const sc=(s,label)=>{ const m=s.sim, r=last(m.reach); return `<div class="sc"><span class="n">${label}</span><span class="v">${r.length>m.runs*0.5?weeksTxt(quant(r,0.5)):"Not reached"}</span><span class="s">${pct(s.wr)} win rate · ${pct(m.bust/m.runs)} lose it all</span></div>`; };
   const row=s=>{ const u=s.ue,m=s.sim; return `<tr><td>${s.name}</td><td>${pct(s.wr)}</td><td>${u.ev>=0?"+":""}${u.ev.toFixed(2)}R</td><td>${pct(u.pFund)}</td><td>${fmt(u.feePerFunded)}</td><td>${pct(u.pCycle)}</td><td>${u.ePays.toFixed(1)}</td><td>${pct(m.reached/m.runs)}</td><td>${pct(m.bust/m.runs)}</td><td>${fmt(quant(m.fees,0.5))}</td><td>${fmt(quant(m.net,0.5))}</td></tr>`; };
@@ -1762,11 +1784,11 @@ function render(P,S){
 
   <div class="card"><h3 class="ct">Your rules, every day</h3>
     <div class="rules">
-      <div class="rule"><span class="big">${fmtFull(P.s0*(inst?P.riskF:P.riskE)/100)}</span><p>Risk per trade on a ${fmt(P.s0)} ${inst?"account":"test"}${RISK_LV[P.risklvl]?" ("+RISK_LV[P.risklvl].name+")":""}. Same size after a loss.${P.capped?" Lowered to stay inside the firm\u2019s limits.":""}</p></div>
+      <div class="rule"><span class="big">${fmtFull(P.s0*P.riskE/100)}</span><p>Risk per trade on a ${fmt(P.s0)} test${RISK_LV[P.risklvl]?" ("+RISK_LV[P.risklvl].name+")":""}. Same size after a loss.${P.capped?" Lowered to stay inside the firm\u2019s limits.":""}</p></div>
       <div class="rule"><span class="big">1 : ${P.rr}</span><p>Every trade aims for at least ${P.rr}× what it risks.</p></div>
-      ${P.n0>1&&!inst?`<div class="rule"><span class="big">Take turns</span><p>Your tests trade in different weeks, never the same trade on two.</p></div>`:""}
+      ${P.n0>1?`<div class="rule"><span class="big">Take turns</span><p>Your tests trade in different weeks, never the same trade on two.</p></div>`:""}
       <div class="rule"><span class="big">${lockTxt(P)}</span><p>Ask for the payout the moment a funded account is up ${P.lockMax>P.lock?`${P.lock}% (latest ${P.lockMax}%)`:P.lock+"%"}.</p></div>
-      ${inst?`<div class="rule"><span class="big">−${P.c1}%</span><p>Cut a funded account at −${P.c1}% if ${P.k1} recovery trades fail.</p></div>`:`<div class="rule"><span class="big">−${P.c1}% · −${P.c3}%</span><p>Cut a funded account at −${P.c1}%, a test at −${P.c3}%, if ${P.k3} recovery trades fail.</p></div>`}
+      <div class="rule"><span class="big">−${P.c1}% · −${P.c3}%</span><p>Cut a funded account at −${P.c1}%, a test at −${P.c3}%, if ${P.k3} recovery trades fail.</p></div>
       <div class="rule"><span class="big">1 on · 2 off</span><p>Each funded account trades one week, then rests two.</p></div>
     </div>
   </div>
@@ -1775,11 +1797,11 @@ function render(P,S){
 
   <details class="full card"><summary>See the math, odds and full plan</summary>
   <div class="sub-card"><h3 class="ct">Your portfolio at the goal</h3>
-    <div class="tierbar"><i style="flex:5;background:var(--t1)"></i><i style="flex:3;background:var(--t2)"></i>${inst?"":`<i style="flex:2;background:var(--t3)"></i>`}</div>
+    <div class="tierbar"><i style="flex:5;background:var(--t1)"></i><i style="flex:3;background:var(--t2)"></i><i style="flex:2;background:var(--t3)"></i></div>
     <div class="tierkey">
       <div><span><i class="dotl" style="background:var(--t1)"></i>Funded</span><b>${fmt(tgt)}</b><span>${n1} × ${fmt(top.size)}</span></div>
       <div><span><i class="dotl" style="background:var(--t2)"></i>Backup</span><b>${fmt(tgt*.6)}</b><span>${n2} × ${fmt(top.size)}</span></div>
-      ${inst?"":`<div><span><i class="dotl" style="background:var(--t3)"></i>Evaluation</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>`}
+      <div><span><i class="dotl" style="background:var(--t3)"></i>Evaluation</span><b>${fmt(tgt*.4)}</b><span>${n3} × ${fmt(top.size)}</span></div>
     </div>
   </div>
 
@@ -1789,7 +1811,7 @@ function render(P,S){
     <div class="eq"><span>${W100} wins × ${P.rr}</span><span class="op">−</span><span>${L100} losses × 1</span><span class="op">=</span><span class="res ${ev<=0?"neg":""}">${netR>=0?"+":""}${netR.toFixed(0)}</span></div>
     <p class="hint">For every 100 trades you ${netR>=0?"gain":"lose"} ${Math.abs(netR).toFixed(0)} times your risk. You risk ${fmtFull(P.s0*P.riskE/100)} per trade, so that is about ${fmtFull(Math.abs(netR)*P.s0*P.riskE/100)} ${netR>=0?"profit":"loss"} per 100 trades on one ${fmt(P.s0)} account.</p>
     <div class="flow">
-      <div class="fl"><span class="k">One funded account costs</span><span class="v">${fmtFull(u0.feePerFunded)}</span><p>${inst?`${fmtFull(L[0].fee)} instant account fee. No tests to fail.`:`${fmtFull(L[0].fee)} test fee, and ${pct(u0.pFund)} of tests pass both phases.`}</p></div>
+      <div class="fl"><span class="k">One funded account costs</span><span class="v">${fmtFull(u0.feePerFunded)}</span><p>${fmtFull(L[0].fee)} test fee, and ${pct(u0.pFund)} of tests pass both phases.</p></div>
       <div class="fl"><span class="k">It pays you back</span><span class="v">${fmtFull(u0.ePays*u0.payout)}</span><p>About ${u0.ePays.toFixed(1)} payouts of ${fmtFull(u0.payout)} before it is lost.</p></div>
       <div class="fl"><span class="k">So every $1 you spend</span><span class="v" style="color:${mult>=1?"var(--gold)":"var(--bad)"}">${isFinite(mult)?"$"+mult.toFixed(mult<10?1:0):"$0"}</span><p>comes back on average.</p></div>
     </div>
@@ -1823,7 +1845,7 @@ function countUp(ms){
     const txt=el.textContent; el.dataset.final=txt; const tok=el._cu=(el._cu||0)+1; const m=txt.match(/[0-9][0-9,]*\.?[0-9]*/); if(!m) return;
     const raw=m[0], target=parseFloat(raw.replace(/,/g,"")), dec=(raw.split(".")[1]||"").length, comma=raw.includes(",");
     const t0=performance.now();
-    const step=now=>{ if(el._cu!==tok) return; const k=Math.min(1,(now-t0)/ms), e=1-Math.pow(1-k,3); let v=(target*e).toFixed(dec);
+    const step=now=>{ if(el._cu!==tok) return; const k=Math.max(0,Math.min(1,(now-t0)/ms)), e=1-Math.pow(1-k,3); let v=(target*e).toFixed(dec);
       if(comma) v=Number(v).toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec});
       el.textContent=txt.replace(raw,v); if(k<1) requestAnimationFrame(step); else { el.textContent=txt; el._cu=0; } };
     requestAnimationFrame(step);
@@ -1851,21 +1873,42 @@ function run(){
   try{ const t=localStorage.getItem("tp-theme"); if(t==="dark"||t==="light") root.dataset.theme=t; }catch(e){}
   $("themeBtn").addEventListener("click",()=>{ const t=isDark()?"light":"dark"; root.dataset.theme=t; try{localStorage.setItem("tp-theme",t);}catch(e){} sync(); });
   mq.addEventListener&&mq.addEventListener("change",sync); sync(); })();
-bindControls(); importBoxInit(); modeUI(); sizeOptions(); renderLadder(); outs();
+bindControls(); importBoxInit(); haveBoxInit(); sizeOptions(); renderLadder(); outs();
 $("f").addEventListener("input",e=>{ const id=e.target.id; if(id==="target"||id==="s0"){ sizeOptions(); renderLadder(); }
   if(["riskE","riskF","k1","k2","k3"].includes(id)) $("risklvl").value="custom";
   else if(["maxdd","daily","tpd","c1","c2","c3"].includes(id)&&RISK_LV[$("risklvl").value]) applyLevel($("risklvl").value);
   riskUI(); schedule(); });
-$("modeSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-mode]"); if(!b) return; const m=b.dataset.mode; if($("mode").value===m) return; $("mode").value=m; modeUI(); renderLadder(); schedule(); });
-function modeUI(){ const m=$("mode").value, inst=m==="instant";
-  document.querySelectorAll("#modeSeg [data-mode]").forEach(b=>b.setAttribute("aria-checked",String(b.dataset.mode===m)));
-  $("modeHelp").textContent=inst?"No tests. You pay more, and the account is funded at once. Fees are estimates (4% of size): type your firm's price under More settings.":"Cheap tests you must pass first. Most traders start here.";
-  $("n0Lbl").textContent=inst?"How many accounts to start":"How many tests to start";
-  ["p1t","p2t","c2","c3","k2","k3"].forEach(id=>{ const el=$(id); const lab=el&&el.closest("label"); if(lab) lab.style.display=inst?"none":""; }); }
 $("riskSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-lvl]"); if(!b) return; applyLevel(b.dataset.lvl); schedule(); });
 applyLevel("med");
 $("f").addEventListener("change",e=>{ if(e.target.id==="maxsize"){ renderLadder(); schedule(); } });
 $("f").addEventListener("submit",e=>e.preventDefault());
+
+/* ---------- my accounts now: start the plan from accounts you already have ---------- */
+function haveTxt(H){ const c={1:[],2:[],3:[]}; H.forEach(h=>c[h.ph].push(h)); const part=(k,w)=>c[k].length?`${c[k].length} ${w} (${c[k].map(h=>fmt(h.size)).join(", ")})`:"";
+  return [part(3,"funded"),part(2,"in Phase 2"),part(1,"in Phase 1")].filter(Boolean).join(", "); }
+function haveRules(){ return {maxdd:num("maxdd"),c1:num("c1"),c2:num("c2"),c3:num("c3"),p1t:num("p1t"),p2t:num("p2t")}; }
+function haveRender(){ const box=$("haveRows"); if(!box) return;
+  box.innerHTML=HAVE.map((h,i)=>`<div class="hv-row" data-i="${i}">
+    <label class="hv-f"><span>Size</span><div class="field"><span class="pre">$</span><input type="number" data-hv="size" value="${h.size}" min="1000" step="1000" inputmode="numeric" aria-label="Account ${i+1} size"></div></label>
+    <label class="hv-f"><span>Stage</span><div class="field"><select data-hv="ph" aria-label="Account ${i+1} stage">${[3,2,1].map(k=>`<option value="${k}"${+h.ph===k?" selected":""}>${HAVE_PH[k]}</option>`).join("")}</select></div></label>
+    <label class="hv-f"><span>Balance now</span><div class="field"><span class="pre">$</span><input type="number" data-hv="bal" value="${h.bal===""||h.bal==null?"":h.bal}" placeholder="${h.size}" step="10" inputmode="decimal" aria-label="Account ${i+1} balance now"></div></label>
+    <label class="hv-f"><span>Days traded</span><div class="field"><input type="number" data-hv="days" value="${h.days||0}" min="0" max="60" step="1" inputmode="numeric" aria-label="Account ${i+1} days traded"></div></label>
+    <button type="button" class="hv-x" data-hvdel="${i}" aria-label="Remove account ${i+1}">×</button>
+    <p class="hv-msg"></p></div>`).join("");
+  haveStatus(); }
+function haveStatus(){ const R=haveRules(); let n=0;
+  document.querySelectorAll("#haveRows .hv-row").forEach(row=>{ const h=HAVE[+row.dataset.i], c=haveCheck(h,R), m=row.querySelector(".hv-msg");
+    if(c.ok) n++; m.className="hv-msg"+(c.ok?(c.warn?" warn":" ok"):" bad");
+    m.textContent=c.ok?(c.warn||`${HAVE_PH[c.ph]} · ${c.b>=0?"+":""}${c.b.toFixed(1)}%${c.ph===3?` · payout at +${num("lock")}%`:` · target +${c.ph===1?num("p1t"):num("p2t")}%`}`):c.err; });
+  const H=haveList(R); $("haveNote").textContent=H.length?`Starting from ${haveTxt(H)}.`:"Already funded, or tests in Phase 1 or 2? Add them and the plan starts from there.";
+  const n0=$("n0"); n0.min=H.length?0:1; if(!H.length&&+n0.value<1) n0.value=1;
+  $("n0Lbl").textContent=H.length?"New tests to buy now":"How many tests to start"; }
+function haveBoxInit(){ if(!$("haveBox")) return; haveRender(); if(HAVE.length) $("haveBox").open=true;
+  $("haveAdd").onclick=()=>{ if(HAVE.length>=20) return; HAVE.push({size:num("s0")||25000,ph:3,bal:"",days:0}); haveSave(); haveRender(); const r=$("haveRows").lastElementChild; if(r) r.querySelector('[data-hv="bal"]').focus(); schedule(); };
+  $("haveRows").addEventListener("input",e=>{ const t=e.target, k=t.dataset.hv; if(!k) return; e.stopPropagation(); const h=HAVE[+t.closest(".hv-row").dataset.i]; if(!h) return;
+    h[k]=k==="bal"&&t.value===""?"":+t.value; haveSave(); haveStatus(); schedule(); });
+  $("haveRows").addEventListener("click",e=>{ const b=e.target.closest("[data-hvdel]"); if(!b) return; HAVE.splice(+b.dataset.hvdel,1); haveSave(); haveRender(); schedule(); });
+  ["maxdd","c1","c2","c3","p1t","p2t","lock"].forEach(id=>$(id).addEventListener("input",haveStatus)); }
 
 /* ---------- firm rules library (checked 2 Nov 2026) ---------- */
 const FIRMS=[
@@ -2134,8 +2177,15 @@ const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
 const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 const uid=()=>Math.random().toString(36).slice(2,9);
 const PH={1:"Evaluation · Phase 1",2:"Backup · Phase 2",3:"Funded"};
-const phName=(a,p)=>isInst(p)&&a.phase===2?"Backup · instant, waiting":PH[a.phase];
 const PHC={1:"t3",2:"t2",3:"t1"};
+const dcount=a=>a.days.length+(a.d0||0); // days traded, including days before the coach started
+/* an account you already have: added at its stage and balance, no fee charged */
+function addMine(st,h,firm){ const a=newAcct(h.size,h.ph,st); a.bal=h.bal; a.dayStart=h.bal; a.cyc={s:todayStr(),b:h.bal}; a.d0=h.days||0; a.mine=true; a.hist.push([todayStr(),h.bal]);
+  a.firm=firm||""; if(h.ph===3){ setFundedSlot(st,a); } st.accounts.push(a);
+  if(h.ph===3) st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0));
+  log(`Added ${a.name} you already have: ${PH[h.ph]}, balance ${fmtFull(h.bal)}${a.d0?`, ${a.d0} days traded`:""}.`); return a; }
+/* funded accounts trade 1 week, rest 2: give it the ON week with the fewest funded accounts */
+function setFundedSlot(st,a){ a.pt=TK.test?lockPick(st.p,Math.random()):0; const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt)); }
 
 /* storage: private per-trader doc in db, else this browser */
 async function tkStoreInit(){
@@ -2154,13 +2204,14 @@ function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK
 /* create from plan */
 function tkFromPlan(Pin){
   const P=Pin&&Pin.s0?Pin:readParams();
-  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax","cons","dstop","firms","mode"];
+  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax","have","cons","dstop","firms"];
   const p={}; keep.forEach(k=>{ if(P[k]!==undefined) p[k]=P[k]; });
   p.ladder=P.ladder.map(r=>({size:r.size,fee:r.fee,unlockT1:r.unlockT1,unlockPay:r.unlockPay}));
   p.firm=typeof firmApplied!=="undefined"&&firmApplied?firmApplied:"";
   const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,own:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
-  const inst=isInst(p); for(let i=0;i<P.n0;i++){ const a=newAcct(P.s0,inst?2:1,st); if(inst) a.ready=true; a.firm=p.firms&&p.firms.length?p.firms[i%p.firms.length]:p.firm; st.accounts.push(a); }
-  TK.state=st; log(inst?`Plan started: ${P.n0} × ${fmt(P.s0)} instant funded accounts, goal ${fmt(P.target)} funded.`:`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(inst) promoteReady(st); if(P.n0>1&&!inst) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
+  for(let i=0;i<P.n0;i++){ const a=newAcct(P.s0,1,st); a.firm=p.firms&&p.firms.length?p.firms[i%p.firms.length]:p.firm; st.accounts.push(a); }
+  const H=P.have||[];
+  TK.state=st; log(H.length?`Plan started from your ${H.length} account${H.length>1?"s":""}${P.n0?` and ${P.n0} new × ${fmt(P.s0)} evaluation${P.n0>1?"s":""}`:""}, goal ${fmt(P.target)} funded.`:`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); H.forEach(h=>addMine(st,h,p.firm)); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
   if(TK.test){ st.testDay=todayStr(); st.p.mindays=0; log("Test mode: the minimum trading days rule is off, so accounts move the moment they hit target."); }
   tkSave(); location.hash=TK.test?"lab":"track"; tkRender();
 }
@@ -2194,9 +2245,8 @@ function adviseCore(a,st){
   const p=st.p, r=rulesFor(a,p), pct=(a.bal-a.size)/a.size*100;
   const riskUsd=a.size*r.risk/100, tgtUsd=a.size*(1+r.tgt/100), cutUsd=a.size*(1-r.cut/100);
   const dailyStop=a.dayStart-a.size*Math.min(p.daily,r.cut)/100*0.8;
-  const daysDone=a.days.length, needDays=a.phase===3?p.mindays:p.mindays;
+  const daysDone=dcount(a), needDays=a.phase===3?p.mindays:p.mindays;
   const base={riskUsd,tgtUsd,cutUsd,pct,dailyStop,r};
-  if(a.ready&&a.phase===2&&isInst(p)) return {...base,kind:"bench",pill:"BACKUP",title:"Backup instant account. Don't trade it",text:`It goes live the moment a funded account is cut, or when Tier 1 can grow: 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% of the bigger Tier 1.`};
   if(a.ready&&a.phase===2) return {...base,kind:"bench",pill:"BENCH",title:"Passed. Waiting on the Tier 2 bench",text:`Don't trade it. It goes live the moment a funded account is cut, or when Tier 1 can grow: 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% and Tier 3 = 40% of the bigger Tier 1.`};
   if(pct<=-r.cut){
     if(a.rec<0&&!a.recUsed&&r.K>0) return {...base,kind:"recover",pill:"RECOVERY",title:`Recovery: up to ${r.K} trades`,text:`It's down ${Math.abs(pct).toFixed(1)}%. Take at most ${r.K} trades at the normal ${fmtFull(riskUsd)} risk to get back above ${fmtFull(cutUsd)}. Never bigger. Log the balance after each trade.`,act:"startRec"};
@@ -2222,8 +2272,8 @@ function portfolio(st){
   const p=st.p, L=p.ladder, pays=st.payouts.length;
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
-  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],...(isInst(p)?[]:[[T1>0&&T2+T3>=T1-1,"Evaluation = 40% of funded (extra Phase 2 counts)"]])];
-  if(p.scale==="simple") grow.splice(2); /* instant: no Tier 3, so the list ends at Backup = 60% */ /* lab option: 3 payouts in a row + no cut, like the planner */
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Evaluation = 40% of funded (extra Phase 2 counts)"]];
+  if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
   const provenMax=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
@@ -2233,9 +2283,9 @@ function portfolio(st){
   const fee=(L.find(r=>r.size===buySize)||{fee:guessFee(buySize)}).fee;
   /* guide: Tier 2 = 60% and Tier 3 = 40% of Tier 1 before Tier 1 grows, so while growing stock the bench for one more account */
   const growS=T1>0&&T1<p.target?buySize:0, base1=Math.min(T1,p.target);
-  const inst=isInst(p), pipeTarget=inst?Math.max(T1>0?0.6*(base1+growS)+growS:0,Math.max(0,p.n0*p.s0-T1)):Math.max(base1+2*growS,p.n0*p.s0);
-  const tgtB=base1+growS, needT3=T1>0&&!inst?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
-  const stocked=stockOK(p,T1,T2,T3);
+  const pipeTarget=Math.max(base1+2*growS,startCap(p));
+  const tgtB=base1+growS, needT3=T1>0?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
+  const stocked=T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1;
   const rate=reinvRate(p,T1,stocked);
   /* edge check: once 30+ trades are logged, stop buying new tests while the average trade loses money */
   const edge=edgeOf(st.trades.map(w=>w?p.rr:-1)), noEdge=p.edgeGate!==false&&edge.state==="none";
@@ -2314,10 +2364,10 @@ function tkRenderInner(){
   if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to Reinvestment until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
   else if(!st.accounts.some(a=>a.status==="active")&&st.pool<Math.min(...p.ladder.map(r=>r.fee))) next={t:"Every test failed and Reinvestment is empty",s:"The guide says no new personal money after the first tests. Stop, review your trades, and only start again with a fresh plan."};
   else if(pf.noEdge&&pf.needRaw>0){ next={t:"Stop buying tests: no edge right now",s:edgeLine(pf.edge)+" Keep trading your current accounts with the same small risk.",btn:false}; }
-  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} ${isInst(p)?"instant account":"evaluation"} (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
+  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
-  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],...(isInst(p)?[]:[["Evaluation",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]])];
+  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,startCap(p))*0.6,"t2"],["Evaluation",pf.T3,Math.max(pf.T1,startCap(p))*0.4,"t3"]];
   o.innerHTML=`
   <div class="fx">
     <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&!TK.test&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
@@ -2340,7 +2390,7 @@ function tkRenderInner(){
   <div class="tk-list">${adv.map(({a,v})=>{
     const lo=v.cutUsd, hi=v.tgtUsd, pos=Math.max(0,Math.min(100,(a.bal-lo)/(hi-lo)*100)), zero=Math.max(0,Math.min(100,(a.size-lo)/(hi-lo)*100));
     return `<div class="tk-acc k-${v.kind}" data-id="${a.id}">
-      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${phName(a,p)}${a.firm?" · "+esc(a.firm):""} · ${a.days.length}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
+      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${PH[a.phase]}${a.firm?" · "+esc(a.firm):""} · ${dcount(a)}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
       <div class="tk-do"><b>${v.title}</b><p>${v.text}</p></div>
       <div class="tk-meter"><div class="tk-track"><i class="z" style="left:${zero}%"></i><i class="m" style="left:${pos}%"></i></div><div class="tk-ends"><span>Cut ${fmt(lo)}</span><span class="${v.pct>=0?"up":"dn"}">${fmtFull(a.bal)} (${v.pct>=0?"+":""}${v.pct.toFixed(1)}%)</span><span>${a.phase===3?"Payout":"Pass"} ${fmt(hi)}</span></div></div>
       <div class="tk-acts">
@@ -2350,14 +2400,16 @@ function tkRenderInner(){
         ${v.act==="payout"?`<button class="btn ghost sm" data-tk="payout" data-id="${a.id}" data-pay="${Math.round(v.pay*100)/100}">Log payout</button>`:""}
         ${v.act==="cut"?`<button class="btn ghost sm" data-tk="cut" data-id="${a.id}">Close account</button>`:""}
         <button class="linkbtn tk-more" data-tk="close" data-id="${a.id}">Account failed</button>
+        <details class="tk-edit"><summary>Edit</summary>${mineForm(p,{size:a.size,ph:a.phase,bal:a.bal,days:dcount(a)},a.id)}</details>
       </div>
     </div>`; }).join("")}</div></div>
 
   <div class="g2f">
     <div class="card"><h3 class="ct">Tier balance</h3>${tiers.map(t=>{ const w=t[2]>0?Math.min(100,t[1]/t[2]*100):0; return `<div class="tk-tb"><div class="tk-gtop"><span><i class="dotl" style="background:var(--${t[3]})"></i>${t[0]}</span><span>${fmt(t[1])} / ${fmt(t[2])}</span></div><div class="tk-bar sm"><i style="width:${w}%;background:var(--${t[3]})"></i></div></div>`; }).join("")}
-      <p class="hint">${isInst(p)?"Instant plan: Backup (bought, not trading) must reach 60% of Funded before you take money home.":"Backup must reach 60% and Evaluation 40% of Funded before you take money home."}</p>
+      <p class="hint">Backup must reach 60% and Evaluation 40% of Funded before you take money home.</p>
       ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
-      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><input class="tk-firm" id="tkAddFirm" list="tkFirmList" placeholder="Firm" value="${esc(firmSuggest(st)||p.firm||"")}" aria-label="Firm"><button class="btn ghost sm" data-tk="add">${isInst(p)?"Add instant account":"Add evaluation"}</button></div></div>
+      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><input class="tk-firm" id="tkAddFirm" list="tkFirmList" placeholder="Firm" value="${esc(firmSuggest(st)||p.firm||"")}" aria-label="Firm"><button class="btn ghost sm" data-tk="add">Add evaluation</button></div>
+      <details class="tk-edit tk-mine"><summary>Add an account I already have</summary><p class="hint">A funded account, or a test already in Phase 1 or 2. No fee is counted.</p>${mineForm(p,{size:p.s0,ph:3,bal:"",days:0},"")}</details></div>
     <div class="card tk-remind"><h3 class="ct">Daily reminder</h3><p class="hint" style="margin-top:-6px">Get an alarm every morning that opens this coach. No account needed.</p>
       <label class="f" for="tkTime">Remind me at<input type="time" id="tkTime" value="${esc(st.remind||"08:00")}"></label>
       <div class="tk-rbtns"><a class="btn gold sm" id="tkCalG" href="${calLinks(st.remind).g}" target="_blank" rel="noopener">Add to Google Calendar</a>${window.claude&&window.claude.use?"":`<a class="btn ghost sm" id="tkCalI" href="${calLinks(st.remind).ics}" download="tierstack-coach.ics">Apple / Outlook calendar</a>`}</div>
@@ -2369,6 +2421,20 @@ function tkRenderInner(){
 }
 
 /* ---------- actions ---------- */
+/* the same small form edits an account or adds one you already have */
+function mineForm(p,v,id){ const o=[1,2,3].map(k=>`<option value="${k}"${+v.ph===k?" selected":""}>${HAVE_PH[k]}</option>`).join("");
+  return `<div class="tk-edrow"><label>Size<div class="field"><span class="pre">$</span><input type="number" data-ed="size" value="${v.size}" step="1000" inputmode="numeric"${id?" disabled":""}></div></label>
+    <label>Stage<select data-ed="ph">${o}</select></label>
+    <label>Balance now<div class="field"><span class="pre">$</span><input type="number" data-ed="bal" value="${v.bal===""?"":Math.round(v.bal*100)/100}" placeholder="${v.size}" step="1" inputmode="decimal"></div></label>
+    <label>Days traded<input type="number" data-ed="days" value="${v.days||0}" min="0" max="60" step="1" inputmode="numeric"></label>
+    ${id?"":`<label>Firm<input class="tk-firm" data-ed="firm" list="tkFirmList" placeholder="Firm" value="${esc(p.firm||"")}"></label>`}
+    <button class="btn gold sm" data-tk="${id?"edit":"mine"}"${id?` data-id="${id}"`:""}>${id?"Save":"Add it"}</button></div><p class="imp-err tk-ederr"></p>`; }
+function mineRead(box){ const g=k=>{ const el=box.querySelector(`[data-ed="${k}"]`); return el?el.value:""; }; return {size:+g("size"),ph:+g("ph"),bal:g("bal")===""?"":+g("bal"),days:+g("days"),firm:g("firm").trim()}; }
+function doEdit(a,v){ const st=TK.state, was=a.phase;
+  if(v.ph!==a.phase){ a.phase=v.ph; a.ready=false; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:v.bal}; a.offUntil=""; if(v.ph===3){ setFundedSlot(st,a); st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0)); } else if(a.lane==null) a.lane=freeLane(st); }
+  if(v.bal!==a.bal){ a.bal=v.bal; a.dayStart=v.bal; a.hist.push([todayStr(),v.bal]); a.hist=a.hist.slice(-120); }
+  a.d0=Math.max(0,(v.days||0)-a.days.length);
+  log(`Edited ${a.name}: ${PH[a.phase]}${was!==a.phase?` (was ${PH[was]})`:""}, balance ${fmtFull(a.bal)}, ${dcount(a)} days traded.`); }
 function acct(id){ return TK.state.accounts.find(a=>a.id===id); }
 function doLog(a,bal){
   const st=TK.state, t=todayStr(), r=rulesFor(a,st.p);
@@ -2385,28 +2451,27 @@ function doLog(a,bal){
 }
 /* guide: pass Phase 1 → Tier 2 (Phase 2); pass Phase 2 → Tier 1 (funded). Moves by itself once the target and the firm's minimum days are met. */
 function passAcct(a){ const st=TK.state; if(!a||a.status!=="active"||a.phase>=3) return;
-  a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
+  a.phase++; a.bal=a.size; a.dayStart=a.size; a.days=[]; a.d0=0; a.rec=-1; a.recUsed=false; a.cyc={s:todayStr(),b:a.size}; a.offUntil="";
   if(a.phase===3){ a.pt=TK.test?lockPick(st.p,Math.random()):0; const cnt=[0,1,2].map(o=>st.accounts.filter(x=>x.status==="active"&&x.phase===3&&x!==a&&x.off===o).length); a.off=cnt.indexOf(Math.min(...cnt));
     log(`${a.name} passed Phase 2 and is now FUNDED (Tier 1). Its trading weeks start ${fmtDate(isOn(a,st)?todayStr():nextOnDate(a,st))}. Buy a new Phase 1 evaluation to refill the Evaluation tier.`); }
   else log(`${a.name} passed Phase 1. It moves to Tier 2 as a backup (Phase 2). Same risk, same turns.`); }
 function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
-  const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;
+  const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.d0=0; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;
   log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to Reinvestment, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
 function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase,id:a.id,size:a.size,pct:Math.round((a.bal-a.size)/a.size*1000)/10}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
-function doBuy(size,fee,firm){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; if(st.own==null) st.own=st.p.n0*st.p.ladder[0].fee; st.own+=fee-fromPool; const inst=isInst(st.p), a=newAcct(size,inst?2:1,st); if(inst) a.ready=true; a.firm=firm!=null&&firm!==""?firm:(typeof firmSuggest==="function"&&firmSuggest(st))||st.p.firm||""; st.accounts.push(a);
-  if(inst&&!TK.test) promoteOne(a);
-  log(`Bought ${a.name}${a.firm?" at "+a.firm:""} ${inst?"instant account":"evaluation"} for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
+function doBuy(size,fee,firm){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; if(st.own==null) st.own=st.p.n0*st.p.ladder[0].fee; st.own+=fee-fromPool; const a=newAcct(size,1,st); a.firm=firm!=null&&firm!==""?firm:(typeof firmSuggest==="function"&&firmSuggest(st))||st.p.firm||""; st.accounts.push(a);
+  log(`Bought ${a.name}${a.firm?" at "+a.firm:""} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
 function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
   if(a.ready) return promoteOne(a);
-  if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){
+  if(pct>=r.tgt-1e-9&&dcount(a)>=st.p.mindays){
     if(a.phase===2){ a.ready=true; if(promoteOne(a)) return true; log(`${a.name} passed Phase 2. It waits on the Tier 2 bench (don't trade it) until a funded account is cut or Tier 1 can grow.`); return true; }
     passAcct(a); return true; } return false; }
 /* bench → Tier 1: refill Tier 1 up to where it was (start or after a cut), or grow it when the guide allows */
 function canPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="active"), sum=ph=>act.filter(x=>x.phase===ph).reduce((s,x)=>s+x.size,0);
   const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; if(T1>=p.target) return false;
-  if(nT1<=Math.max(p.n0*p.s0,st.peak||0)) return true;
+  if(nT1<=Math.max(startCap(p),st.peak||0)) return true;
   const g=portfolio(st).grow, gate=g[0][0]&&g[1][0]&&(p.scale==="simple"||g[2][0]);
-  return gate&&growStock(p,nT1,T2,T3); }
+  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
 function promoteOne(a){ const st=TK.state; if(!a.ready||a.status!=="active"||a.phase!==2||!canPromote(st,a)) return false;
   a.ready=false; passAcct(a); st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0)); return true; }
 function promoteReady(st){ let ch=false; st.accounts.filter(x=>x.ready&&x.status==="active"&&x.phase===2).forEach(x=>{ if(promoteOne(x)) ch=true; }); return ch; }
@@ -2416,6 +2481,9 @@ document.addEventListener("click",e=>{
   if(k==="log"){ const a=acct(b.dataset.id); const inp=document.querySelector(`[data-bal="${a.id}"]`); const v=parseFloat(inp.value); if(!(v>0)){ inp.focus(); inp.classList.add("bad"); return; } doLog(a,v); if(a.status==="active") autoPass(a); }
   else if(k==="pass"){ const a=acct(b.dataset.id); if(a.phase===2){ a.ready=true; if(!promoteOne(a)) log(`${a.name} passed Phase 2. It waits on the Tier 2 bench until a funded account is cut or Tier 1 can grow.`); } else passAcct(a); }
   else if(k==="payout"){ doPayout(acct(b.dataset.id),parseFloat(b.dataset.pay)||0); }
+  else if(k==="edit"||k==="mine"){ const box=b.closest(".tk-edit"), v=mineRead(box), a=k==="edit"?acct(b.dataset.id):null; if(a) v.size=a.size;
+    const c=haveCheck(v,st.p), er=box.querySelector(".tk-ederr"); if(!c.ok){ er.textContent=c.err; return; }
+    if(a) doEdit(a,c); else addMine(st,c,v.firm); }
   else if(k==="cut"||k==="close"){ const a=acct(b.dataset.id); if(k==="close"&&!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Tap again to confirm"; return; } doCut(a); }
   else if(k==="buy"||k==="add"){ let size,fee; if(k==="buy"){ size=+b.dataset.size; fee=+b.dataset.fee; } else { const s=$("tkAddSize"); size=+s.value; fee=+s.selectedOptions[0].dataset.fee; } const fi=$(k==="buy"?"tkBuyFirm":"tkAddFirm"); doBuy(size,fee,fi?fi.value.trim():undefined); }
   else if(k==="risk"){ const lv=b.dataset.lvl; if(!RISK_LV[lv]||st.p.risklvl===lv) return; const r=levelRisk(lv,{rr:st.p.rr,maxdd:st.p.maxdd,daily:st.p.daily||5,tpd:st.p.tpd||1,c1:st.p.c1,c2:st.p.c2,c3:st.p.c3}); Object.assign(st.p,r); st.p.risklvl=lv;
@@ -2484,7 +2552,7 @@ function firmSuggest(st){ const mix=firmMix(st), list=st.p.firms&&st.p.firms.len
 /* plan drift: real win rate vs the plan, re-run the planner with the real number */
 const DRIFT_CACHE={};
 function planFromState(p,wr){ return {...p,wr,horizon:48,approve:0.95,topup:0,corr:true,reserve:0,mindays:p.mindays||0,lockMax:Math.max(p.lock,p.lockMax||p.lock),ladder:p.ladder.map(r=>({...r})),reinv:p.reinv}; }
-function driftMonths(p,wr){ const k=[p.target,p.s0,p.n0,wr.toFixed(3),p.rr,p.riskE,p.riskF,p.tpd,p.lock].join("|"); if(DRIFT_CACHE[k]!==undefined) return DRIFT_CACHE[k];
+function driftMonths(p,wr){ const k=[p.target,p.s0,p.n0,JSON.stringify(p.have||[]),wr.toFixed(3),p.rr,p.riskE,p.riskF,p.tpd,p.lock].join("|"); if(DRIFT_CACHE[k]!==undefined) return DRIFT_CACHE[k];
   let mo=null; try{ const m=portfolioSim(planFromState(p,wr),wr,60,5151); const r=m.reach[m.reach.length-1]; mo=r.length>m.runs*0.5?quant(r,0.5)/4.33:null; }catch(e){}
   DRIFT_CACHE[k]=mo; return mo; }
 function drift(st){ const T=st.trades||[]; if(T.length<20) return {n:T.length,ready:false};
@@ -2521,7 +2589,7 @@ function guardCards(st,adv,pf){
   </div>
   <div class="card gd-firm"><h3 class="ct">Firm risk</h3>
     ${mix.rows.map(r=>`<div class="tk-tb"><div class="tk-gtop"><span>${esc(r.firm)} · ${r.n} acct</span><span class="${r.share>0.4+1e-9?"dn":""}">${Math.round(r.share*100)}% ${mix.T1>0?"of funded":"of accounts"}</span></div><div class="tk-bar sm"><i style="width:${Math.min(100,r.share*100)}%;background:${r.share>0.4+1e-9?"var(--bad)":"var(--t1)"}"></i></div></div>`).join("")}
-    <p class="hint">${mix.rows.length<=1?"All your accounts are at one firm. If it stops paying or closes, you lose everything at once. Buy your next account at a second firm.":mix.over?`${esc(mix.top.firm)} holds more than 40%. Buy the next account at another firm.`:"Good: no firm holds more than 40%."}</p>
+    <p class="hint">${mix.rows.length<=1?"All your accounts are at one firm. If it stops paying or closes, you lose everything at once. Buy your next test at a second firm.":mix.over?`${esc(mix.top.firm)} holds more than 40%. Buy the next test at another firm.`:"Good: no firm holds more than 40%."}</p>
     ${fundedNow.map(({a})=>{ const c=consistency(a,p); return c.on?`<p class="gd-cons ${c.ok?"ok":"no"}">${c.ok?"✓":"✗"} ${esc(a.name)}: best day ${c.total>0?Math.round(c.share)+"% of profit":"—"} (limit ${c.lim}%)${c.ok?"":`. Make ${fmtFull(c.need)} more with small trades before the payout.`}</p>`:""; }).join("")}
     <label class="f gd-cin">Firm consistency rule: best day max<input type="number" min="0" max="100" step="5" value="${+p.cons||0}" data-gset="cons"><span>% of profit (0 = none)</span></label>
   </div>
@@ -2566,17 +2634,17 @@ const LAB_RULES=[
 function labCheck(k,ok,msg){ const c=LAB.checks[k]||(LAB.checks[k]={ok:0,bad:0}); if(ok) c.ok++; else { c.bad++; if(LAB.errors.length<40) LAB.errors.push({d:todayStr(),k,msg}); } }
 /* the guide's reinvest ladder, worked out on its own from the accounts (not from portfolio()) */
 function labExpRate(st,p){ const act=st.accounts.filter(a=>a.status==="active"), sum=ph=>act.filter(a=>a.phase===ph).reduce((s,a)=>s+a.size,0);
-  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&(p.mode==="instant"||T2+T3>=T1-1))) return 1;
+  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1)) return 1;
   const R=p.reinv&&p.reinv.length?p.reinv:[{upto:0.2*p.target,rate:0.8},{upto:0.6*p.target,rate:0.65},{upto:p.target,rate:0.5},{upto:null,rate:0.3}];
   for(const r of R) if(r.upto==null||T1<r.upto) return r.rate; return R[R.length-1].rate; }
 /* independent bench rule from the guide */
 function labCanPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="active"), sum=ph=>act.filter(x=>x.phase===ph).reduce((s,x)=>s+x.size,0);
   const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; LAB.peak=Math.max(LAB.peak||0,T1); if(T1>=p.target) return false;
-  if(nT1<=Math.max(p.n0*p.s0,LAB.peak)) return true;
+  if(nT1<=Math.max(startCap(p),LAB.peak)) return true;
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
   if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4; }
-  return gate&&T2>=0.6*nT1-1&&(p.mode==="instant"||T2+T3>=nT1-1); }
+  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
 function labBenchTry(st,a){ const allowed=labCanPromote(st,a); const was=a.phase; promoteOne(a); const live=a.phase===3&&was===2;
   labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} stayed on the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); }
 function labStageName(p,T1){ const R=p.reinv&&p.reinv.length?p.reinv:null; if(!R) return T1<0.2*p.target?"Seed":T1<0.6*p.target?"Build":T1<p.target?"Scale":"Sustain"; const r=R.find(x=>x.upto==null||T1<x.upto)||R[R.length-1]; return r.name||""; }
@@ -2591,7 +2659,7 @@ function labStepDay(){
       if(a.status!=="active") return;
       const v=advise(a,st), r=rulesFor(a,p), pct=(a.bal-a.size)/a.size*100;
       if(v.kind==="payout"){
-        labCheck("payout",pct>=p.lock-1e-9&&pct>=(a.pt||p.lock)-1e-9&&(!a.pt||(a.pt>=p.lock-1e-9&&a.pt<=Math.max(p.lock,p.lockMax||p.lock)+1e-9))&&a.days.length>=p.mindays,`${a.name} payout asked at ${pct.toFixed(2)}% (target ${a.pt||p.lock}%)`);
+        labCheck("payout",pct>=p.lock-1e-9&&pct>=(a.pt||p.lock)-1e-9&&(!a.pt||(a.pt>=p.lock-1e-9&&a.pt<=Math.max(p.lock,p.lockMax||p.lock)+1e-9))&&dcount(a)>=p.mindays,`${a.name} payout asked at ${pct.toFixed(2)}% (target ${a.pt||p.lock}%)`);
         const split=p.split>1?p.split/100:p.split, exp=(a.bal-a.size)*split; labCheck("payout",Math.abs(v.pay-exp)<0.5,`${a.name} payout ${fmtFull(v.pay)} but profit × split = ${fmtFull(exp)}`);
         const pf=portfolio(st), expRate=labExpRate(st,p);
         LAB.inPool+=v.pay*expRate; LAB.home+=v.pay*(1-expRate);
@@ -2612,7 +2680,7 @@ function labStepDay(){
         const wasUsed=a.recUsed, ph=a.phase, pct2=(Math.round(bal)-a.size)/a.size*100;
         doLog(a,Math.round(bal));
         if(a.rec>0&&wasUsed&&ph===a.phase) labCheck("recovery",false,`${a.name} got a second recovery`);
-        if(a.status==="active"){ const days=a.days.length, hit=pct2>=r.tgt-1e-9&&days>=p.mindays, allowed=a.phase===2&&hit?labCanPromote(st,a):null;
+        if(a.status==="active"){ const days=dcount(a), hit=pct2>=r.tgt-1e-9&&days>=p.mindays, allowed=a.phase===2&&hit?labCanPromote(st,a):null;
           autoPass(a); const moved=a.phase!==ph||(ph===2&&a.ready);
           if(moved) labCheck("pass",hit,`${a.name} passed at ${pct2.toFixed(2)}% after ${days} days`); else if(hit&&ph<3) labCheck("pass",false,`${a.name} hit target but did not pass`);
           if(allowed!==null){ const live=a.phase===3; labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} went to the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); } }
@@ -2626,7 +2694,7 @@ function labStepDay(){
     // buying: follow the coach's next step
     let guard=0, pf=portfolio(st);
     if(pf.lvl>(LAB.lvl||0)){ log(`Unlocked ${fmt(p.ladder[pf.lvl].size)} accounts: Tier 1 is ${fmt(pf.T1)} after ${pf.pays} payouts.`); LAB.lvl=pf.lvl; }
-    while(pf.need>0&&st.pool>=pf.fee&&guard++<6){ labCheck("buy",pf.T1>0||st.accounts.filter(a=>a.status==="active").length<p.n0,`Bought a test before the first funded account`); labBuyCheck(st,pf); LAB.outPool+=pf.fee; const nb=doBuy(pf.buySize,pf.fee); if(p.mode==="instant") labCheck("buy",nb.phase===2&&nb.ready,`${nb.name} should start as a backup instant account`); pf=portfolio(st); }
+    while(pf.need>0&&st.pool>=pf.fee&&guard++<6){ labCheck("buy",pf.T1>0||st.accounts.filter(a=>a.status==="active").length<p.n0+(p.have||[]).length,`Bought a test before the first funded account`); labBuyCheck(st,pf); LAB.outPool+=pf.fee; doBuy(pf.buySize,pf.fee); pf=portfolio(st); }
     const expPool=p.reserve+LAB.inPool-LAB.outPool;
     labCheck("money",Math.abs(st.pool-expPool)<0.01&&Math.abs(st.personal-LAB.home)<0.01,`Reinvestment ${fmtFull(st.pool)} vs ${fmtFull(expPool)}, taken home ${fmtFull(st.personal)} vs ${fmtFull(LAB.home)}`);
     const minFee=Math.min(...p.ladder.map(r=>r.fee));
@@ -2645,13 +2713,11 @@ function labBuyCheck(st,pf){
   if(p.buy&&p.buy!=="auto"){ labCheck("scale",pf.buySize===+p.buy,`Bought ${fmt(pf.buySize)} but you chose ${fmt(+p.buy)}`); return; }
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
-  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&(p.mode==="instant"||pf.T2+pf.T3>=pf.T1-1); }
+  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&pf.T2+pf.T3>=pf.T1-1; }
   let lv=0; while(gate&&lv<L.length-1&&pf.T1>=L[lv+1].unlockT1&&pf.pays>=L[lv+1].unlockPay) lv++;
   const proven=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
   const waiting=lv>proven&&st.accounts.some(a=>a.status==="active"&&a.size===L[lv].size&&a.phase!==3);
   const exp=waiting?L[proven].size:L[lv].size;
-  if(p.mode==="instant"){ const s=pf.buySize, grow=pf.T1>0&&pf.T1<p.target?s:0, base=Math.min(pf.T1,p.target), want=Math.max(pf.T1>0?0.6*(base+grow)+grow:0, p.n0*p.s0-pf.T1);
-    labCheck("buy",pf.T2<want-1e-6,`Instant: bought a backup but Tier 2 ${fmt(pf.T2)} already covers ${fmt(want)}`); }
   labCheck("scale",pf.buySize===exp,`Bought ${fmt(pf.buySize)} but the size table says ${fmt(exp)} (Tier 1 ${fmt(pf.T1)}, ${pf.pays} payouts)`);
 }
 function labNewFromCfg(){ const r=labCfgToP(labCfg()); LAB.lvl=0; if(r.err){ LAB.setup=true; tkRender(); return false; } tkFromPlan(r.P); (r.warn||[]).forEach(w=>log(w)); return true; }
@@ -2722,7 +2788,7 @@ function labBoard(){
   const p=st.p, pf=portfolio(st), stg=labStage(st,pf), act=st.accounts.filter(a=>a.status==="active");
   const d=dnum(todayStr())-dnum(st.start)+1, playing=!!LAB.timer;
   const chip=a=>{ const v=advise(a,st), pct=(a.bal-a.size)/a.size*100, r=rulesFor(a,p), pos=Math.max(0,Math.min(100,(pct+r.cut)/(r.tgt+r.cut)*100));
-    return `<div class="lb-acc k-${v.kind}"><div class="lb-a1"><b>${esc(a.name)}</b><span class="tk-pill">${v.pill}</span></div><div class="lb-bar"><i style="width:${pos}%"></i></div><div class="lb-a2"><span class="${pct>=0?"up":"dn"}">${pct>=0?"+":""}${pct.toFixed(1)}%</span><span>${p.mindays?`${a.days.length}/${p.mindays} days`:`${a.days.length} days`}${a.rec>0?` · ${a.rec} rec`:""}</span></div></div>`; };
+    return `<div class="lb-acc k-${v.kind}"><div class="lb-a1"><b>${esc(a.name)}</b><span class="tk-pill">${v.pill}</span></div><div class="lb-bar"><i style="width:${pos}%"></i></div><div class="lb-a2"><span class="${pct>=0?"up":"dn"}">${pct>=0?"+":""}${pct.toFixed(1)}%</span><span>${p.mindays?`${dcount(a)}/${p.mindays} days`:`${dcount(a)} days`}${a.rec>0?` · ${a.rec} rec`:""}</span></div></div>`; };
   const col=(ph,t,sub,c)=>{ const L=act.filter(a=>a.phase===ph); const tot=L.reduce((s,a)=>s+a.size,0);
     return `<div class="lb-col"><div class="lb-h"><i class="dotl" style="background:var(--${c})"></i><div><b>${t}</b><span>${sub} · ${fmt(tot)}</span></div></div>${L.length?L.map(chip).join(""):`<div class="lb-empty">Empty</div>`}</div>`; };
   const closed=st.accounts.filter(a=>a.status!=="active");
@@ -2769,8 +2835,8 @@ function labCfgDefault(){
   let P=null; try{ P=readParams(); }catch(e){}
   P=P||{s0:25000,n0:2,target:500000,wr:0.4,rr:3,riskE:1,riskF:1,tpd:1,split:0.8,reserve:500,p1t:8,p2t:5,maxdd:10,daily:5,lock:3,c1:6,c2:4,c3:4,k1:3,k2:4,k3:3,ladder:[]};
   const L=P.ladder||[];
-  return {s0:P.s0,n0:P.n0,target:P.target,wr:Math.round(P.wr*100),rr:P.rr,riskE:P.riskE,riskF:P.riskF,tpd:P.tpd,split:Math.round((P.split>1?P.split/100:P.split)*100),reserve:P.reserve,
-    mode:P.mode||"2step",p1t:P.p1t,p2t:P.p2t,maxdd:P.maxdd,daily:P.daily,lock:P.lock,lockMax:Math.max(P.lock,P.lockMax||P.lock),c1:P.c1,c2:P.c2,c3:P.c3,k1:P.k1,k2:P.k2,k3:P.k3,scale:"guide",buy:"auto",
+  return {have:(P.have||[]).map(h=>({size:h.size,ph:h.ph,bal:h.bal,days:h.days||0})),s0:P.s0,n0:P.n0,target:P.target,wr:Math.round(P.wr*100),rr:P.rr,riskE:P.riskE,riskF:P.riskF,tpd:P.tpd,split:Math.round((P.split>1?P.split/100:P.split)*100),reserve:P.reserve,
+    p1t:P.p1t,p2t:P.p2t,maxdd:P.maxdd,daily:P.daily,lock:P.lock,lockMax:Math.max(P.lock,P.lockMax||P.lock),c1:P.c1,c2:P.c2,c3:P.c3,k1:P.k1,k2:P.k2,k3:P.k3,scale:"guide",buy:"auto",
     ladder:LAB_SIZES.map((size,i)=>{ const r=L.find(x=>x.size===size); return {size,on:!!r||size===P.s0,fee:r?r.fee:(typeof feeMemo!=="undefined"&&feeMemo[size])||guessFee(size),
       unlockT1:r?r.unlockT1:Math.round(P.target*(LAB_GUIDE_UNLOCK[size]||[0,0])[0]/1000)*1000,unlockPay:r?r.unlockPay:(LAB_GUIDE_UNLOCK[size]||[0,0])[1]}; }),
     reinv:P.reinv&&P.reinv.length?P.reinv.map(r=>({upto:r.upto==null?null:Math.round(r.upto/1000)*1000,rate:Math.round(r.rate*100),name:r.name})):LAB_GUIDE_REINV.map(([f,rate,name])=>({upto:f==null?null:Math.round(P.target*f/1000)*1000,rate,name}))};
@@ -2781,13 +2847,15 @@ function labCfgSave(){ try{ localStorage.setItem(LAB_CFG_KEY,JSON.stringify(LAB.
 function labCfgToP(c){
   const n=(v,lo,hi)=>{ v=+v; return isFinite(v)&&v>=lo&&v<=hi; };
   const err=[];
-  if(!n(c.n0,1,20)) err.push("Tests to start: 1 to 20.");
-  if(!n(c.target,c.s0*c.n0,1e8)) err.push(`Goal must be at least ${fmt(c.s0*c.n0)} (your starting tests).`);
+  const HV=(c.have||[]).map((h,i)=>{ const r=haveCheck(h,{maxdd:+c.maxdd,c1:+c.c1,c2:+c.c2,c3:+c.c3,p1t:+c.p1t,p2t:+c.p2t}); if(!r.ok) err.push(`Your account ${i+1}: ${r.err}`); return r; }).filter(r=>r.ok).map(({size,ph,bal,days,b})=>({size,ph,bal,days,b}));
+  const cap=c.s0*c.n0+HV.reduce((s,h)=>s+h.size,0);
+  if(!n(c.n0,HV.length?0:1,20)) err.push(HV.length?"New tests to start: 0 to 20.":"Tests to start: 1 to 20.");
+  if(!n(c.target,cap,1e8)) err.push(`Goal must be at least ${fmt(cap)} (what you start with).`);
   if(!n(c.wr,5,95)) err.push("Win rate: 5 to 95%.");
   if(!n(c.rr,0.5,10)) err.push("Reward: 0.5 to 10.");
   if(!n(c.riskE,0.05,5)||!n(c.riskF,0.05,5)) err.push("Risk: 0.05 to 5% per trade.");
   if(!n(c.split,10,100)) err.push("Profit share: 10 to 100%.");
-  if((c.mode!=="instant"&&(!n(c.p1t,0.5,30)||!n(c.p2t,0.5,30)))||!n(c.lock,0.5,20)) err.push("Targets and payout %: 0.5 to 30.");
+  if(!n(c.p1t,0.5,30)||!n(c.p2t,0.5,30)||!n(c.lock,0.5,20)) err.push("Targets and payout %: 0.5 to 30.");
   if(!n(c.maxdd,1,30)||!n(c.daily,0.5,30)) err.push("Loss limits: 0.5 to 30%.");
   if(!(c.c1<c.maxdd&&c.c2<c.maxdd&&c.c3<c.maxdd)) err.push("Cut levels must be smaller than the max drawdown.");
   const L=c.ladder.filter(r=>r.on||r.size===c.s0).filter(r=>r.size>=c.s0).sort((a,b)=>a.size-b.size).map((r,i)=>({size:r.size,fee:Math.max(0,+r.fee||0),unlockT1:i?Math.max(0,+r.unlockT1||0):0,unlockPay:i?Math.max(0,Math.round(+r.unlockPay||0)):0}));
@@ -2795,8 +2863,8 @@ function labCfgToP(c){
   if(c.buy!=="auto"&&!L.some(r=>r.size===+c.buy)) err.push("Turn on the size you chose for reinvesting.");
   const RV=c.reinv||[]; for(let i=1;i<RV.length-1;i++) if(!(+RV[i].upto>+RV[i-1].upto)) err.push("Reinvest stages: each Tier 1 limit must be bigger than the one before.");
   if(err.length) return {err};
-  const P={s0:+c.s0,n0:Math.round(c.n0),target:+c.target,wr:c.wr/100,rr:+c.rr,riskE:+c.riskE,riskF:+c.riskF,tpd:Math.max(1,Math.round(c.tpd)),split:c.split/100,reserve:0,
-    mode:c.mode==="instant"?"instant":"2step",firms:String(c.firms||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,8),dstop:c.dstop!==false,reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
+  const P={have:HV,s0:+c.s0,n0:Math.round(c.n0),target:+c.target,wr:c.wr/100,rr:+c.rr,riskE:+c.riskE,riskF:+c.riskF,tpd:Math.max(1,Math.round(c.tpd)),split:c.split/100,reserve:0,
+    firms:String(c.firms||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,8),dstop:c.dstop!==false,reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   const warn=[]; if(P.riskE>capE){ warn.push(`Test risk lowered to ${capE}% so it stays inside the firm's limits.`); P.riskE=capE; } if(P.riskF>capF){ warn.push(`Funded risk lowered to ${capF}% so it stays inside the firm's limits.`); P.riskF=capF; }
   return {P,warn};
@@ -2809,10 +2877,17 @@ function labSetupHtml(){
   <div class="lab-top"><div><span class="kicker">Test lab</span><h3>Build a test plan</h3><span class="lab-sub">Type any plan. Nothing here touches your real coach.</span></div>${TK.state?`<div class="lab-ctl"><button type="button" class="btn ghost sm" data-lab="cancel">Back to test</button></div>`:""}</div>
   <div class="ls-g"><h4>Start</h4><div class="ls-row">
     <label class="ls-f"><span>Start size</span><div class="field"><select data-lc="s0">${LAB_SIZES.map(s=>`<option value="${s}"${s===+c.s0?" selected":""}>${fmt(s)}</option>`).join("")}</select></div></label>
-    ${f("n0","Tests to start")}${f("target","Goal (funded)","",50000,"$")}<div class="ls-f"><span>Rebuy budget</span><div class="ls-auto"><b>$0</b> auto, from the guide: after the first tests, every new test is paid from payouts.</div></div></div></div>
+    ${f("n0",(c.have||[]).length?"New tests to start":"Tests to start")}${f("target","Goal (funded)","",50000,"$")}<div class="ls-f"><span>Rebuy budget</span><div class="ls-auto"><b>$0</b> auto, from the guide: after the first tests, every new test is paid from payouts.</div></div></div></div>
+  <div class="ls-g"><h4>Accounts you already have</h4><p class="ls-help">A funded account or tests already in Phase 1 or 2. They start where they are. Leave empty to start fresh.</p>
+    ${(c.have||[]).length?`<table class="ls-lad ls-have"><thead><tr><th>Size</th><th>Stage</th><th>Balance now</th><th>Days traded</th><th></th></tr></thead><tbody>${c.have.map((h,i)=>`<tr>
+      <td><input type="number" data-lh="size" data-i="${i}" value="${h.size}" step="1000" aria-label="Size"></td>
+      <td><select data-lh="ph" data-i="${i}" aria-label="Stage">${[1,2,3].map(k=>`<option value="${k}"${+h.ph===k?" selected":""}>${HAVE_PH[k]}</option>`).join("")}</select></td>
+      <td><input type="number" data-lh="bal" data-i="${i}" value="${h.bal}" step="10" aria-label="Balance now"></td>
+      <td><input type="number" data-lh="days" data-i="${i}" value="${h.days||0}" step="1" min="0" aria-label="Days traded"></td>
+      <td><button type="button" class="linkbtn" data-lab="haveDel" data-i="${i}" aria-label="Remove">Remove</button></td></tr>`).join("")}</tbody></table>`:""}
+    <div><button type="button" class="btn ghost sm" data-lab="haveAdd">+ Add an account</button></div></div>
   <div class="ls-g"><h4>Trading</h4><div class="ls-row">${f("wr","Win rate","%")}${f("rr","Reward per $1","",0.5)}${f("riskE","Risk on tests","%",0.1)}${f("riskF","Risk on funded","%",0.1)}${f("tpd","Trades a day")}${f("split","Your profit share","%",5)}</div></div>
-  <div class="ls-g"><h4>Account type</h4><div class="ls-buy" role="radiogroup">${[["2step","2-step challenge","Pass Phase 1 and 2, then funded"],["instant","Instant funding","Funded the day you buy. No tests"]].map(([v,b,s])=>`<button type="button" role="radio" data-lmode="${v}" aria-checked="${(c.mode||"2step")===v}" class="${(c.mode||"2step")===v?"on":""}"><b>${b}</b><span>${s}</span></button>`).join("")}</div>${c.mode==="instant"?`<p class="ls-help">Instant accounts cost much more than a test. Fees below are estimates (4% of size). Type your firm's real price.</p>`:""}</div>
-  <div class="ls-g"><h4>Firm rules</h4><div class="ls-row">${c.mode==="instant"?"":f("p1t","Phase 1 target","%",0.5)+f("p2t","Phase 2 target","%",0.5)}${f("maxdd","Max loss","%",0.5)}${f("daily","Daily loss","%",0.5)}${f("lock","Payout from","+%",0.5)}${f("lockMax","Payout up to","+%",0.5)}</div></div>
+  <div class="ls-g"><h4>Firm rules</h4><div class="ls-row">${f("p1t","Phase 1 target","%",0.5)}${f("p2t","Phase 2 target","%",0.5)}${f("maxdd","Max loss","%",0.5)}${f("daily","Daily loss","%",0.5)}${f("lock","Payout from","+%",0.5)}${f("lockMax","Payout up to","+%",0.5)}</div></div>
   <div class="ls-g"><h4>Cuts and recovery</h4><div class="ls-row">${f("c1","Funded cut","−%",0.5)}${f("c2","Phase 2 cut","−%",0.5)}${f("c3","Phase 1 cut","−%",0.5)}${f("k1","Funded retries")}${f("k2","Phase 2 retries")}${f("k3","Phase 1 retries")}</div></div>
   <div class="ls-g"><h4>Account sizes</h4><p class="ls-help">Turn on the sizes you want. A bigger size unlocks when Tier 1 and payouts reach these numbers.</p>
     <table class="ls-lad"><thead><tr><th>Use</th><th>Size</th><th>Fee</th><th>Tier 1 at least</th><th>Payouts at least</th></tr></thead><tbody>
@@ -2842,16 +2917,18 @@ function labBuild(){
 document.addEventListener("input",e=>{ const t=e.target; if(!TK.test) return;
   if(t.hasAttribute("data-lfirms")){ const c=labCfg(); c.firms=t.value; labCfgSave(); return; }
   if(t.hasAttribute("data-lds")){ const c=labCfg(); c.dstop=t.checked; labCfgSave(); return; }
+  if(t.dataset.lh){ const c=labCfg(), h=(c.have||[])[+t.dataset.i]; if(!h) return; h[t.dataset.lh]=+t.value; labCfgSave(); return; }
   if(t.dataset.lc){ const c=labCfg(); c[t.dataset.lc]=t.type==="checkbox"?(t.checked?"guide":"simple"):+t.value; labCfgSave(); if(t.dataset.lc==="s0"){ c.ladder.forEach(r=>{ if(r.size===+t.value) r.on=true; }); if(c.buy!=="auto"&&+c.buy<+t.value) c.buy="auto"; tkRender(); } }
   else if(t.dataset.lr){ const c=labCfg(), r=c.reinv[+t.dataset.i]; if(!r) return; r[t.dataset.lr]=+t.value; labCfgSave(); if(t.dataset.lr==="rate"){ const td=t.closest("tr").lastElementChild; if(td) td.textContent=(100-r.rate)+"%"; } }
   else if(t.dataset.ll){ const c=labCfg(), r=c.ladder[+t.dataset.i]; if(!r) return; if(t.dataset.ll==="on"){ r.on=t.checked; if(!r.on&&+c.buy===r.size) c.buy="auto"; labCfgSave(); tkRender(); } else { r[t.dataset.ll]=+t.value; labCfgSave(); } } });
 document.addEventListener("change",e=>{ const t=e.target; if(TK.test&&t.dataset.lc==="s0"){ const c=labCfg(); c.s0=+t.value; c.ladder.forEach(r=>{ if(r.size===c.s0) r.on=true; }); if(c.buy!=="auto"&&+c.buy<c.s0) c.buy="auto"; labCfgSave(); tkRender(); } });
-document.addEventListener("click",e=>{ if(!TK.test) return; const lm=e.target.closest("[data-lmode]"); if(lm){ const c=labCfg(), m=lm.dataset.lmode; if((c.mode||"2step")!==m){ c.mode=m; c.ladder.forEach(r=>{ r.fee=m==="instant"?instFee(r.size):((typeof feeMemo!=="undefined"&&feeMemo[r.size])||guessFee(r.size)); }); labCfgSave(); tkRender(); } return; }
-  const lb=e.target.closest("[data-lb]"); if(lb){ const c=labCfg(); c.buy=lb.dataset.lb==="auto"?"auto":+lb.dataset.lb; labCfgSave(); tkRender(); return; }
+document.addEventListener("click",e=>{ if(!TK.test) return; const lb=e.target.closest("[data-lb]"); if(lb){ const c=labCfg(); c.buy=lb.dataset.lb==="auto"?"auto":+lb.dataset.lb; labCfgSave(); tkRender(); return; }
   const b=e.target.closest("[data-lab]"); if(!b) return; const k=b.dataset.lab;
   if(k==="setup"){ labPlay(false); LAB.setup=true; tkRender(); }
   else if(k==="cancel"){ LAB.setup=false; tkRender(); }
   else if(k==="build") labBuild();
+  else if(k==="haveAdd"){ const c=labCfg(); c.have=c.have||[]; if(c.have.length<12) c.have.push({size:+c.s0,ph:3,bal:+c.s0,days:0}); labCfgSave(); tkRender(); }
+  else if(k==="haveDel"){ const c=labCfg(); (c.have||[]).splice(+b.dataset.i,1); labCfgSave(); tkRender(); }
   else if(k==="defaults"){ LAB.cfg=labCfgDefault(); labCfgSave(); tkRender(); }
   else if(k==="report"){ LAB.showRep=!LAB.showRep; tkRender(); }
   else if(k==="print"){ document.body.classList.add("print-rep"); try{ window.print(); }catch(err){} setTimeout(()=>document.body.classList.remove("print-rep"),500); } });
@@ -2904,19 +2981,19 @@ function demoCheck(P,ev){
   const off=ev.filter(x=>x.e==="offline"); bad=off.filter(o=>trades.some(t=>t.id===o.id&&t.w===o.w)).length;
   add("Losing 4 weeks → rest 1 week","4-week cycle ends in loss: put the account offline for 1 full week.",off.length-bad,bad,`${off.length} offline weeks, no trades on them.`);
   // 10 reinvest
-  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&(P.mode==="instant"||a.T2+a.T3>=a.T1-1))); }).length;
+  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T2+a.T3>=a.T1-1)); }).length;
   add("Reinvest ladder",`Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then ${P.reinv.map(r=>Math.round(r.rate*100)+"%").join(" / ")} by stage (guide: 80 / 65 / 50 / 30).`,al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
   // 11 spend priority
   const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||(b.T1>0&&b.t3cap<b.t3Target-1))).length;
   add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the Evaluation tier.`);
   // 12 ladder
-  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&(P.mode==="instant"||u.T2+u.T3>=u.T1-1))).length;
+  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T2+u.T3>=u.T1-1)).length;
   add("Upgrade ladder",`Bigger accounts only after enough funded money and payouts, and all 5 checks: 3 payouts in a row, no funded cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1.`,up.length-bad,bad,up.length?up.map(u=>`${fmt(u.size)} at ${fmt(u.T1)} funded, ${u.pays} payouts`).join(" · "):"No upgrade in this run.");
   // 13 one new size first
   bad=by.filter((b,i)=>b.newSize&&!b.heldBack&&by.slice(0,i).some(x=>x.size===b.size&&!ev.some(f=>f.e==="funded"&&f.id===x.id&&f.d<=b.d)&&!ev.some(c=>c.e==="cut"&&c.id===x.id&&c.d<=b.d))).length;
   add("One new size first","Pass one account of a new size before buying multiples.",by.filter(b=>b.newSize).length-bad,bad,`${by.filter(b=>b.newSize&&!b.heldBack).length} first buys at a new size.`);
   // 15 Tier 2 bench
-  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&(P.mode==="instant"||f.T2b+f.T3b>=f.nT1-1))))).length;
+  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&f.T2b+f.T3b>=f.nT1-1)))).length;
   add("Tier 2 bench","A passed Phase 2 account waits on the bench. It goes live to refill Tier 1, or to grow it only when the checklist passes and T2 / T3 stay at 60% / 40% of the new T1.",fu.length-bad,bad,`${fu.length} accounts went live, ${fu.filter(f=>f.refill).length} as refills. ${ev.filter(x=>x.e==="pass2").length-fu.length>0?(ev.filter(x=>x.e==="pass2").length-fu.length)+" still waiting on the bench.":""}`);
   // 16 payout amount
   bad=po.filter(x=>Math.abs(x.amt-x.size*x.b/100*P.split)>0.01).length;
@@ -2926,28 +3003,25 @@ function demoCheck(P,ev){
   add("Reinvestment math","Every rebuy is paid from payouts. Reinvestment = payouts × reinvest % − test fees.",al.length+by.length-lb,lb,`Recounted ${al.length} payout splits and ${by.length} buys from zero. ${P.topup>0?"Monthly add is on, so its deposits are left out of this check.":""}`);
   // 14 ratio at goal
   const g=ev.find(x=>x.e==="milestone"&&x.goal);
-  if(g&&P.mode==="instant"){ const r2=g.T2/g.T1; add("Backup at the goal","Instant plan: no tests, so Tier 2 backup = 60% of Tier 1.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded).`); }
-  else if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Evaluation ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the Evaluation tier keeps refilling after the goal.`); }
+  if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Evaluation ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the Evaluation tier keeps refilling after the goal.`); }
   return C;
 }
 function evText(x,P){
   const nm=id=>`#${id}`;
   switch(x.e){
-    case "start": if(P.mode==="instant") return [`Buy ${x.n} × ${fmt(x.size)} instant accounts (${fmtFull(x.fee)} each). Funded the same day.`,"Instant plan: no tests."];
-      return [`Buy ${x.n} × ${fmt(x.size)} tests (${fmtFull(x.fee)} each). ${x.cash>0?fmtFull(x.cash)+" kept for rebuys.":"No rebuy money: every new test is paid from payouts."}`,"Step 1: start with two $25K evaluations."];
+    case "start": return [`Buy ${x.n} × ${fmt(x.size)} tests (${fmtFull(x.fee)} each). ${x.cash>0?fmtFull(x.cash)+" kept for rebuys.":"No rebuy money: every new test is paid from payouts."}`,"Step 1: start with two $25K evaluations."];
     case "pass1": return [`${nm(x.id)} ${fmt(x.size)} passed Phase 1 at +${x.b.toFixed(2)}% → now Backup (T2).`,"Once both pass Phase 1, they move into Tier 2."];
     case "pass2": return [`${nm(x.id)} ${fmt(x.size)} passed Phase 2 at +${x.b.toFixed(2)}%.`,"T2 is one winning trade from funded."];
     case "funded": return [`${nm(x.id)} is FUNDED. Funded total ${fmt(x.T1)}. Trades in week group ${x.off+1} of 3.`,"Begin staggered cycling. Offset start dates."];
     case "payout": return [`${nm(x.id)} payout at +${x.b.toFixed(2)}%: ${fmtFull(x.amt)} to you from the firm.`,"Lock payout at +3%."];
     case "alloc": return [`${fmtFull(x.amt)} split: ${fmtFull(x.toPool)} back in (${Math.round(x.rate*100)}%), ${fmtFull(x.personal)} to you. Tiers ${x.stocked?"full":"not full yet"} (T2 ${fmt(x.T2)}, T3 ${fmt(x.T3)} vs funded ${fmt(x.T1)}).`,x.stocked?"Reinvestment ladder by stage.":"Before T2 = 60% and T3 = 40%, every payout goes back in."];
-    case "buy": if(P.mode==="instant") return [`Buy ${nm(x.id)} ${fmt(x.size)} instant account for ${fmtFull(x.fee)} as a backup (waits, not trading).${x.heldBack?" Held at the proven size until the first bigger one is live.":""}`,"Instant plan: backup = 60% of funded."];
-      return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill evaluation":"refill backup + evaluation"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
+    case "buy": return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill evaluation":"refill backup + evaluation"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
     case "recStart": return [`${nm(x.id)} ${PH_NAME[x.ph]} down ${x.b.toFixed(2)}% → recovery: max ${x.K} trades, same risk.`,"Controlled recovery over 2–4 trades. Once."];
     case "recovered": return [`${nm(x.id)} recovered to ${x.b.toFixed(2)}%.`,"Recovery worked, keep normal rules."];
     case "cut": return [`${nm(x.id)} ${PH_NAME[x.ph]} closed at ${x.b.toFixed(2)}%${x.why==="recfail"?" (recovery failed)":x.why==="again"?" (hit the cut again)":x.why==="refused"?" (payout refused by firm)":x.why==="maxdd"?" (firm limit!)":""}.`,x.ph===3?"Cut T1 at −6%. A T2 replaces it when it passes.":"Cut tests at −4%. Rebuy from payouts."];
     case "offline": return [`${nm(x.id)} lost over its 4-week cycle → offline this week.`,"4-week cycle ends in loss: offline 1 week."];
     case "upgrade": return [`Unlocked ${fmt(x.size)} accounts (funded ${fmt(x.T1)}, ${x.pays} payouts, ${x.consec} in a row).`,"Upgrade ladder + scale-up checklist."];
-    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}${P.mode==="instant"?"":`, evaluation ${fmt(x.T3)}`}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
+    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}, evaluation ${fmt(x.T3)}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
   }
   return null;
 }
@@ -2973,7 +3047,7 @@ function demoRender(){
     <div class="fx-big">
       <div><span class="v t1">${fmt(last.T1||0)}</span><span class="k">funded at the end</span></div>
       <div><span class="v t1">${last.pays||0}</span><span class="k">payouts</span></div>
-      <div><span class="v t1">${fmtFull(last.fees||0)}</span><span class="k">${P.mode==="instant"?"spent on accounts":"spent on tests"}</span></div>
+      <div><span class="v t1">${fmtFull(last.fees||0)}</span><span class="k">spent on tests</span></div>
       <div><span class="v t1">${fmt(last.personal||0)}</span><span class="k">taken home</span></div>
     </div>
     <div class="fx-cta"><button type="button" class="btn gold" id="demoAgain">Run another future <span class="arr">↻</span></button><a class="btn ghost" href="#build" data-nav="build">Change the numbers</a></div>
@@ -3036,20 +3110,13 @@ function roadRender(){
     const about=w=>w?`about week ${w}`:"later in the plan";
     const yours=Math.round((1-T.rate)*100);
     const step=(w,t,p,kind)=>`<li class="rs ${kind||""}"><span class="rw">${w}</span><div><b>${t}</b>${p?`<p>${p}</p>`:""}</div></li>`;
-    const inst=isInst(P);
     const S=[
-      inst?{tier:"Start",name:"Instant accounts",title:"Buy and go live",from:1,to:T.f1,
-       unlock:"Starts today",
-       next:`Stage 2 is your first payout, ${about(T.po1)}.`,
-       steps:[
-        step("Week 1",`Buy ${n0} × ${fmt(s0)} instant accounts (${fmtFull(L[0].fee)} each)`,`They are funded the same day. No tests. Risk ${fmtFull(rF)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day.`),
-        step("Every week",`Keep the same rhythm`,`Each account trades 1 week, then rests 2. Same ${fmtFull(rF)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
-        step("Any week",`If an account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it.`,"warn")]}:
       {tier:"Tier 3",name:"Evaluation",title:"Pass your first tests",from:1,to:T.f1,
        unlock:"Starts today",
        next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
        steps:[
-        step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(s0*Math.min(P.daily,P.c3)/100*0.8)}.`),
+        (P.have||[]).length?step("Today",`Start from your accounts: ${haveTxt(P.have)}`,`They keep their stage, balance and days traded. ${P.have.some(h=>h.ph===3)?"Funded ones trade 1 week, then rest 2. ":""}No fee is counted for them.`,"mile"):"",
+        n0?step("Week 1",`Buy ${n0} × ${fmt(s0)} tests (${fmtFull(L[0].fee)} each)`,`Trade test #1 only. Risk ${fmtFull(rE)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day. Stop for the day if you are down ${fmtFull(s0*Math.min(P.daily,P.c3)/100*0.8)}.`):"",
         n0>1?step("Week 2",`Test #1 rests. Trade test #2`,`Tests take turns by week, so one bad week can't hit both.`):"",
         step("Every week",`Keep the same rhythm`,`Same ${fmtFull(rE)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
         T.p1?step(wk(T.p1),`First Phase 1 pass (+${P.p1t}%)`,`That account moves to Phase 2. Same risk, same turns.`,"mile"):"",
@@ -3062,15 +3129,15 @@ function roadRender(){
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
         step("Every on-week",`Ask for a payout at ${lockTxt(P)}`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)})${P.lockMax>P.lock?`, and at the latest at +${P.lockMax}%`:""}, request the payout. Don't wait for more.`),
         T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
-        step("Right after",inst?`Buy a backup instant account`:`Refill the Evaluation tier`,inst?`Reinvestment buys backup accounts. They wait, not trading, until a funded account is cut.`:`Reinvestment buys the next tests, so a new account is always on the way.`),
+        step("Right after",`Refill the Evaluation tier`,`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
       {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
        unlock:`Unlocks ${about(T.po1)}`,
        next:`Stage 4 unlocks when you reach ${fmt(P.target)} funded, ${about(T.goal)}.`,
        steps:[
-        step("Always",`Keep a backup ready`,inst?`Backup instant accounts worth 60% of funded, bought and waiting. Like a football bench.`:`For every funded account, keep one test passed or close behind it. Like a football bench.`),
+        step("Always",`Keep a backup ready`,`For every funded account, keep one test passed or close behind it. Like a football bench.`),
         T.f2?step(wk(T.f2),`Second funded account`,`Funded accounts take turns: each one trades 1 week in 3.`,"mile"):"",
-        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} ${inst?"accounts":"tests"}`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
+        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} tests`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
         ...T.miles.slice(0,4).map(m=>step(wk(m.w),`${fmt(m.v)} funded`,`Next account size unlocks.`,"mile"))]},
       {tier:"Goal",name:"Funded team",title:`${fmt(P.target)} funded`,from:T.goal,to:null,
        unlock:T.goal?`Unlocks ${about(T.goal)}`:`Not reached in most futures. Try lower risk or a smaller goal.`,
@@ -3081,7 +3148,7 @@ function roadRender(){
         step("Always",`Same rules`,`Fixed risk, 1 week on and 2 off, payout at ${lockTxt(P)}.`)]}
     ];
     o.innerHTML=`
-    <div class="card road-sum"><div><span class="k">Your road</span><h2>${T.goal?`${fmt(P.target)} funded in about ${weeksTxt(T.goal)}`:`A long road to ${fmt(P.target)}`}</h2><p>${n0} × ${fmt(s0)} tests · ${Math.round(P.wr*100)}% win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name+" risk":P.riskE+"% risk"}. Weeks are the middle of 160 simulated futures, so yours can be faster or slower.</p></div>
+    <div class="card road-sum"><div><span class="k">Your road</span><h2>${T.goal?`${fmt(P.target)} funded in about ${weeksTxt(T.goal)}`:`A long road to ${fmt(P.target)}`}</h2><p>${(P.have||[]).length?haveTxt(P.have)+(n0?` + ${n0} × ${fmt(s0)} new tests`:""):`${n0} × ${fmt(s0)} tests`} · ${Math.round(P.wr*100)}% win rate · 1 : ${P.rr} · ${RISK_LV[P.risklvl]?RISK_LV[P.risklvl].name+" risk":P.riskE+"% risk"}. Weeks are the middle of 160 simulated futures, so yours can be faster or slower.</p></div>
       <div class="road-bar">${S.map((s,i)=>`<span class="${i<cur?"done":i===cur?"now":""}"><i></i>${s.tier}</span>`).join("")}</div></div>
     ${S.map((s,i)=>{ const st=i<cur?"done":i===cur?"now":"locked";
       return `<section class="stage ${st}"><div class="sg-h"><span class="sg-n">${i+1}</span><div><span class="sg-t">Stage ${i+1} · ${s.tier} · ${s.name}</span><h3>${s.title}</h3><span class="sg-w">${s.from?`Week ${s.from}`:""}${s.to?` → ${s.to}`:s.from?" →":""}</span></div><span class="sg-st">${st==="done"?"Done":st==="now"?"You are here":`<i class="lk"></i>${esc(s.unlock)}`}</span></div>
