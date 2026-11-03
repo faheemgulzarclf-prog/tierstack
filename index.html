@@ -317,6 +317,7 @@ details.more[open] summary::after{content:"−"}
 .gd .verdict{margin:8px 0}.gd-cons{font-size:13px;margin:6px 0}.gd-cons.no{color:var(--bad)}.gd-cin{display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;justify-content:flex-start!important;text-align:left;gap:8px;font-size:13px;margin-top:10px}.gd-cin input{width:90px}
 .gd-m{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.gd-m div{display:flex;flex-direction:column;background:var(--bg2);border-radius:12px;padding:10px}.gd-m b{font-size:19px;font-family:var(--f-h)}.gd-m span{font-size:12px;color:var(--muted)}.gd-m b.up{color:var(--t1)}.gd-m b.dn{color:var(--bad)}
 @media (max-width:560px){.gd-m{grid-template-columns:repeat(2,minmax(0,1fr))}}.gd-sal{font-size:14px;margin:8px 0 0}
+.gd-intro{margin-top:18px}.gd-feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}.gd-feat div{background:var(--bg2);border-radius:14px;padding:14px}.gd-feat b{display:flex;align-items:center;gap:8px;font-size:15px}.gd-feat b span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--t1);color:var(--bg);font-size:12px}.gd-feat p{margin:6px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
 .tk-buyrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tk-firm{width:140px;border-radius:10px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);padding:8px 10px;font:inherit;font-size:13px}
 .verdict{border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
 .verdict.good{background:var(--good-bg)}.verdict.warn{background:var(--warn-bg)}.verdict.bad{background:var(--bad-bg)}
@@ -2272,7 +2273,9 @@ function tkRenderInner(){
   if(!st){ o.innerHTML=`<div class="fx tk-empty"><span class="kicker">Live tracker</span><h2 style="font-size:clamp(26px,3.4vw,38px)">Your daily coach, from first test to goal.</h2>
     <p class="sub2" style="margin:0;max-width:560px">Build your plan, then tap "Start tracking". Every day you log your balances and TierStack tells you which account to trade, how much to risk, and what to do with the rest.</p>
     <div class="tk-how"><div><b>1</b>Build your plan</div><div><b>2</b>Log balances daily</div><div><b>3</b>Follow today's moves</div></div>
-    <div class="fx-cta"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a></div></div>`; return; }
+    <div class="fx-cta"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a></div></div>
+    <div class="card gd-intro"><span class="kicker">New · your risk manager</span><h3 class="ct">Once your plan runs, the coach watches 5 things for you</h3>
+    <div class="gd-feat">${[["Discipline","A score out of 100, a 3-question check before you trade, and a daily stop after 2 losing trades."],["Today's risk","How much you lose if every trade today goes wrong, and a warning when funded and test accounts trade the same day."],["Firm risk","Which firm holds your money. A warning when one firm has more than 40%, and payouts held until the firm's consistency rule is met."],["Plan check","After 20 trades it compares your real win rate with the plan and tells you the new time to goal."],["Your money","Money you put in, payouts, what you took home, and how much funded you need for your salary."]].map((f,i)=>`<div><b><span>${i+1}</span>${f[0]}</b><p>${f[1]}</p></div>`).join("")}</div></div>`; return; }
   const p=st.p, pf=portfolio(st), act=st.accounts.filter(a=>a.status==="active");
   const adv=act.map(a=>({a,v:advise(a,st)}));
   const order={cut:0,recover:1,payout:2,pass:3,trade:4,wait:5,rest:6,bench:7};
