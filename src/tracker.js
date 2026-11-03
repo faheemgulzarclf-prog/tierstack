@@ -177,12 +177,12 @@ function tkRenderInner(){
   const o=$("tkOut"); if(!o) return;
   if(!TK.ready){ o.innerHTML=`<div class="card"><p class="sub2" style="margin:0"><span class="spin"></span> Loading your tracker…</p></div>`; return; }
   const st=TK.state;
-  if(!st){ o.innerHTML=`<div class="fx tk-empty"><span class="kicker">Live tracker</span><h2 style="font-size:clamp(26px,3.4vw,38px)">Your daily coach, from first test to goal.</h2>
-    <p class="sub2" style="margin:0;max-width:560px">Build your plan, then tap "Start tracking". Every day you log your balances and TierStack tells you which account to trade, how much to risk, and what to do with the rest.</p>
-    <div class="tk-how"><div><b>1</b>Build your plan</div><div><b>2</b>Log balances daily</div><div><b>3</b>Follow today's moves</div></div>
-    <div class="fx-cta"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr">→</span></a></div></div>
-    <div class="card gd-intro"><span class="kicker">New · your risk manager</span><h3 class="ct">Once your plan runs, the coach watches 5 things for you</h3>
-    <div class="gd-feat">${[["Discipline","A score out of 100, a 3-question check before you trade, and a daily stop after 2 losing trades."],["Today's risk","How much you lose if every trade today goes wrong, and a warning when funded and test accounts trade the same day."],["Firm risk","Which firm holds your money. A warning when one firm has more than 40%, and payouts held until the firm's consistency rule is met."],["Plan check","After 20 trades it compares your real win rate with the plan and tells you the new time to goal."],["Your money","Money you put in, payouts, what you took home, and how much funded you need for your salary."]].map((f,i)=>`<div><b><span>${i+1}</span>${f[0]}</b><p>${f[1]}</p></div>`).join("")}</div></div>`; return; }
+  if(!st){ o.innerHTML=`<div class="fx tk-empty"><span class="kicker">No plan yet</span><h2 style="font-size:clamp(26px,3.4vw,36px)">Your coach starts when you have a plan.</h2>
+    <p class="sub2" style="margin:0;max-width:560px">Build your plan, then tap "Start tracking this plan". Each day, type your balances. The coach tells you which account to trade and how much to risk.</p>
+    <div class="tk-how"><div><b>1</b>Build your plan</div><div><b>2</b>Type your balances each day</div><div><b>3</b>Do what the coach says</div></div>
+    <div class="fx-cta"><a class="btn gold" href="#build" data-nav="build">Build my plan <span class="arr" aria-hidden="true">→</span></a></div></div>
+    <div class="card gd-intro"><h3 class="ct">What the coach watches for you</h3>
+    <div class="gd-feat">${[["Discipline","A score out of 100. A daily stop after 2 losing trades."],["Today's risk","How much you can lose today if every trade goes wrong."],["Firm risk","A warning when one firm holds more than 40% of your money."],["Plan check","After 20 trades, it checks your real win rate and updates your time to goal."],["Your money","What you put in, what you got paid and what you took home."]].map((f,i)=>`<div><b><span>${i+1}</span>${f[0]}</b><p>${f[1]}</p></div>`).join("")}</div></div>`; return; }
   const p=st.p, pf=portfolio(st), act=st.accounts.filter(a=>a.status==="active");
   const adv=act.map(a=>({a,v:advise(a,st)}));
   const order={cut:0,recover:1,payout:2,pass:3,trade:4,wait:5,rest:6,bench:7};
