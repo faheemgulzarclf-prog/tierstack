@@ -19,7 +19,7 @@ const LAB_RULES=[
 function labCheck(k,ok,msg){ const c=LAB.checks[k]||(LAB.checks[k]={ok:0,bad:0}); if(ok) c.ok++; else { c.bad++; if(LAB.errors.length<40) LAB.errors.push({d:todayStr(),k,msg}); } }
 /* the guide's reinvest ladder, worked out on its own from the accounts (not from portfolio()) */
 function labExpRate(st,p){ const act=st.accounts.filter(a=>a.status==="active"), sum=ph=>act.filter(a=>a.phase===ph).reduce((s,a)=>s+a.size,0);
-  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1)) return 1;
+  const T1=sum(3), T2=sum(2), T3=sum(1); if(!(T1>0&&T2>=0.6*T1-1&&(p.mode==="instant"||T2+T3>=T1-1))) return 1;
   const R=p.reinv&&p.reinv.length?p.reinv:[{upto:0.2*p.target,rate:0.8},{upto:0.6*p.target,rate:0.65},{upto:p.target,rate:0.5},{upto:null,rate:0.3}];
   for(const r of R) if(r.upto==null||T1<r.upto) return r.rate; return R[R.length-1].rate; }
 /* independent bench rule from the guide */
@@ -29,7 +29,7 @@ function labCanPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
   if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4; }
-  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
+  return gate&&T2>=0.6*nT1-1&&(p.mode==="instant"||T2+T3>=nT1-1); }
 function labBenchTry(st,a){ const allowed=labCanPromote(st,a); const was=a.phase; promoteOne(a); const live=a.phase===3&&was===2;
   labCheck("bench",live===allowed,live?`${a.name} went live but the bench rule says wait`:`${a.name} stayed on the bench but the rule says it can go live`); if(live) LAB.peak=Math.max(LAB.peak,portfolio(st).T1); }
 function labStageName(p,T1){ const R=p.reinv&&p.reinv.length?p.reinv:null; if(!R) return T1<0.2*p.target?"Seed":T1<0.6*p.target?"Build":T1<p.target?"Scale":"Sustain"; const r=R.find(x=>x.upto==null||T1<x.upto)||R[R.length-1]; return r.name||""; }
@@ -79,7 +79,7 @@ function labStepDay(){
     // buying: follow the coach's next step
     let guard=0, pf=portfolio(st);
     if(pf.lvl>(LAB.lvl||0)){ log(`Unlocked ${fmt(p.ladder[pf.lvl].size)} accounts: Tier 1 is ${fmt(pf.T1)} after ${pf.pays} payouts.`); LAB.lvl=pf.lvl; }
-    while(pf.need>0&&st.pool>=pf.fee&&guard++<6){ labCheck("buy",pf.T1>0||st.accounts.filter(a=>a.status==="active").length<p.n0,`Bought a test before the first funded account`); labBuyCheck(st,pf); LAB.outPool+=pf.fee; doBuy(pf.buySize,pf.fee); pf=portfolio(st); }
+    while(pf.need>0&&st.pool>=pf.fee&&guard++<6){ labCheck("buy",pf.T1>0||st.accounts.filter(a=>a.status==="active").length<p.n0,`Bought a test before the first funded account`); labBuyCheck(st,pf); LAB.outPool+=pf.fee; const nb=doBuy(pf.buySize,pf.fee); if(p.mode==="instant") labCheck("buy",nb.phase===2&&nb.ready,`${nb.name} should start as a backup instant account`); pf=portfolio(st); }
     const expPool=p.reserve+LAB.inPool-LAB.outPool;
     labCheck("money",Math.abs(st.pool-expPool)<0.01&&Math.abs(st.personal-LAB.home)<0.01,`Reinvestment ${fmtFull(st.pool)} vs ${fmtFull(expPool)}, taken home ${fmtFull(st.personal)} vs ${fmtFull(LAB.home)}`);
     const minFee=Math.min(...p.ladder.map(r=>r.fee));
@@ -98,11 +98,13 @@ function labBuyCheck(st,pf){
   if(p.buy&&p.buy!=="auto"){ labCheck("scale",pf.buySize===+p.buy,`Bought ${fmt(pf.buySize)} but you chose ${fmt(+p.buy)}`); return; }
   const cutF=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"", consec=st.payouts.filter(x=>!cutF||x.d>=cutF).length;
   let gate=consec>=3&&(!cutF||dnum(todayStr())-dnum(cutF)>=14);
-  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&pf.T2+pf.T3>=pf.T1-1; }
+  if(p.scale!=="simple"){ const t=st.trades.slice(-20); gate=gate&&t.length>=20&&t.filter(Boolean).length/t.length>=0.4&&pf.T2>=0.6*pf.T1-1&&(p.mode==="instant"||pf.T2+pf.T3>=pf.T1-1); }
   let lv=0; while(gate&&lv<L.length-1&&pf.T1>=L[lv+1].unlockT1&&pf.pays>=L[lv+1].unlockPay) lv++;
   const proven=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
   const waiting=lv>proven&&st.accounts.some(a=>a.status==="active"&&a.size===L[lv].size&&a.phase!==3);
   const exp=waiting?L[proven].size:L[lv].size;
+  if(p.mode==="instant"){ const s=pf.buySize, grow=pf.T1>0&&pf.T1<p.target?s:0, base=Math.min(pf.T1,p.target), want=Math.max(pf.T1>0?0.6*(base+grow)+grow:0, p.n0*p.s0-pf.T1);
+    labCheck("buy",pf.T2<want-1e-6,`Instant: bought a backup but Tier 2 ${fmt(pf.T2)} already covers ${fmt(want)}`); }
   labCheck("scale",pf.buySize===exp,`Bought ${fmt(pf.buySize)} but the size table says ${fmt(exp)} (Tier 1 ${fmt(pf.T1)}, ${pf.pays} payouts)`);
 }
 function labNewFromCfg(){ const r=labCfgToP(labCfg()); LAB.lvl=0; if(r.err){ LAB.setup=true; tkRender(); return false; } tkFromPlan(r.P); (r.warn||[]).forEach(w=>log(w)); return true; }
@@ -221,7 +223,7 @@ function labCfgDefault(){
   P=P||{s0:25000,n0:2,target:500000,wr:0.4,rr:3,riskE:1,riskF:1,tpd:1,split:0.8,reserve:500,p1t:8,p2t:5,maxdd:10,daily:5,lock:3,c1:6,c2:4,c3:4,k1:3,k2:4,k3:3,ladder:[]};
   const L=P.ladder||[];
   return {s0:P.s0,n0:P.n0,target:P.target,wr:Math.round(P.wr*100),rr:P.rr,riskE:P.riskE,riskF:P.riskF,tpd:P.tpd,split:Math.round((P.split>1?P.split/100:P.split)*100),reserve:P.reserve,
-    p1t:P.p1t,p2t:P.p2t,maxdd:P.maxdd,daily:P.daily,lock:P.lock,lockMax:Math.max(P.lock,P.lockMax||P.lock),c1:P.c1,c2:P.c2,c3:P.c3,k1:P.k1,k2:P.k2,k3:P.k3,scale:"guide",buy:"auto",
+    mode:P.mode||"2step",p1t:P.p1t,p2t:P.p2t,maxdd:P.maxdd,daily:P.daily,lock:P.lock,lockMax:Math.max(P.lock,P.lockMax||P.lock),c1:P.c1,c2:P.c2,c3:P.c3,k1:P.k1,k2:P.k2,k3:P.k3,scale:"guide",buy:"auto",
     ladder:LAB_SIZES.map((size,i)=>{ const r=L.find(x=>x.size===size); return {size,on:!!r||size===P.s0,fee:r?r.fee:(typeof feeMemo!=="undefined"&&feeMemo[size])||guessFee(size),
       unlockT1:r?r.unlockT1:Math.round(P.target*(LAB_GUIDE_UNLOCK[size]||[0,0])[0]/1000)*1000,unlockPay:r?r.unlockPay:(LAB_GUIDE_UNLOCK[size]||[0,0])[1]}; }),
     reinv:P.reinv&&P.reinv.length?P.reinv.map(r=>({upto:r.upto==null?null:Math.round(r.upto/1000)*1000,rate:Math.round(r.rate*100),name:r.name})):LAB_GUIDE_REINV.map(([f,rate,name])=>({upto:f==null?null:Math.round(P.target*f/1000)*1000,rate,name}))};
@@ -238,7 +240,7 @@ function labCfgToP(c){
   if(!n(c.rr,0.5,10)) err.push("Reward: 0.5 to 10.");
   if(!n(c.riskE,0.05,5)||!n(c.riskF,0.05,5)) err.push("Risk: 0.05 to 5% per trade.");
   if(!n(c.split,10,100)) err.push("Profit share: 10 to 100%.");
-  if(!n(c.p1t,0.5,30)||!n(c.p2t,0.5,30)||!n(c.lock,0.5,20)) err.push("Targets and payout %: 0.5 to 30.");
+  if((c.mode!=="instant"&&(!n(c.p1t,0.5,30)||!n(c.p2t,0.5,30)))||!n(c.lock,0.5,20)) err.push("Targets and payout %: 0.5 to 30.");
   if(!n(c.maxdd,1,30)||!n(c.daily,0.5,30)) err.push("Loss limits: 0.5 to 30%.");
   if(!(c.c1<c.maxdd&&c.c2<c.maxdd&&c.c3<c.maxdd)) err.push("Cut levels must be smaller than the max drawdown.");
   const L=c.ladder.filter(r=>r.on||r.size===c.s0).filter(r=>r.size>=c.s0).sort((a,b)=>a.size-b.size).map((r,i)=>({size:r.size,fee:Math.max(0,+r.fee||0),unlockT1:i?Math.max(0,+r.unlockT1||0):0,unlockPay:i?Math.max(0,Math.round(+r.unlockPay||0)):0}));
@@ -247,7 +249,7 @@ function labCfgToP(c){
   const RV=c.reinv||[]; for(let i=1;i<RV.length-1;i++) if(!(+RV[i].upto>+RV[i-1].upto)) err.push("Reinvest stages: each Tier 1 limit must be bigger than the one before.");
   if(err.length) return {err};
   const P={s0:+c.s0,n0:Math.round(c.n0),target:+c.target,wr:c.wr/100,rr:+c.rr,riskE:+c.riskE,riskF:+c.riskF,tpd:Math.max(1,Math.round(c.tpd)),split:c.split/100,reserve:0,
-    firms:String(c.firms||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,8),dstop:c.dstop!==false,reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
+    mode:c.mode==="instant"?"instant":"2step",firms:String(c.firms||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,8),dstop:c.dstop!==false,reinv:(c.reinv||[]).map(r=>({upto:r.upto==null?null:+r.upto,rate:Math.max(0,Math.min(100,+r.rate))/100,name:r.name})),lockMax:Math.max(+c.lock,+c.lockMax||+c.lock),p1t:+c.p1t,p2t:+c.p2t,maxdd:+c.maxdd,daily:+c.daily,mindays:0,lock:+c.lock,c1:+c.c1,c2:+c.c2,c3:+c.c3,k1:Math.round(c.k1),k2:Math.round(c.k2),k3:Math.round(c.k3),risklvl:"custom",scale:c.scale,buy:c.buy==="auto"?"auto":+c.buy,ladder:L};
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   const warn=[]; if(P.riskE>capE){ warn.push(`Test risk lowered to ${capE}% so it stays inside the firm's limits.`); P.riskE=capE; } if(P.riskF>capF){ warn.push(`Funded risk lowered to ${capF}% so it stays inside the firm's limits.`); P.riskF=capF; }
   return {P,warn};
@@ -262,7 +264,8 @@ function labSetupHtml(){
     <label class="ls-f"><span>Start size</span><div class="field"><select data-lc="s0">${LAB_SIZES.map(s=>`<option value="${s}"${s===+c.s0?" selected":""}>${fmt(s)}</option>`).join("")}</select></div></label>
     ${f("n0","Tests to start")}${f("target","Goal (funded)","",50000,"$")}<div class="ls-f"><span>Rebuy budget</span><div class="ls-auto"><b>$0</b> auto, from the guide: after the first tests, every new test is paid from payouts.</div></div></div></div>
   <div class="ls-g"><h4>Trading</h4><div class="ls-row">${f("wr","Win rate","%")}${f("rr","Reward per $1","",0.5)}${f("riskE","Risk on tests","%",0.1)}${f("riskF","Risk on funded","%",0.1)}${f("tpd","Trades a day")}${f("split","Your profit share","%",5)}</div></div>
-  <div class="ls-g"><h4>Firm rules</h4><div class="ls-row">${f("p1t","Phase 1 target","%",0.5)}${f("p2t","Phase 2 target","%",0.5)}${f("maxdd","Max loss","%",0.5)}${f("daily","Daily loss","%",0.5)}${f("lock","Payout from","+%",0.5)}${f("lockMax","Payout up to","+%",0.5)}</div></div>
+  <div class="ls-g"><h4>Account type</h4><div class="ls-buy" role="radiogroup">${[["2step","2-step challenge","Pass Phase 1 and 2, then funded"],["instant","Instant funding","Funded the day you buy. No tests"]].map(([v,b,s])=>`<button type="button" role="radio" data-lmode="${v}" aria-checked="${(c.mode||"2step")===v}" class="${(c.mode||"2step")===v?"on":""}"><b>${b}</b><span>${s}</span></button>`).join("")}</div>${c.mode==="instant"?`<p class="ls-help">Instant accounts cost much more than a test. Fees below are estimates (4% of size). Type your firm's real price.</p>`:""}</div>
+  <div class="ls-g"><h4>Firm rules</h4><div class="ls-row">${c.mode==="instant"?"":f("p1t","Phase 1 target","%",0.5)+f("p2t","Phase 2 target","%",0.5)}${f("maxdd","Max loss","%",0.5)}${f("daily","Daily loss","%",0.5)}${f("lock","Payout from","+%",0.5)}${f("lockMax","Payout up to","+%",0.5)}</div></div>
   <div class="ls-g"><h4>Cuts and recovery</h4><div class="ls-row">${f("c1","Funded cut","−%",0.5)}${f("c2","Phase 2 cut","−%",0.5)}${f("c3","Phase 1 cut","−%",0.5)}${f("k1","Funded retries")}${f("k2","Phase 2 retries")}${f("k3","Phase 1 retries")}</div></div>
   <div class="ls-g"><h4>Account sizes</h4><p class="ls-help">Turn on the sizes you want. A bigger size unlocks when Tier 1 and payouts reach these numbers.</p>
     <table class="ls-lad"><thead><tr><th>Use</th><th>Size</th><th>Fee</th><th>Tier 1 at least</th><th>Payouts at least</th></tr></thead><tbody>
@@ -296,7 +299,8 @@ document.addEventListener("input",e=>{ const t=e.target; if(!TK.test) return;
   else if(t.dataset.lr){ const c=labCfg(), r=c.reinv[+t.dataset.i]; if(!r) return; r[t.dataset.lr]=+t.value; labCfgSave(); if(t.dataset.lr==="rate"){ const td=t.closest("tr").lastElementChild; if(td) td.textContent=(100-r.rate)+"%"; } }
   else if(t.dataset.ll){ const c=labCfg(), r=c.ladder[+t.dataset.i]; if(!r) return; if(t.dataset.ll==="on"){ r.on=t.checked; if(!r.on&&+c.buy===r.size) c.buy="auto"; labCfgSave(); tkRender(); } else { r[t.dataset.ll]=+t.value; labCfgSave(); } } });
 document.addEventListener("change",e=>{ const t=e.target; if(TK.test&&t.dataset.lc==="s0"){ const c=labCfg(); c.s0=+t.value; c.ladder.forEach(r=>{ if(r.size===c.s0) r.on=true; }); if(c.buy!=="auto"&&+c.buy<c.s0) c.buy="auto"; labCfgSave(); tkRender(); } });
-document.addEventListener("click",e=>{ if(!TK.test) return; const lb=e.target.closest("[data-lb]"); if(lb){ const c=labCfg(); c.buy=lb.dataset.lb==="auto"?"auto":+lb.dataset.lb; labCfgSave(); tkRender(); return; }
+document.addEventListener("click",e=>{ if(!TK.test) return; const lm=e.target.closest("[data-lmode]"); if(lm){ const c=labCfg(), m=lm.dataset.lmode; if((c.mode||"2step")!==m){ c.mode=m; c.ladder.forEach(r=>{ r.fee=m==="instant"?instFee(r.size):((typeof feeMemo!=="undefined"&&feeMemo[r.size])||guessFee(r.size)); }); labCfgSave(); tkRender(); } return; }
+  const lb=e.target.closest("[data-lb]"); if(lb){ const c=labCfg(); c.buy=lb.dataset.lb==="auto"?"auto":+lb.dataset.lb; labCfgSave(); tkRender(); return; }
   const b=e.target.closest("[data-lab]"); if(!b) return; const k=b.dataset.lab;
   if(k==="setup"){ labPlay(false); LAB.setup=true; tkRender(); }
   else if(k==="cancel"){ LAB.setup=false; tkRender(); }

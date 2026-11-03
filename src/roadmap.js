@@ -50,7 +50,15 @@ function roadRender(){
     const about=w=>w?`about week ${w}`:"later in the plan";
     const yours=Math.round((1-T.rate)*100);
     const step=(w,t,p,kind)=>`<li class="rs ${kind||""}"><span class="rw">${w}</span><div><b>${t}</b>${p?`<p>${p}</p>`:""}</div></li>`;
+    const inst=isInst(P);
     const S=[
+      inst?{tier:"Start",name:"Instant accounts",title:"Buy and go live",from:1,to:T.f1,
+       unlock:"Starts today",
+       next:`Stage 2 is your first payout, ${about(T.po1)}.`,
+       steps:[
+        step("Week 1",`Buy ${n0} × ${fmt(s0)} instant accounts (${fmtFull(L[0].fee)} each)`,`They are funded the same day. No tests. Risk ${fmtFull(rF)} per trade, at most ${P.tpd} trade${P.tpd>1?"s":""} a day.`),
+        step("Every week",`Keep the same rhythm`,`Each account trades 1 week, then rests 2. Same ${fmtFull(rF)} risk after a loss. Aim for 1 : ${P.rr} on every trade.`),
+        step("Any week",`If an account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it.`,"warn")]}:
       {tier:"Tier 3",name:"Evaluation",title:"Pass your first tests",from:1,to:T.f1,
        unlock:"Starts today",
        next:`Stage 2 unlocks when your first account is funded, ${about(T.f1)}.`,
@@ -68,15 +76,15 @@ function roadRender(){
         step(wk(T.f1),`Your first funded account`,`Trade it 1 week, then rest 2 weeks. Risk ${fmtFull(rF)} per trade.`,"mile"),
         step("Every on-week",`Ask for a payout at ${lockTxt(P)}`,`The moment it is up ${P.lock}% (${fmtFull(s0*P.lock/100)} on ${fmt(s0)})${P.lockMax>P.lock?`, and at the latest at +${P.lockMax}%`:""}, request the payout. Don't wait for more.`),
         T.po1?step(wk(T.po1),`First payout, about ${fmtFull(T.payAmt)}`,`About ${Math.round(T.rate*100)}% goes to Reinvestment, ${yours}% is yours.`,"mile"):"",
-        step("Right after",`Refill the Evaluation tier`,`Reinvestment buys the next tests, so a new account is always on the way.`),
+        step("Right after",inst?`Buy a backup instant account`:`Refill the Evaluation tier`,inst?`Reinvestment buys backup accounts. They wait, not trading, until a funded account is cut.`:`Reinvestment buys the next tests, so a new account is always on the way.`),
         step("Any week",`If a funded account falls to −${P.c1}%`,`Up to ${P.k1} recovery trades, once per account. If they fail, close it. Backups step in.`,"warn")]},
       {tier:"Tier 2",name:"Backup bench",title:"Build the bench and scale up",from:T.po1,to:T.goal,
        unlock:`Unlocks ${about(T.po1)}`,
        next:`Stage 4 unlocks when you reach ${fmt(P.target)} funded, ${about(T.goal)}.`,
        steps:[
-        step("Always",`Keep a backup ready`,`For every funded account, keep one test passed or close behind it. Like a football bench.`),
+        step("Always",`Keep a backup ready`,inst?`Backup instant accounts worth 60% of funded, bought and waiting. Like a football bench.`:`For every funded account, keep one test passed or close behind it. Like a football bench.`),
         T.f2?step(wk(T.f2),`Second funded account`,`Funded accounts take turns: each one trades 1 week in 3.`,"mile"):"",
-        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} tests`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
+        T.up1&&L[1]?step(wk(T.up1),`Move up to ${fmt(L[1].size)} ${inst?"accounts":"tests"}`,`Only after 3 payouts in a row and no cut in the last 10 days.`,"mile"):"",
         ...T.miles.slice(0,4).map(m=>step(wk(m.w),`${fmt(m.v)} funded`,`Next account size unlocks.`,"mile"))]},
       {tier:"Goal",name:"Funded team",title:`${fmt(P.target)} funded`,from:T.goal,to:null,
        unlock:T.goal?`Unlocks ${about(T.goal)}`:`Not reached in most futures. Try lower risk or a smaller goal.`,

@@ -80,7 +80,7 @@ function guardCards(st,adv,pf){
   </div>
   <div class="card gd-firm"><h3 class="ct">Firm risk</h3>
     ${mix.rows.map(r=>`<div class="tk-tb"><div class="tk-gtop"><span>${esc(r.firm)} · ${r.n} acct</span><span class="${r.share>0.4+1e-9?"dn":""}">${Math.round(r.share*100)}% ${mix.T1>0?"of funded":"of accounts"}</span></div><div class="tk-bar sm"><i style="width:${Math.min(100,r.share*100)}%;background:${r.share>0.4+1e-9?"var(--bad)":"var(--t1)"}"></i></div></div>`).join("")}
-    <p class="hint">${mix.rows.length<=1?"All your accounts are at one firm. If it stops paying or closes, you lose everything at once. Buy your next test at a second firm.":mix.over?`${esc(mix.top.firm)} holds more than 40%. Buy the next test at another firm.`:"Good: no firm holds more than 40%."}</p>
+    <p class="hint">${mix.rows.length<=1?"All your accounts are at one firm. If it stops paying or closes, you lose everything at once. Buy your next account at a second firm.":mix.over?`${esc(mix.top.firm)} holds more than 40%. Buy the next account at another firm.`:"Good: no firm holds more than 40%."}</p>
     ${fundedNow.map(({a})=>{ const c=consistency(a,p); return c.on?`<p class="gd-cons ${c.ok?"ok":"no"}">${c.ok?"✓":"✗"} ${esc(a.name)}: best day ${c.total>0?Math.round(c.share)+"% of profit":"—"} (limit ${c.lim}%)${c.ok?"":`. Make ${fmtFull(c.need)} more with small trades before the payout.`}</p>`:""; }).join("")}
     <label class="f gd-cin">Firm consistency rule: best day max<input type="number" min="0" max="100" step="5" value="${+p.cons||0}" data-gset="cons"><span>% of profit (0 = none)</span></label>
   </div>

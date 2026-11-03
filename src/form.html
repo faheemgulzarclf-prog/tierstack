@@ -8,10 +8,16 @@
           <p class="help">Works with MT4/MT5, cTrader, TradingView and most journal CSV exports. Nothing leaves your device.</p>
           <div id="impOut"></div>
         </div></details>
+      <div class="box"><label id="modeLbl">Account type</label>
+        <div class="riskseg modeseg" id="modeSeg" role="radiogroup" aria-labelledby="modeLbl">
+          <button type="button" role="radio" data-mode="2step" aria-checked="true"><b>2-step challenge</b><span class="rs-s">Pass 2 tests, then funded</span></button>
+          <button type="button" role="radio" data-mode="instant" aria-checked="false"><b>Instant funding</b><span class="rs-s">Funded the day you buy</span></button>
+        </div><input type="hidden" id="mode" value="2step">
+        <p class="help" id="modeHelp">Cheap tests you must pass first. Most traders start here.</p></div>
       <div class="box"><label for="s0">Account size</label><div class="field"><span class="pre">$</span><input type="number" id="s0" value="25000" min="1000" step="1000" inputmode="numeric"></div>
         <div class="quick" id="sizeQuick"><button type="button" data-v="10000">10K</button><button type="button" data-v="25000">25K</button><button type="button" data-v="50000">50K</button><button type="button" data-v="100000">100K</button></div>
         <p class="help">Size of the test you buy first.</p></div>
-      <div class="box"><label for="n0">How many tests to start</label><div class="field step"><button type="button" class="st-b" data-for="n0" data-d="-1" aria-label="One less">−</button><input type="number" id="n0" value="2" min="1" max="20" step="1" inputmode="numeric"><button type="button" class="st-b" data-for="n0" data-d="1" aria-label="One more">+</button></div></div>
+      <div class="box"><label for="n0" id="n0Lbl">How many tests to start</label><div class="field step"><button type="button" class="st-b" data-for="n0" data-d="-1" aria-label="One less">−</button><input type="number" id="n0" value="2" min="1" max="20" step="1" inputmode="numeric"><button type="button" class="st-b" data-for="n0" data-d="1" aria-label="One more">+</button></div></div>
       <div class="box"><label for="target">Your goal (funded money)</label><div class="field"><span class="pre">$</span><input type="number" id="target" value="500000" min="10000" step="50000" inputmode="numeric"></div><p class="help">How much firm money you want to trade.</p></div>
       <div class="box"><label for="wr">Win rate</label><div class="field step"><button type="button" class="st-b" data-for="wr" data-d="-1" aria-label="Lower">−</button><input type="number" id="wr" value="40" min="5" max="90" step="1" inputmode="numeric"><span class="post">%</span><button type="button" class="st-b" data-for="wr" data-d="1" aria-label="Higher">+</button></div><p class="help">Out of 100 trades, how many win? Use your real record.</p></div>
       <div class="box"><label for="rr">Reward for each $1 risked</label><div class="field step"><button type="button" class="st-b" data-for="rr" data-d="-0.5" aria-label="Lower">−</button><span class="pre">$</span><input type="number" id="rr" value="3" min="0.5" max="10" step="0.5" inputmode="decimal"><button type="button" class="st-b" data-for="rr" data-d="0.5" aria-label="Higher">+</button></div><p class="help" id="rrHelp">3 means you risk $1 to make $3.</p></div>

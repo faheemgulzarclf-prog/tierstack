@@ -45,19 +45,19 @@ function demoCheck(P,ev){
   const off=ev.filter(x=>x.e==="offline"); bad=off.filter(o=>trades.some(t=>t.id===o.id&&t.w===o.w)).length;
   add("Losing 4 weeks → rest 1 week","4-week cycle ends in loss: put the account offline for 1 full week.",off.length-bad,bad,`${off.length} offline weeks, no trades on them.`);
   // 10 reinvest
-  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&a.T2+a.T3>=a.T1-1)); }).length;
+  const al=ev.filter(x=>x.e==="alloc"); bad=al.filter(a=>{ const want=a.stocked?stageRate(a.T1):1; return Math.abs(a.rate-want)>1e-9|| (a.stocked!==(a.T1>0&&a.T2>=0.6*a.T1-1&&(P.mode==="instant"||a.T2+a.T3>=a.T1-1))); }).length;
   add("Reinvest ladder",`Reinvest all payouts until T2 = 60% and T3 = 40% of T1. Then ${P.reinv.map(r=>Math.round(r.rate*100)+"%").join(" / ")} by stage (guide: 80 / 65 / 50 / 30).`,al.length-bad,bad,`${al.length} payout days split. ${al.filter(a=>!a.stocked).length} went 100% back in because the tiers were not full.`);
   // 11 spend priority
   const by=ev.filter(x=>x.e==="buy"); bad=by.filter(b=>!(b.pipe<b.pipeTarget||(b.T1>0&&b.t3cap<b.t3Target-1))).length;
   add("Spend order","Restock T3 first, then T2, then grow T1, then personal income.",by.length-bad,bad,`${by.length} tests bought, ${by.filter(b=>b.why==="t3").length} to refill the Evaluation tier.`);
   // 12 ladder
-  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&u.T2+u.T3>=u.T1-1)).length;
+  const up=ev.filter(x=>x.e==="upgrade"); bad=up.filter(u=>!(u.T1>=u.unlockT1&&u.pays>=u.unlockPay&&u.consec>=3&&u.sinceCut>10&&u.wr&&u.T2>=0.6*u.T1-1&&(P.mode==="instant"||u.T2+u.T3>=u.T1-1))).length;
   add("Upgrade ladder",`Bigger accounts only after enough funded money and payouts, and all 5 checks: 3 payouts in a row, no funded cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1.`,up.length-bad,bad,up.length?up.map(u=>`${fmt(u.size)} at ${fmt(u.T1)} funded, ${u.pays} payouts`).join(" · "):"No upgrade in this run.");
   // 13 one new size first
   bad=by.filter((b,i)=>b.newSize&&!b.heldBack&&by.slice(0,i).some(x=>x.size===b.size&&!ev.some(f=>f.e==="funded"&&f.id===x.id&&f.d<=b.d)&&!ev.some(c=>c.e==="cut"&&c.id===x.id&&c.d<=b.d))).length;
   add("One new size first","Pass one account of a new size before buying multiples.",by.filter(b=>b.newSize).length-bad,bad,`${by.filter(b=>b.newSize&&!b.heldBack).length} first buys at a new size.`);
   // 15 Tier 2 bench
-  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&f.T2b+f.T3b>=f.nT1-1)))).length;
+  const fu=ev.filter(x=>x.e==="funded"); bad=fu.filter(f=>!(f.T1b<tgt&&(f.nT1<=Math.max(f.base,f.peak)||(f.consec>=3&&f.sinceCut>10&&f.wr&&f.T2b>=0.6*f.nT1-1&&(P.mode==="instant"||f.T2b+f.T3b>=f.nT1-1))))).length;
   add("Tier 2 bench","A passed Phase 2 account waits on the bench. It goes live to refill Tier 1, or to grow it only when the checklist passes and T2 / T3 stay at 60% / 40% of the new T1.",fu.length-bad,bad,`${fu.length} accounts went live, ${fu.filter(f=>f.refill).length} as refills. ${ev.filter(x=>x.e==="pass2").length-fu.length>0?(ev.filter(x=>x.e==="pass2").length-fu.length)+" still waiting on the bench.":""}`);
   // 16 payout amount
   bad=po.filter(x=>Math.abs(x.amt-x.size*x.b/100*P.split)>0.01).length;
@@ -67,25 +67,28 @@ function demoCheck(P,ev){
   add("Reinvestment math","Every rebuy is paid from payouts. Reinvestment = payouts × reinvest % − test fees.",al.length+by.length-lb,lb,`Recounted ${al.length} payout splits and ${by.length} buys from zero. ${P.topup>0?"Monthly add is on, so its deposits are left out of this check.":""}`);
   // 14 ratio at goal
   const g=ev.find(x=>x.e==="milestone"&&x.goal);
-  if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Evaluation ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the Evaluation tier keeps refilling after the goal.`); }
+  if(g&&P.mode==="instant"){ const r2=g.T2/g.T1; add("Backup at the goal","Instant plan: no tests, so Tier 2 backup = 60% of Tier 1.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded).`); }
+  else if(g){ const r2=g.T2/g.T1, r3=g.T3/g.T1; add("5 : 3 : 2 at the goal","T1 50%, T2 30%, T3 20% of capital.",1,0,`At the goal: Funded ${fmt(g.T1)}, Backup ${fmt(g.T2)} (${Math.round(r2*100)}% of funded), Evaluation ${fmt(g.T3)} (${Math.round(r3*100)}%). The guide targets 60% and 40%; the Evaluation tier keeps refilling after the goal.`); }
   return C;
 }
 function evText(x,P){
   const nm=id=>`#${id}`;
   switch(x.e){
-    case "start": return [`Buy ${x.n} × ${fmt(x.size)} tests (${fmtFull(x.fee)} each). ${x.cash>0?fmtFull(x.cash)+" kept for rebuys.":"No rebuy money: every new test is paid from payouts."}`,"Step 1: start with two $25K evaluations."];
+    case "start": if(P.mode==="instant") return [`Buy ${x.n} × ${fmt(x.size)} instant accounts (${fmtFull(x.fee)} each). Funded the same day.`,"Instant plan: no tests."];
+      return [`Buy ${x.n} × ${fmt(x.size)} tests (${fmtFull(x.fee)} each). ${x.cash>0?fmtFull(x.cash)+" kept for rebuys.":"No rebuy money: every new test is paid from payouts."}`,"Step 1: start with two $25K evaluations."];
     case "pass1": return [`${nm(x.id)} ${fmt(x.size)} passed Phase 1 at +${x.b.toFixed(2)}% → now Backup (T2).`,"Once both pass Phase 1, they move into Tier 2."];
     case "pass2": return [`${nm(x.id)} ${fmt(x.size)} passed Phase 2 at +${x.b.toFixed(2)}%.`,"T2 is one winning trade from funded."];
     case "funded": return [`${nm(x.id)} is FUNDED. Funded total ${fmt(x.T1)}. Trades in week group ${x.off+1} of 3.`,"Begin staggered cycling. Offset start dates."];
     case "payout": return [`${nm(x.id)} payout at +${x.b.toFixed(2)}%: ${fmtFull(x.amt)} to you from the firm.`,"Lock payout at +3%."];
     case "alloc": return [`${fmtFull(x.amt)} split: ${fmtFull(x.toPool)} back in (${Math.round(x.rate*100)}%), ${fmtFull(x.personal)} to you. Tiers ${x.stocked?"full":"not full yet"} (T2 ${fmt(x.T2)}, T3 ${fmt(x.T3)} vs funded ${fmt(x.T1)}).`,x.stocked?"Reinvestment ladder by stage.":"Before T2 = 60% and T3 = 40%, every payout goes back in."];
-    case "buy": return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill evaluation":"refill backup + evaluation"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
+    case "buy": if(P.mode==="instant") return [`Buy ${nm(x.id)} ${fmt(x.size)} instant account for ${fmtFull(x.fee)} as a backup (waits, not trading).${x.heldBack?" Held at the proven size until the first bigger one is live.":""}`,"Instant plan: backup = 60% of funded."];
+      return [`Buy ${nm(x.id)} ${fmt(x.size)} test for ${fmtFull(x.fee)} (${x.why==="t3"?"refill evaluation":"refill backup + evaluation"}).${x.heldBack?" Held at the proven size until the first bigger one is funded.":""}`,x.why==="t3"?"Restock T3 first.":"The moment a T2 passes, buy a new Phase 1 eval."];
     case "recStart": return [`${nm(x.id)} ${PH_NAME[x.ph]} down ${x.b.toFixed(2)}% → recovery: max ${x.K} trades, same risk.`,"Controlled recovery over 2–4 trades. Once."];
     case "recovered": return [`${nm(x.id)} recovered to ${x.b.toFixed(2)}%.`,"Recovery worked, keep normal rules."];
     case "cut": return [`${nm(x.id)} ${PH_NAME[x.ph]} closed at ${x.b.toFixed(2)}%${x.why==="recfail"?" (recovery failed)":x.why==="again"?" (hit the cut again)":x.why==="refused"?" (payout refused by firm)":x.why==="maxdd"?" (firm limit!)":""}.`,x.ph===3?"Cut T1 at −6%. A T2 replaces it when it passes.":"Cut tests at −4%. Rebuy from payouts."];
     case "offline": return [`${nm(x.id)} lost over its 4-week cycle → offline this week.`,"4-week cycle ends in loss: offline 1 week."];
     case "upgrade": return [`Unlocked ${fmt(x.size)} accounts (funded ${fmt(x.T1)}, ${x.pays} payouts, ${x.consec} in a row).`,"Upgrade ladder + scale-up checklist."];
-    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}, evaluation ${fmt(x.T3)}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
+    case "milestone": return [x.goal?`GOAL REACHED: ${fmt(x.T1)} funded. Backup ${fmt(x.T2)}${P.mode==="instant"?"":`, evaluation ${fmt(x.T3)}`}.`:`Milestone: ${fmt(x.v)} funded.`,x.goal?"System complete. Keep 70%, reinvest 30%.":"Next stage on the ladder."];
   }
   return null;
 }
@@ -111,7 +114,7 @@ function demoRender(){
     <div class="fx-big">
       <div><span class="v t1">${fmt(last.T1||0)}</span><span class="k">funded at the end</span></div>
       <div><span class="v t1">${last.pays||0}</span><span class="k">payouts</span></div>
-      <div><span class="v t1">${fmtFull(last.fees||0)}</span><span class="k">spent on tests</span></div>
+      <div><span class="v t1">${fmtFull(last.fees||0)}</span><span class="k">${P.mode==="instant"?"spent on accounts":"spent on tests"}</span></div>
       <div><span class="v t1">${fmt(last.personal||0)}</span><span class="k">taken home</span></div>
     </div>
     <div class="fx-cta"><button type="button" class="btn gold" id="demoAgain">Run another future <span class="arr">↻</span></button><a class="btn ghost" href="#build" data-nav="build">Change the numbers</a></div>

@@ -9,6 +9,13 @@ function reinvRate(P,T1,stocked){ if(!stocked) return 1; const R=P.reinv&&P.rein
 function lockPick(P,rnd){ const lo=P.lock, hi=Math.max(lo,P.lockMax||lo); return hi>lo?Math.round((lo+rnd*(hi-lo))*100)/100:lo; }
 function lockTxt(P){ const hi=Math.max(P.lock,P.lockMax||P.lock); return hi>P.lock?`+${P.lock}–${hi}%`:`+${P.lock}%`; }
 function lockMid(P){ return (P.lock+Math.max(P.lock,P.lockMax||P.lock))/2; }
+/* instant funding: no tests, a bought account is funded at once. Tier 3 (tests) does not exist, so the guide's ratios become Tier 2 backup = 60% of Tier 1. */
+function isInst(P){ return !!P&&P.mode==="instant"; }
+function stockOK(P,T1,T2,T3){ return T1>0&&T2>=0.6*T1-1&&(isInst(P)||T2+T3>=T1-1); }
+function growStock(P,nT1,T2b,T3b){ return T2b>=0.6*nT1-1&&(isInst(P)||T2b+T3b>=nT1-1); }
+function instFee(s){ return Math.round(s*0.04/10)*10; } // estimate only: instant accounts cost far more than a 2-step test; type your firm's price
+function curMode(){ const m=document.getElementById("mode"); return m&&m.value==="instant"?"instant":"2step"; }
+function feeKey(s){ return (curMode()==="instant"?"i":"")+s; }
 function guessFee(s){ if(DEFAULT_FEE[s]) return DEFAULT_FEE[s]; return Math.round(Math.max(40, s*0.0055)/10)*10; }
 const fmt=(v,d)=>{ if(!isFinite(v)) return "—"; const a=Math.abs(v), sg=v<0?"−":"";
   if(a>=1e6) return sg+"$"+(a/1e6).toFixed(a>=1e7?1:2).replace(/\.0+$/,"")+"M";
@@ -60,13 +67,13 @@ function buildLadder(){
   return sizes.map((s,i)=>{
     let unlockT1=0, unlockPay=0;
     if(i>0){ const f=k===2?0.3:0.2+0.4*(i-1)/(k-2); unlockT1=Math.round(tgt*f/1000)*1000; unlockPay=10+15*(i-1); }
-    return {size:s, fee:feeMemo[s]??guessFee(s), unlockT1, unlockPay};
+    return {size:s, fee:feeMemo[feeKey(s)]??(curMode()==="instant"?instFee(s):guessFee(s)), unlockT1, unlockPay};
   });
 }
 function renderLadder(){
   const L=buildLadder(); const tb=$("ladderTbl").tBodies[0];
   tb.innerHTML=L.map((r,i)=>`<tr><td class="mono">${fmt(r.size)}</td><td><input type="number" id="fee_${r.size}" data-size="${r.size}" value="${r.fee}" min="0" step="10" aria-label="Eval fee for ${fmt(r.size)}"></td><td class="hint">${i===0?"start":`T1 ≥ ${fmt(r.unlockT1)}, ${r.unlockPay}+ payouts`}</td></tr>`).join("");
-  tb.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{feeMemo[inp.dataset.size]=parseFloat(inp.value)||0;}));
+  tb.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{feeMemo[feeKey(inp.dataset.size)]=parseFloat(inp.value)||0;}));
 }
 function readParams(){
   const P={s0:num("s0"), n0:Math.max(1,Math.round(num("n0"))), target:num("target"),
@@ -78,7 +85,7 @@ function readParams(){
   // hard guard: never let risk break the firm's limits, whatever was typed
   const capE=Math.min(riskCap(P.maxdd,P.daily,P.tpd,P.c3,P.k3,P.rr),riskCap(P.maxdd,P.daily,P.tpd,P.c2,P.k2,P.rr)), capF=riskCap(P.maxdd,P.daily,P.tpd,P.c1,P.k1,P.rr);
   P.capped=P.riskE>capE||P.riskF>capF; P.riskE=Math.min(P.riskE,capE); P.riskF=Math.min(P.riskF,capF);
-  P.ladder=buildLadder().map(r=>({...r, fee:feeMemo[r.size]??r.fee}));
+  P.ladder=buildLadder().map(r=>({...r, fee:feeMemo[feeKey(r.size)]??r.fee})); P.mode=curMode();
   if(P.target<P.s0*P.n0) P.target=P.s0*P.n0;
   P.lockMax=Math.max(P.lock,P.lockMax||P.lock);
   { const d=defaultReinv(P.target), rv=i=>{ const v=parseFloat(($("ri_r"+i)||{}).value); return isFinite(v)?Math.max(0,Math.min(100,v))/100:d[i-1].rate; }, up=i=>{ const v=parseFloat(($("ri_u"+i)||{}).value); return isFinite(v)&&v>0?v:d[i-1].upto; };
@@ -103,7 +110,7 @@ function unitEcon(P,wr){
   const rng=mulberry(1234567); const N=12000;
   let p1=0,p2=0,t1n=0,t2n=0; for(let i=0;i<N;i++){ const a=phaseSim(rng,wr,P.rr,P.riskE,P.p1t,P.c3,P.k3,P.maxdd,400); if(a.ok){p1++;t1n+=a.n;
     const b=phaseSim(rng,wr,P.rr,P.riskE,P.p2t,P.c2,P.k2,P.maxdd,400); if(b.ok){p2++;t2n+=b.n;}}}
-  const pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N;
+  let pP1=p1/N, pP2=p1?p2/p1:0, pFund=p2/N; if(isInst(P)){ pP1=1; pP2=1; pFund=1; }
   // funded lifetime: count payouts until cut
   let totPay=0, cyc=0, cycOk=0, totPctPaid=0, payN=0;
   const M=4000;
@@ -114,7 +121,7 @@ function unitEcon(P,wr){
   const payout=size*lockMid(P)/100*P.split;
   const feePerFunded=pFund>0?fee/pFund:Infinity;
   const netPerFunded=ePays*payout-feePerFunded;
-  const tradesFund=(p1?t1n/p1:0)+(p2?t2n/p2:0), tP1=p1?t1n/p1:0, tP2=p2?t2n/p2:0, tradesPay=cycOk?payN/cycOk:0;
+  const inst=isInst(P), tP1=inst?0:(p1?t1n/p1:0), tP2=inst?0:(p2?t2n/p2:0), tradesFund=tP1+tP2, tradesPay=cycOk?payN/cycOk:0;
   return {pP1,pP2,pFund,pCycle,ePays,payout,feePerFunded,netPerFunded,tradesFund,tP1,tP2,tradesPay,
     ev:wr*P.rr-(1-wr)};
 }
@@ -135,7 +142,7 @@ function portfolioSim(P,wr,runs,seed,lg){
     const laneOf=()=>{ const c=[0,0]; for(const x of accts) if(x.ph!==3&&x.ph!==4) c[x.lane]++; return c[0]<=c[1]?0:1; };
     const weekly=new Float32Array(weeks+1); const reach=milestones.map(()=>null); const feesAt=milestones.map(()=>null);
     const persWeek=new Float32Array(weeks+1);
-    for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
+    const ph0=isInst(P)?4:1; for(let i=0;i<P.n0;i++) accts.push({id:++idc,size:L[0].size,li:0,ph:ph0,b:0,d:0,rec:-1,used:false,off:0,lane:i%2,cs:0,cb:0,offW:-1});
     if(lg) lg({e:"start",d:0,w:0,n:P.n0,size:L[0].size,fee:L[0].fee,cash});
     let T1=0, evalLane=0, setups=0, orders=0, sGoal=null, oGoal=null, dRun=0;
     for(let d=0; d<days; d++){
@@ -186,13 +193,13 @@ function portfolioSim(P,wr,runs,seed,lg){
       // or to grow Tier 1 only when 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% / Tier 3 = 40% of the NEW Tier 1 stay stocked.
       for(const a of accts){ if(a.ph!==4||T1>=tgt) continue; const nT1=T1+a.size;
         const T2b=accts.reduce((s,x)=>s+((x.ph===2||x.ph===4)?x.size:0),0)-a.size, T3b=accts.reduce((s,x)=>s+(x.ph===1?x.size:0),0);
-        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&T2b>=0.6*nT1-1&&T2b+T3b>=nT1-1);
+        const refill=nT1<=Math.max(P.n0*P.s0,peak), gate=consec>=3&&d-lastCut>10&&wr20(), ok=refill||(gate&&growStock(P,nT1,T2b,T3b));
         if(ok){ const T1b=T1, pk=peak; a.ph=3; a.pt=lockPick(P,rng()); a.off=(fundedCtr++)%3; a.cs=w; a.cb=0; T1+=a.size; if(a.li>proven) proven=a.li; peak=Math.max(peak,T1); if(lg) lg({e:"funded",d,w,id:a.id,size:a.size,off:a.off,T1,T1b,nT1,T2b,T3b,peak:pk,base:P.n0*P.s0,consec,sinceCut:d-lastCut,wr:wr20(),refill}); } }
       // allocate payouts
       if(dayPay>0){
         gross+=dayPay;
         const T2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), T3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-        const stocked=T1>0 && T2>=0.6*T1-1&&T2+T3>=T1-1;
+        const stocked=stockOK(P,T1,T2,T3);
         const rate=reinvRate(P,T1,stocked);
         cash+=dayPay*rate; personal+=dayPay*(1-rate); persWeek[w]+=dayPay*(1-rate);
         if(lg) lg({e:"alloc",d,w,amt:dayPay,rate,stocked,T1,T2,T3,toPool:dayPay*rate,personal:dayPay*(1-rate),cash});
@@ -201,14 +208,14 @@ function portfolioSim(P,wr,runs,seed,lg){
       // guide scale-up checklist: 3+ payouts in a row and no funded cut in the last 14 days (10 trading days)
       // guide: all five must be true (3 payouts in a row, no cut in 14 days, win rate 40%+ over 20 trades, T2 = 60% and T3 = 40% of T1)
       const uT2=accts.reduce((s,a)=>s+((a.ph===2||a.ph===4)?a.size:0),0), uT3=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
-      const growOk=consec>=3 && d-lastCut>10 && wr20() && T1>0 && uT2>=0.6*T1-1&&uT2+uT3>=T1-1;
+      const growOk=consec>=3 && d-lastCut>10 && wr20() && stockOK(P,T1,uT2,uT3);
       while(growOk && lvl<L.length-1 && T1>=L[lvl+1].unlockT1 && pays>=L[lvl+1].unlockPay){ lvl++; if(lg) lg({e:"upgrade",d,w,size:L[lvl].size,T1,pays,consec,unlockT1:L[lvl].unlockT1,unlockPay:L[lvl].unlockPay,sinceCut:d-lastCut,wr:wr20(),T2:uT2,T3:uT3}); }
       // buy evals (restock T3 first; T2 only refills by passing T3)
       let pipe=accts.reduce((s,a)=>s+(a.ph!==3?a.size:0),0);
       let t3cap=accts.reduce((s,a)=>s+(a.ph===1?a.size:0),0);
       // growing: stock the bench for the NEXT Tier 1 account too (T2 60% + T3 40% of T1 + one more account)
       const growS=T1>0&&T1<tgt?L[lvl].size:0, base1=Math.min(T1,tgt);
-      const tgtB=base1+growS, pipeTarget=Math.max(base1+2*growS, P.n0*P.s0), t3Target=Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
+      const tgtB=base1+growS, pipeTarget=isInst(P)?Math.max(T1>0?0.6*tgtB+growS:0, Math.max(0,P.n0*P.s0-T1)):Math.max(base1+2*growS, P.n0*P.s0), t3Target=isInst(P)?0:Math.max(0,0.4*tgtB-Math.max(0,(pipe-t3cap)-(0.6*tgtB+growS))); /* extra Phase 2 accounts count for the Evaluation tier */
       let guard=0; const noEdge=P.edgeGate!==false&&last100.length>=30&&edgeOf(last100.map(x=>x?P.rr:-1)).state==="none";
       while(!noEdge&&(pipe<pipeTarget || (T1>0 && t3cap<t3Target-1)) && guard++<50){
         let li=lvl; let outNew=false;
@@ -216,7 +223,7 @@ function portfolioSim(P,wr,runs,seed,lg){
         const fee=L[li].fee; if(cash<fee) break;
         const why=T1>0&&t3cap<t3Target-1?"t3":"pipe";
         cash-=fee; fees+=fee; evals++;
-        const nb={id:++idc,size:L[li].size,li,ph:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; t3cap+=L[li].size;
+        const nb={id:++idc,size:L[li].size,li,ph:isInst(P)?4:1,b:0,d:0,rec:-1,used:false,off:0,lane:laneOf(),cs:w,cb:0,offW:-1}; accts.push(nb); if(lg) lg({e:"buy",d,w,id:nb.id,size:nb.size,fee,why,pipe,t3cap,pipeTarget,t3Target,cash,lane:nb.lane,newSize:lvl>proven,heldBack:outNew,T1}); pipe+=L[li].size; if(!isInst(P)) t3cap+=L[li].size;
       }
       // milestones
       for(let m=0;m<milestones.length;m++) if(reach[m]==null && T1>=milestones[m]){ reach[m]=(d+1)/5; feesAt[m]=fees; if(m===milestones.length-1){ sGoal=setups; oGoal=orders; } if(lg) lg({e:"milestone",d,w,v:milestones[m],goal:m===milestones.length-1,...snap()}); }

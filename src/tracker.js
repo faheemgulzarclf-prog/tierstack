@@ -6,6 +6,7 @@ const dnum=s=>Math.floor(new Date(s+"T12:00:00").getTime()/DAY);
 const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 const uid=()=>Math.random().toString(36).slice(2,9);
 const PH={1:"Evaluation · Phase 1",2:"Backup · Phase 2",3:"Funded"};
+const phName=(a,p)=>isInst(p)&&a.phase===2?"Backup · instant, waiting":PH[a.phase];
 const PHC={1:"t3",2:"t2",3:"t1"};
 
 /* storage: private per-trader doc in db, else this browser */
@@ -25,13 +26,13 @@ function log(text){ TK.state.log.unshift({d:todayStr(),t:text}); TK.state.log=TK
 /* create from plan */
 function tkFromPlan(Pin){
   const P=Pin&&Pin.s0?Pin:readParams();
-  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax","cons","dstop","firms"];
+  const keep=["s0","n0","target","wr","rr","riskE","riskF","split","p1t","p2t","maxdd","daily","tpd","mindays","lock","c1","c2","c3","k1","k2","k3","reserve","risklvl","scale","buy","reinv","lockMax","cons","dstop","firms","mode"];
   const p={}; keep.forEach(k=>{ if(P[k]!==undefined) p[k]=P[k]; });
   p.ladder=P.ladder.map(r=>({size:r.size,fee:r.fee,unlockT1:r.unlockT1,unlockPay:r.unlockPay}));
   p.firm=typeof firmApplied!=="undefined"&&firmApplied?firmApplied:"";
   const st={v:2,start:todayStr(),p,pool:P.reserve,personal:0,spent:P.n0*P.ladder[0].fee,own:P.n0*P.ladder[0].fee,payouts:[],accounts:[],log:[],trades:[],cuts:[]};
-  for(let i=0;i<P.n0;i++){ const a=newAcct(P.s0,1,st); a.firm=p.firms&&p.firms.length?p.firms[i%p.firms.length]:p.firm; st.accounts.push(a); }
-  TK.state=st; log(`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(P.n0>1) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
+  const inst=isInst(p); for(let i=0;i<P.n0;i++){ const a=newAcct(P.s0,inst?2:1,st); if(inst) a.ready=true; a.firm=p.firms&&p.firms.length?p.firms[i%p.firms.length]:p.firm; st.accounts.push(a); }
+  TK.state=st; log(inst?`Plan started: ${P.n0} × ${fmt(P.s0)} instant funded accounts, goal ${fmt(P.target)} funded.`:`Plan started: ${P.n0} × ${fmt(P.s0)} evaluations, goal ${fmt(P.target)} funded.`); if(inst) promoteReady(st); if(P.n0>1&&!inst) log(`Evaluations take turns by week (#1 this week, #2 next week), so one bad week can't hit both.`);
   if(TK.test){ st.testDay=todayStr(); st.p.mindays=0; log("Test mode: the minimum trading days rule is off, so accounts move the moment they hit target."); }
   tkSave(); location.hash=TK.test?"lab":"track"; tkRender();
 }
@@ -67,6 +68,7 @@ function adviseCore(a,st){
   const dailyStop=a.dayStart-a.size*Math.min(p.daily,r.cut)/100*0.8;
   const daysDone=a.days.length, needDays=a.phase===3?p.mindays:p.mindays;
   const base={riskUsd,tgtUsd,cutUsd,pct,dailyStop,r};
+  if(a.ready&&a.phase===2&&isInst(p)) return {...base,kind:"bench",pill:"BACKUP",title:"Backup instant account. Don't trade it",text:`It goes live the moment a funded account is cut, or when Tier 1 can grow: 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% of the bigger Tier 1.`};
   if(a.ready&&a.phase===2) return {...base,kind:"bench",pill:"BENCH",title:"Passed. Waiting on the Tier 2 bench",text:`Don't trade it. It goes live the moment a funded account is cut, or when Tier 1 can grow: 3 payouts in a row, no cut in 14 days, and Tier 2 = 60% and Tier 3 = 40% of the bigger Tier 1.`};
   if(pct<=-r.cut){
     if(a.rec<0&&!a.recUsed&&r.K>0) return {...base,kind:"recover",pill:"RECOVERY",title:`Recovery: up to ${r.K} trades`,text:`It's down ${Math.abs(pct).toFixed(1)}%. Take at most ${r.K} trades at the normal ${fmtFull(riskUsd)} risk to get back above ${fmtFull(cutUsd)}. Never bigger. Log the balance after each trade.`,act:"startRec"};
@@ -92,8 +94,8 @@ function portfolio(st){
   const p=st.p, L=p.ladder, pays=st.payouts.length;
   const lastCut=st.cuts.filter(c=>c.phase===3).map(c=>c.d).sort().pop()||"";
   const consec=st.payouts.filter(x=>!lastCut||x.d>=lastCut).length, last20=st.trades.slice(-20), wr20=last20.length?last20.filter(Boolean).length/last20.length:0;
-  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],[T1>0&&T2+T3>=T1-1,"Evaluation = 40% of funded (extra Phase 2 counts)"]];
-  if(p.scale==="simple") grow.splice(2); /* lab option: 3 payouts in a row + no cut, like the planner */
+  const grow=[[consec>=3,`3 payouts in a row (${consec})`],[!lastCut||dnum(todayStr())-dnum(lastCut)>=14,"No funded account cut in 14 days"],[last20.length>=20&&wr20>=0.4,`Win rate 40%+ over last 20 trades (${last20.length?Math.round(wr20*100)+"% of "+last20.length:"none yet"})`],[T1>0&&T2>=0.6*T1-1,"Backup = 60% of funded"],...(isInst(p)?[]:[[T1>0&&T2+T3>=T1-1,"Evaluation = 40% of funded (extra Phase 2 counts)"]])];
+  if(p.scale==="simple") grow.splice(2); /* instant: no Tier 3, so the list ends at Backup = 60% */ /* lab option: 3 payouts in a row + no cut, like the planner */
   const growOk=grow.every(g=>g[0]);
   let lvl=0; while(growOk&&lvl<L.length-1&&T1>=L[lvl+1].unlockT1&&pays>=L[lvl+1].unlockPay) lvl++;
   const provenMax=Math.max(0,...st.accounts.filter(a=>a.phase===3||a.status==="paid").map(a=>L.findIndex(r=>r.size===a.size)));
@@ -103,9 +105,9 @@ function portfolio(st){
   const fee=(L.find(r=>r.size===buySize)||{fee:guessFee(buySize)}).fee;
   /* guide: Tier 2 = 60% and Tier 3 = 40% of Tier 1 before Tier 1 grows, so while growing stock the bench for one more account */
   const growS=T1>0&&T1<p.target?buySize:0, base1=Math.min(T1,p.target);
-  const pipeTarget=Math.max(base1+2*growS,p.n0*p.s0);
-  const tgtB=base1+growS, needT3=T1>0?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
-  const stocked=T1>0&&T2>=0.6*T1-1&&T2+T3>=T1-1;
+  const inst=isInst(p), pipeTarget=inst?Math.max(T1>0?0.6*(base1+growS)+growS:0,Math.max(0,p.n0*p.s0-T1)):Math.max(base1+2*growS,p.n0*p.s0);
+  const tgtB=base1+growS, needT3=T1>0&&!inst?Math.max(0,0.4*tgtB-Math.max(0,T2-(0.6*tgtB+growS))-T3):0, needPipe=Math.max(0,pipeTarget-T2-T3);
+  const stocked=stockOK(p,T1,T2,T3);
   const rate=reinvRate(p,T1,stocked);
   /* edge check: once 30+ trades are logged, stop buying new tests while the average trade loses money */
   const edge=edgeOf(st.trades.map(w=>w?p.rr:-1)), noEdge=p.edgeGate!==false&&edge.state==="none";
@@ -184,10 +186,10 @@ function tkRenderInner(){
   if(pf.done) next=pf.stocked?{t:"Goal reached. Switch to income mode.",s:`Keep 70% of payouts. Use 30% to replace any account you lose.`}:{t:"Goal reached. Finish stocking the bench.",s:`Payouts keep going to Reinvestment until Tier 2 = 60% and Tier 3 = 40% of Tier 1. Then you keep 70%.`};
   else if(!st.accounts.some(a=>a.status==="active")&&st.pool<Math.min(...p.ladder.map(r=>r.fee))) next={t:"Every test failed and Reinvestment is empty",s:"The guide says no new personal money after the first tests. Stop, review your trades, and only start again with a fresh plan."};
   else if(pf.noEdge&&pf.needRaw>0){ next={t:"Stop buying tests: no edge right now",s:edgeLine(pf.edge)+" Keep trading your current accounts with the same small risk.",btn:false}; }
-  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} evaluation (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
+  else if(pf.need>0){ const can=st.pool>=pf.fee; next={t:`Buy 1 × ${fmt(pf.buySize)} ${isInst(p)?"instant account":"evaluation"} (${fmtFull(pf.fee)})`,s:(can?`You have ${fmtFull(st.pool)} in Reinvestment. Buy it now.`:`Reinvestment has ${fmtFull(st.pool)}. You need ${fmtFull(pf.fee-st.pool)} more from your next payout.`)+(pf.note?" "+pf.note:""),btn:can}; }
   else if(pf.T1===0) next={t:"Step 1: pass your evaluations",s:"No new buys yet. Trade only the account marked TRADE, at the risk shown. When one passes Phase 2 it becomes funded."};
   else next={t:"Keep trading. Your tiers are full.",s:pf.note||`Payouts now split ${Math.round(pf.rate*100)}% back into Reinvestment, ${Math.round((1-pf.rate)*100)}% to you.`};
-  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],["Evaluation",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]];
+  const tiers=[["Funded",pf.T1,p.target,"t1"],["Backup",pf.T2,Math.max(pf.T1,p.n0*p.s0)*0.6,"t2"],...(isInst(p)?[]:[["Evaluation",pf.T3,Math.max(pf.T1,p.n0*p.s0)*0.4,"t3"]])];
   o.innerHTML=`
   <div class="fx">
     <div class="fx-head"><div><span class="kicker">Today · ${fmtDate(todayStr())}${p.firm?" · "+esc(p.firm):""}</span><h2 style="font-size:clamp(26px,3.4vw,40px);margin-top:6px">${nAct?`${nAct} thing${nAct>1?"s":""} to do first`:nTrade===1?`Trade only ${esc(adv.find(x=>["trade","recover"].includes(x.v.kind)).a.name)} today`:nTrade?`Trade ${nTrade} accounts today`:"Rest day. No trades today."}</h2></div><span class="tk-savew"><span class="fbadge" id="tkSave">${TK.store.kind==="test"?"Test data only":TK.store.kind==="cloud"?"Saved to your account":"Saved in this browser"}</span>${TK.store.kind==="local"&&!TK.test&&window.TSAuth&&window.TSAuth.sb?`<button type="button" class="tk-cloud" data-signup="up">Save to a free account</button>`:""}</span></div>
@@ -210,7 +212,7 @@ function tkRenderInner(){
   <div class="tk-list">${adv.map(({a,v})=>{
     const lo=v.cutUsd, hi=v.tgtUsd, pos=Math.max(0,Math.min(100,(a.bal-lo)/(hi-lo)*100)), zero=Math.max(0,Math.min(100,(a.size-lo)/(hi-lo)*100));
     return `<div class="tk-acc k-${v.kind}" data-id="${a.id}">
-      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${PH[a.phase]}${a.firm?" · "+esc(a.firm):""} · ${a.days.length}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
+      <div class="tk-a1"><span class="tk-tier" style="background:var(--${PHC[a.phase]});color:var(--${PHC[a.phase]}-ink)">${a.phase===3?"T1":a.phase===2?"T2":"T3"}</span><div class="tk-nm"><b>${esc(a.name)}</b><span>${phName(a,p)}${a.firm?" · "+esc(a.firm):""} · ${a.days.length}/${p.mindays} days</span></div><span class="tk-pill">${v.pill}</span></div>
       <div class="tk-do"><b>${v.title}</b><p>${v.text}</p></div>
       <div class="tk-meter"><div class="tk-track"><i class="z" style="left:${zero}%"></i><i class="m" style="left:${pos}%"></i></div><div class="tk-ends"><span>Cut ${fmt(lo)}</span><span class="${v.pct>=0?"up":"dn"}">${fmtFull(a.bal)} (${v.pct>=0?"+":""}${v.pct.toFixed(1)}%)</span><span>${a.phase===3?"Payout":"Pass"} ${fmt(hi)}</span></div></div>
       <div class="tk-acts">
@@ -225,9 +227,9 @@ function tkRenderInner(){
 
   <div class="g2f">
     <div class="card"><h3 class="ct">Tier balance</h3>${tiers.map(t=>{ const w=t[2]>0?Math.min(100,t[1]/t[2]*100):0; return `<div class="tk-tb"><div class="tk-gtop"><span><i class="dotl" style="background:var(--${t[3]})"></i>${t[0]}</span><span>${fmt(t[1])} / ${fmt(t[2])}</span></div><div class="tk-bar sm"><i style="width:${w}%;background:var(--${t[3]})"></i></div></div>`; }).join("")}
-      <p class="hint">Backup must reach 60% and Evaluation 40% of Funded before you take money home.</p>
+      <p class="hint">${isInst(p)?"Instant plan: Backup (bought, not trading) must reach 60% of Funded before you take money home.":"Backup must reach 60% and Evaluation 40% of Funded before you take money home."}</p>
       ${pf.T1>0?`<div class="tk-grow"><b>Ready to grow to bigger accounts? ${pf.growOk?"Yes":"Not yet"}</b><ul>${pf.grow.map(g=>`<li class="${g[0]?"ok":"no"}">${g[0]?"✓":"✗"} ${esc(g[1])}</li>`).join("")}</ul></div>`:""}
-      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><input class="tk-firm" id="tkAddFirm" list="tkFirmList" placeholder="Firm" value="${esc(firmSuggest(st)||p.firm||"")}" aria-label="Firm"><button class="btn ghost sm" data-tk="add">Add evaluation</button></div></div>
+      <div class="tk-add"><select id="tkAddSize" aria-label="Evaluation size">${p.ladder.map(r=>`<option value="${r.size}" data-fee="${r.fee}">${fmt(r.size)} · ${fmtFull(r.fee)}</option>`).join("")}</select><input class="tk-firm" id="tkAddFirm" list="tkFirmList" placeholder="Firm" value="${esc(firmSuggest(st)||p.firm||"")}" aria-label="Firm"><button class="btn ghost sm" data-tk="add">${isInst(p)?"Add instant account":"Add evaluation"}</button></div></div>
     <div class="card tk-remind"><h3 class="ct">Daily reminder</h3><p class="hint" style="margin-top:-6px">Get an alarm every morning that opens this coach. No account needed.</p>
       <label class="f" for="tkTime">Remind me at<input type="time" id="tkTime" value="${esc(st.remind||"08:00")}"></label>
       <div class="tk-rbtns"><a class="btn gold sm" id="tkCalG" href="${calLinks(st.remind).g}" target="_blank" rel="noopener">Add to Google Calendar</a>${window.claude&&window.claude.use?"":`<a class="btn ghost sm" id="tkCalI" href="${calLinks(st.remind).ics}" download="tierstack-coach.ics">Apple / Outlook calendar</a>`}</div>
@@ -263,8 +265,9 @@ function doPayout(a,amt){ const st=TK.state, pf=portfolio(st);
   const re=amt*pf.rate; st.pool+=re; st.personal+=amt-re; st.payouts.push({d:todayStr(),id:a.id,amt,rate:pf.rate,stocked:pf.stocked,T1:pf.T1}); a.bal=a.size; a.dayStart=a.size; a.days=[]; a.rec=-1; a.cyc={s:todayStr(),b:a.size}; a.pt=TK.test?lockPick(st.p,Math.random()):0;
   log(`Payout ${fmtFull(amt)} from ${a.name}: ${fmtFull(re)} to Reinvestment, ${fmtFull(amt-re)} for you.`); return {re,home:amt-re,rate:pf.rate,stocked:pf.stocked}; }
 function doCut(a){ const st=TK.state; a.status="failed"; st.cuts.push({d:todayStr(),phase:a.phase,id:a.id,size:a.size,pct:Math.round((a.bal-a.size)/a.size*1000)/10}); log(`${a.name} closed${a.phase===3?". A passed account on the bench goes live in its place.":". Buy a new evaluation when Reinvestment allows."}`); if(a.phase===3&&!TK.test) promoteReady(st); }
-function doBuy(size,fee,firm){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; if(st.own==null) st.own=st.p.n0*st.p.ladder[0].fee; st.own+=fee-fromPool; const a=newAcct(size,1,st); a.firm=firm!=null&&firm!==""?firm:(typeof firmSuggest==="function"&&firmSuggest(st))||st.p.firm||""; st.accounts.push(a);
-  log(`Bought ${a.name}${a.firm?" at "+a.firm:""} evaluation for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
+function doBuy(size,fee,firm){ const st=TK.state; const fromPool=Math.min(st.pool,fee); st.pool-=fromPool; st.spent+=fee; if(st.own==null) st.own=st.p.n0*st.p.ladder[0].fee; st.own+=fee-fromPool; const inst=isInst(st.p), a=newAcct(size,inst?2:1,st); if(inst) a.ready=true; a.firm=firm!=null&&firm!==""?firm:(typeof firmSuggest==="function"&&firmSuggest(st))||st.p.firm||""; st.accounts.push(a);
+  if(inst&&!TK.test) promoteOne(a);
+  log(`Bought ${a.name}${a.firm?" at "+a.firm:""} ${inst?"instant account":"evaluation"} for ${fmtFull(fee)}${fromPool<fee?` (${fmtFull(fee-fromPool)} from your pocket)`:" from Reinvestment"}.`); return a; }
 function autoPass(a){ const st=TK.state; if(a.status!=="active"||a.phase>=3) return false; const r=rulesFor(a,st.p), pct=(a.bal-a.size)/a.size*100;
   if(a.ready) return promoteOne(a);
   if(pct>=r.tgt-1e-9&&a.days.length>=st.p.mindays){
@@ -275,7 +278,7 @@ function canPromote(st,a){ const p=st.p, act=st.accounts.filter(x=>x.status==="a
   const T1=sum(3), T2=sum(2)-a.size, T3=sum(1), nT1=T1+a.size; if(T1>=p.target) return false;
   if(nT1<=Math.max(p.n0*p.s0,st.peak||0)) return true;
   const g=portfolio(st).grow, gate=g[0][0]&&g[1][0]&&(p.scale==="simple"||g[2][0]);
-  return gate&&T2>=0.6*nT1-1&&T2+T3>=nT1-1; }
+  return gate&&growStock(p,nT1,T2,T3); }
 function promoteOne(a){ const st=TK.state; if(!a.ready||a.status!=="active"||a.phase!==2||!canPromote(st,a)) return false;
   a.ready=false; passAcct(a); st.peak=Math.max(st.peak||0,st.accounts.filter(x=>x.status==="active"&&x.phase===3).reduce((s,x)=>s+x.size,0)); return true; }
 function promoteReady(st){ let ch=false; st.accounts.filter(x=>x.ready&&x.status==="active"&&x.phase===2).forEach(x=>{ if(promoteOne(x)) ch=true; }); return ch; }
